@@ -1,0 +1,138 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model superadmin {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  password      String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+model bengkel {
+  id         String   @id @default(cuid())
+  username   String   @unique
+  password   String
+  email      String
+  phone      String?
+  alamat     String?
+  foto       String?
+  status     String
+  gmapsLink  String? 
+  layanan_bengkels layanan[]
+  invoices        invoice[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model user {
+  id         String   @id @default(cuid())
+  username   String   @unique
+  password   String
+  email      String
+  phone      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  transaksis transaksi[]
+  servicetogo_requests servicetogoRequest[]
+  tokens     token[]
+}
+
+model layanan {
+  id          String   @id @default(cuid())
+  nama        String
+  deskripsi   String
+  harga       Float
+  kontak      String
+  bengkel_id  String
+  bengkel     bengkel @relation(fields: [bengkel_id], references: [id])
+}
+
+model sukucadang {
+  id          String   @id @default(cuid())
+  nama        String
+  deskripsi   String
+  merek       String
+  harga       Float
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  transaksis_sukucadang transaksiSukucadang[]
+}
+
+model transaksi {
+  id                 String   @id @default(cuid())
+  user_id            String
+  total_harga        Float
+  bukti_pembayaran   String
+  status             status   @default(Pending)
+  alamat             String
+  created_at         DateTime @default(now())
+  updated_at         DateTime @default(now())
+  user               user     @relation(fields: [user_id], references: [id])
+  transaksis_sukucadang transaksiSukucadang[]
+}
+
+model transaksiSukucadang {
+  id                 String   @id @default(cuid())
+  transaksi_id       String
+  sukucadang_id      String
+  quantity           Int
+  transaksi          transaksi @relation(fields: [transaksi_id], references: [id])
+  sukucadang         sukucadang @relation(fields: [sukucadang_id], references: [id])
+
+  @@unique([transaksi_id, sukucadang_id])
+}
+
+model servicetogo {
+  id          String   @id @default(cuid())
+  nama        String
+  deskripsi   String
+  harga       Float
+  kontak      String
+}
+
+model invoice {
+  id          String   @id @default(cuid())
+  bengkel_id  String
+  amount      Float
+  status         status   @default(Pending)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  bengkel     bengkel @relation(fields: [bengkel_id], references: [id])
+}
+
+model token {
+  id          String   @id @default(cuid())
+  user_id     String
+  token       String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  user        user @relation(fields: [user_id], references: [id])
+}
+
+model servicetogoRequest {
+  id             String   @id @default(cuid())
+  user_id        String
+  gmapsLink      String? 
+  deskripsi      String
+  status         status   @default(Pending)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now())
+  user           user     @relation(fields: [user_id], references: [id])
+}
+
+enum status {
+  Pending
+  Diterima
+  Ditolak
+}
+enum statusBengkel {
+  Aktif
+  TidakAktif
+}
