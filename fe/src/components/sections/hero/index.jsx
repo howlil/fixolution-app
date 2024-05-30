@@ -8,7 +8,7 @@ export default function Hero() {
     <section className="relative w-full h-screen">
       <Slideshow slides={slides} />
       <div className="absolute bottom-28  w-full flex justify-center">
-        <Button costum ="px-16 py-1" variant="primary">
+       <Button custom="px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-1" variant="primary">
           Cari Sekarang!
         </Button>
       </div>

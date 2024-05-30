@@ -34,8 +34,8 @@ const Slideshow = ({ slides }) => {
           >
             <img src={slide.img} alt={slide.text} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col justify-center items-center text-white text-center p-4">
-              <h1 className="text-4xl font-normal mb-8">{restOfText} <span className="font-bold">{lastWord}</span></h1>
-              <p className="text-3xl font-light w-9/12 leading-normal">{slide.subtext}</p>
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-normal mb-8">{restOfText} <span className="font-bold">{lastWord}</span></h1>
+              <p className="text-sm sm:text-md md:text-lg lg:text-xl xl:text-2xl font-light w-9/12 leading-normal">{slide.subtext}</p>
             </div>
           </div>
         );
