@@ -44,34 +44,20 @@ export const slides = [
   export const navDataAdmin = [
     {
       href: '/dashboard',
-      icon: 'LayoutDashboard ',
+      icon: 'LayoutDashboard',
       label: 'Dasboard'
     },
     {
-      href: '/dashboard',
-      icon: 'LayoutDashboard ',
-      label: 'Dasboard'
+      href: '/manajemenBengkel',
+      icon: 'Warehouse',
+      label: 'Manage Bengkel'
     },
     {
-      href: '/dashboard',
-      icon: 'LayoutDashboard ',
-      label: 'Dasboard'
+      href: '/manajemenSukuCadang',
+      icon: 'PackageSearch',
+      label: 'Suku Cadang'
     },
-    {
-      href: '/dashboard',
-      icon: 'LayoutDashboard ',
-      label: 'Dasboard'
-    },
-    {
-      href: '/dashboard',
-      icon: 'LayoutDashboard ',
-      label: 'Dasboard'
-    },
-    {
-      href: '/dashboard',
-      icon: 'LayoutDashboard ',
-      label: 'Dasboard'
-    },
+
     
     
   ]

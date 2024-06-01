@@ -20,16 +20,16 @@ export default function ActiveRoute({ href, icon, label }) {
     e.preventDefault();
     navigate(href);
   };
-  const activeClass = isActive ? "bg-second  " : "";
+  const activeClass = isActive ? "bg-second rounded-xl " : "";
 
   return (
     <>
       <section
-        className={`${activeClass} py-3 mx-4 px-8 rounded-lg hover:bg-base ts flex gap-x-2`}
+        className={`${activeClass} py-3 mx-4 px-8 rounded-xl hover:bg-second ts flex gap-x-2`}
         onClick={onClick}
       >
-        <Icon name={icon} size={24} color="black" />
-        <Link className="font-semibold text-base" to={href}>
+        <Icon name={icon} size={24} color="white" />
+        <Link className="font-normal text-white" to={href}>
           {label}
         </Link>
       </section>

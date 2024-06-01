@@ -92,62 +92,60 @@ exports.registerUser = async (req, res) => {
 
 exports.login = async (req, res) => {
     const schema = yup.object().shape({
-        username: yup.string().min(3).max(30).required(),
-        password: yup.string().min(3).max(30).required(),
+      username: yup.string().min(3).max(30).required(),
+      password: yup.string().min(3).max(30).required(),
     });
-
+  
     try {
-        await schema.validate(req.body);
-
-        const { username, password } = req.body;
-
-        const superadmin = await prisma.superadmin.findUnique({ where: { username } });
-        const user = await prisma.user.findUnique({ where: { username } });
-        const bengkel = await prisma.bengkel.findUnique({ where: { username } });
-
-        let account = superadmin || user || bengkel;
-        let userType = superadmin ? 'superadmin' : user ? 'user' : 'bengkel';
-
-        if (!account) {
-            return res.status(401).json({
-                message: "Invalid username or password",
-                data: null,
-                success: false,
-            });
-        }
-
-        const isValidPassword = await bcrypt.compare(password, account.password);
-
-        if (!isValidPassword) {
-            return res.status(401).json({
-                message: "Invalid username or password",
-                data: null,
-                success: false,
-            });
-        }
-
-        const token = createToken(account, userType);
-
-        res.status(200).json({
-            message: "Login successful",
-            data: { token },
-            success: true,
+      await schema.validate(req.body);
+  
+      const { username, password } = req.body;
+  
+      const superadmin = await prisma.superadmin.findUnique({ where: { username } });
+      const user = await prisma.user.findUnique({ where: { username } });
+      const bengkel = await prisma.bengkel.findUnique({ where: { username } });
+  
+      let account = superadmin || user || bengkel;
+      let userType = superadmin ? 'superadmin' : user ? 'user' : 'bengkel';
+  
+      if (!account) {
+        return res.status(401).json({
+          message: "Invalid username or password",
+          data: null,
+          success: false,
         });
+      }
+  
+      const isValidPassword = await bcrypt.compare(password, account.password);
+  
+      if (!isValidPassword) {
+        return res.status(401).json({
+          message: "Invalid username or password",
+          data: null,
+          success: false,
+        });
+      }
+  
+      const token = createToken(account, userType);
+  
+      res.status(200).json({
+        message: "Login successful",
+        data: { token },
+        success: true,
+      });
     } catch (error) {
-        console.error('Login Error:', error);
-
-        if (error instanceof yup.ValidationError) {
-            res.status(400).json({
-                message: error.errors[0],
-                data: null,
-                success: false,
-            });
-        } else {
-            res.status(500).json({
-                message: "Internal Server Error",
-                data: null,
-                success: false,
-            });
-        }
+      console.error('Login Error:', error);
+  
+      if (error instanceof yup.ValidationError) {
+        res.status(400).json({
+          message: error.errors[0],
+          success: false,
+        });
+      } else {
+        res.status(500).json({
+          message: "Internal Server Error",
+          success: false,
+        });
+      }
     }
-};
+  }

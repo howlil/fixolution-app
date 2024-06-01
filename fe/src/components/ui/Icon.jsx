@@ -1,7 +1,12 @@
-import { icons } from 'lucide-react';
+import * as Icons from 'lucide-react';
 
 const Icon = ({ name, color, size }) => {
-  const LucideIcon = icons[name];
+  const LucideIcon = Icons[name];
+
+  if (!LucideIcon) {
+    console.error(`Icon ${name} not found in lucide-react`);
+    return null;
+  }
 
   return <LucideIcon color={color} size={size} />;
 };

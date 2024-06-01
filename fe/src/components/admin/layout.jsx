@@ -6,7 +6,7 @@ export default function Layout({children}) {
         <aside className="bg-base h-full w-[280px] absolute ">
             <SidebarIndex />
         </aside>
-        <main className="ml-[280px] pt-16 px-8 ">
+        <main className="ml-[280px] pt-16 px-16 ">
             {children}
         </main>
     </section>
