@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         base: "#0EA9C5",
+        col: "#0EA9C5",
         second: "#04343D",
         warning: "#BF3131",
         accept: "#31BF72",

@@ -41,3 +41,38 @@ export const slides = [
     }
   ]
   
+  export const navDataAdmin = [
+    {
+      href: '/dashboard',
+      icon: 'LayoutDashboard ',
+      label: 'Dasboard'
+    },
+    {
+      href: '/dashboard',
+      icon: 'LayoutDashboard ',
+      label: 'Dasboard'
+    },
+    {
+      href: '/dashboard',
+      icon: 'LayoutDashboard ',
+      label: 'Dasboard'
+    },
+    {
+      href: '/dashboard',
+      icon: 'LayoutDashboard ',
+      label: 'Dasboard'
+    },
+    {
+      href: '/dashboard',
+      icon: 'LayoutDashboard ',
+      label: 'Dasboard'
+    },
+    {
+      href: '/dashboard',
+      icon: 'LayoutDashboard ',
+      label: 'Dasboard'
+    },
+    
+    
+  ]
+  

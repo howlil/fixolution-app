@@ -1,7 +1,7 @@
 const { prisma } = require('../../configs/prisma');
 const bcrypt = require('bcrypt');
 const yup = require('yup');
-const createToken = require('../../utils/token');
+const {createToken} = require('../../utils/token');
 
 exports.registerSuperadmin = async (req, res) => {
     const superadminSchema = yup.object().shape({
