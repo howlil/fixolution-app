@@ -2,7 +2,6 @@ const { prisma } = require('../../configs/prisma');
 const yup = require('yup');
 
 
-
 exports.addBengkel = async (req, res) => {
     const bengkelSchema = yup.object().shape({
         namaBengkel: yup.string().required(),

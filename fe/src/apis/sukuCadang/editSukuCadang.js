@@ -1,32 +1,31 @@
-export default async function LoginAkun( username, password ) {
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");  
+export default async function editSukuCadang( nama, deskripsi, harga, stok, fileInput,id) {
+  const myHeaders = new Headers();
+  const token = localStorage.getItem("token");
+  myHeaders.append("Authorization", `Bearer ${token}`);
 
-console.log(username, password);
-const raw = JSON.stringify({
-  "username": username,
-  "password": password
-});
-  
+const formdata = new FormData();
+formdata.append("nama", nama);
+formdata.append("deskripsi", deskripsi);
+formdata.append("harga", harga);
+formdata.append("stok", stok);
+formdata.append("foto", fileInput);
+
 const requestOptions = {
-  method: "POST",
-  headers: myHeaders,
-  body: raw,
-  redirect: "follow"
+method: "PUT",
+headers: myHeaders,
+body: formdata,
+redirect: "follow"
 };
 
-    try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/login`;
-      const response = await fetch(apiUrl, requestOptions);
-      const data = await response.json();
-      const token = data.data.token;
-  
-      if (token) {
-        localStorage.setItem("token", token);
-      }
-      return data;
-    } catch (error) {
-      console.error("Fetch error:", error);
-      throw error;
-    }
+  try {
+    const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/editSukuCadang/${id}`;
+    const response = await fetch(apiUrl, requestOptions);
+    const data = await response.json();
+    console.log(data);
+
+    return data;
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
   }
+}

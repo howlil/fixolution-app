@@ -4,21 +4,21 @@ const getNestedProperty = (obj, path) => {
   return path.split('.').reduce((obj, key) => (obj && obj[key] !== 'undefined') ? obj[key] : undefined, obj);
 }
 
-const Table = ({ columns, data, onEdit, onDelete }) => {
+const Tables = ({ columns, data, onEdit, onDelete }) => {
   return (
-    <table className="w-full">
-      <thead className="bg-orange-50">
+    <table className="w-full  ">
+      <thead className="bg-neutral-100  rounded-t-lg">
         <tr>
-          <th>No</th>
+          <th className=" font-semibold">No</th>
           {columns.map((column, index) => (
-            <th className="py-2 text-start pl-4" key={index}>{column.header}</th>
+            <th className="py-2  font-semibold text-start pl-4" key={index}>{column.header}</th>
           ))}
-          <th className="text-end pr-6">Aksi</th>
+          <th className="text-end  font-semibold  pr-6">Aksi</th>
         </tr>
       </thead>
       <tbody>
         {data.map((row, rowIndex) => (
-          <tr className="border-b border-neutral-100" key={rowIndex}>
+          <tr className="border-b border-neutral-300" key={rowIndex}>
             <td className="text-center">{rowIndex + 1}</td> 
             {columns.map((column, colIndex) => (
               <td className="py-2 text-start pl-4" key={colIndex}>{getNestedProperty(row, column.accessor)}</td>
@@ -38,4 +38,4 @@ const Table = ({ columns, data, onEdit, onDelete }) => {
   );
 };
 
-export default Table;
+export default Tables;

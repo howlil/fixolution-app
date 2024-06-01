@@ -3,18 +3,20 @@ const yup = require('yup');
 const multer = require('multer');
 const path = require('path');
 
-
-exports.addSukucadang = async (req, res) => {
-    
 const sukucadangSchema = yup.object().shape({
     nama: yup.string().required(),
-    barang: yup.string().required(),
     deskripsi: yup.string().required(),
-    merek: yup.string().required(),
     harga: yup.number().required().positive(),
+    stok: yup.number().required().min(1),
+    foto: yup.string().required()
 });
+
+exports.addSukucadang = async (req, res) => {
     try {
-        const validData = await sukucadangSchema.validate(req.body);
+        const validData = await sukucadangSchema.validate({
+            ...req.body,
+            foto: req.file ? req.file.filename : undefined
+        });
 
         const newSukucadang = await prisma.sukucadang.create({
             data: validData,
@@ -43,46 +45,41 @@ const sukucadangSchema = yup.object().shape({
     }
 };
 
-
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      if (file.fieldname === "foto") {
-        cb(null, path.join(__dirname, "../../../public/images/sukucadang"));
-      }
+        if (file.fieldname === "foto") {
+            cb(null, path.join(__dirname, "../../../public/images/sukucadang"));
+        }
     },
     filename: function (req, file, cb) {
-      cb(null, file.originalname);
+        cb(null, file.originalname);
     },
-  });
+});
 
-  const fileFilter = function (req, file, cb) {
-  if (file.fieldname === "foto") {
-    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (!allowedTypes.includes(file.mimetype)) {
-      const error = new multer.MulterError("LIMIT_UNEXPECTED_FILE");
-      error.message = "Jenis File Tidak Diizinkan, Hanya JPEG dan PNG yang Diizinkan";
-      return cb(error, false);
+const fileFilter = function (req, file, cb) {
+    if (file.fieldname === "foto") {
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+        if (!allowedTypes.includes(file.mimetype)) {
+            const error = new multer.MulterError("LIMIT_UNEXPECTED_FILE");
+            error.message = "Jenis File Tidak Diizinkan, Hanya JPEG dan PNG yang Diizinkan";
+            return cb(error, false);
+        }
+    } else {
+        cb(new Error("Invalid field name"), false);
     }
-  } else {
-    cb(new Error("Invalid field name"), false);
-  }
-  cb(null, true);
+    cb(null, true);
 };
 
 exports.uploadFoto = multer({ storage: storage, fileFilter: fileFilter }).single("foto");
 
 
 exports.editSukucadang = async (req, res) => {
-    const editSukucadangSchema = yup.object().shape({
-        nama: yup.string().required(),
-        barang: yup.string().required(),
-        deskripsi: yup.string().required(),
-        merek: yup.string().required(),
-        harga: yup.number().required().positive(),
-    });
     try {
-        const validData = await editSukucadangSchema.validate(req.body);
         const { id } = req.params;
+        const validData = await sukucadangSchema.validate({
+            ...req.body,
+            foto: req.file ? req.file.filename : undefined
+        });
 
         const updatedSukucadang = await prisma.sukucadang.update({
             where: { id },
@@ -111,6 +108,7 @@ exports.editSukucadang = async (req, res) => {
         }
     }
 };
+
 exports.deleteSukucadang = async (req, res) => {
     try {
         const { id } = req.params;

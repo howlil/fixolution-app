@@ -90,7 +90,9 @@ exports.registerUser = async (req, res) => {
     }
 };
 
-exports.login = async (req, res) => {
+
+
+  exports.login = async (req, res) => {
     const schema = yup.object().shape({
       username: yup.string().min(3).max(30).required(),
       password: yup.string().min(3).max(30).required(),
@@ -128,6 +130,15 @@ exports.login = async (req, res) => {
   
       const token = createToken(account, userType);
   
+      await prisma.token.create({
+        data: {
+          token: token,
+          user_id: user ? user.id : null,
+          admin_id: superadmin ? superadmin.id : null,
+          bengkel_id: bengkel ? bengkel.id : null
+        },
+      });
+  
       res.status(200).json({
         message: "Login successful",
         data: { token },
@@ -148,4 +159,4 @@ exports.login = async (req, res) => {
         });
       }
     }
-  }
+  };

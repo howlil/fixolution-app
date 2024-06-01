@@ -13,7 +13,7 @@ model superadmin {
   password      String
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
-  tokens     token[]
+  tokens        token[]
 
 }
 
@@ -113,16 +113,17 @@ model invoice {
 
 model token {
   id          String   @id @default(cuid())
-  user_id     String
-  admin_id    String
-  bengkel_id  String
-  token       String
+  user_id     String?
+  admin_id    String?
+  bengkel_id  String?
+  token       String  @db.Text
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
-  user        user @relation(fields: [user_id], references: [id])
-  superadmin       superadmin @relation(fields: [admin_id], references: [id])
-  bengkel     bengkel @relation(fields: [bengkel_id], references: [id])
+  user        user? @relation(fields: [user_id], references: [id])
+  superadmin  superadmin? @relation(fields: [admin_id], references: [id])
+  bengkel     bengkel? @relation(fields: [bengkel_id], references: [id])
 }
+
 
 model servicetogoRequest {
   id             String   @id @default(cuid())

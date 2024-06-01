@@ -7,14 +7,15 @@ export default function InputImg({ label, onSelectImage, linkImage }) {
   useEffect(() => {
     if (linkImage) {
       setApiImage(linkImage);
+      setFileName(linkImage.split('/').pop()); 
     }
   }, [linkImage]);
 
   const handleChange = (e) => {
-    const file = e.target.files;
+    const file = e.target.files[0];
     if (file) {
-      setFileName(file[0].name);
-      onSelectImage(file[0]);
+      setFileName(file.name);
+      onSelectImage(file);
     } else {
       setFileName("Error");
     }
@@ -25,9 +26,9 @@ export default function InputImg({ label, onSelectImage, linkImage }) {
   };
 
   return (
-    <div className="flex  flex-col">
+    <div className="flex flex-col">
       <label className="font-normal text-neutral-800 text-md">{label}</label>
-      <div className="flex items-center border rounded-xl border-neutral-900 ">
+      <div className="flex items-center border rounded-xl border-neutral-900">
         <input
           className="hidden"
           type="file"
@@ -35,13 +36,13 @@ export default function InputImg({ label, onSelectImage, linkImage }) {
           accept="image/*"
           name="image"
           id="image"
-          required
+          required={!apiImage} // Only required if there is no existing image
         />
-        <button onClick={handleClick} className="py-2 px-4 mr-3   bg-base rounded-l-xl text-white ">
+        <button type="button" onClick={handleClick} className="py-2 px-4 mr-3 bg-base rounded-l-xl text-white">
           Upload
         </button>
         <span className="text-sm text-gray-700">
-          {fileName ? fileName : apiImage ? apiImage : "Upload an image"}
+          {fileName ? fileName : "Upload gambar"}
         </span>
       </div>
     </div>

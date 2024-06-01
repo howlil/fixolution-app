@@ -8,7 +8,7 @@ export default function ModalDelete({ onClose, onDelete }) {
   return (
     <div
       id="modal-backdrop"
-      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+      className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center"
       onClick={onClose}
     >
       <div
@@ -19,10 +19,10 @@ export default function ModalDelete({ onClose, onDelete }) {
           Yakin Mau Hapus data ini?
         </h1>
         <section className="mt-6 flex justify-center gap-4">
-          <Button variant="danger" onClick={onDelete}>
+          <Button variant="danger" custom="w-full" onClick={onDelete}>
             Hapus
           </Button>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="accept"  custom="w-full" onClick={onClose}>
             Batal
           </Button>
         </section>

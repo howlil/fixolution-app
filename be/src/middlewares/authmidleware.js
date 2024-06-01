@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const prisma = require("../configs/prisma");
 
+
 exports.authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
@@ -18,7 +19,8 @@ exports.authenticateToken = async (req, res, next) => {
         message: "Token tidak ditemukan dalam header",
       });
 
-    jwt.verify(token, process.env.ACCESS_SECRET_KEY, async (err, decoded) => {
+
+    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
       if (err) {
         return res.status(401).json({
           success: false,
@@ -26,9 +28,10 @@ exports.authenticateToken = async (req, res, next) => {
         });
       }
 
-      const isToken = await prisma.token.findFirst({
+     const isToken=  await prisma.prisma.token.findFirst({
         where: { token },
-      });
+      })
+
 
       if (!isToken) {
         return res.status(401).json({

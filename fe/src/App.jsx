@@ -58,6 +58,14 @@ export default function App() {
               </ProtectRoute>
             }
           />
+          <Route
+            path="/manajemenSukuCadang/editSukuCadang/:id"
+            element={
+              <ProtectRoute>
+                <ProtectedAddSukuCadang />
+              </ProtectRoute>
+            }
+          />
         </Routes>
       </ActiveRouteProvider>
     </Router>

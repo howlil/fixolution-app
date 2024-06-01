@@ -20,6 +20,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/', server.auth);
 app.use('/api/', server.adminBengkel);
+app.use('/api/', server.sukuCadang);
+
 
 
 app.use((req, res, next) => {
