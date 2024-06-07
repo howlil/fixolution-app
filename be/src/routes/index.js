@@ -1,6 +1,6 @@
-const auth = require("./auth/authRoute");
 const adminBengkel = require("./admin/BengkelRoute");
 const sukuCadang = require("./admin/SukuCadangRoute");
+const auth = require("./auth/authRoute");
 
 const server = {};
 server.auth = auth;

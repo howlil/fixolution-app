@@ -8,10 +8,16 @@ const getUserType = () => {
   if (token) {
     const decodedToken = jwtDecode(token);
     const userType = decodedToken.userType;
+    const exp = decodedToken.exp;
+    const now = new Date().getTime() / 1000
+    if (exp < now) {
+      localStorage.removeItem("token");
+      return null;
+    }
     return userType;
   }
-  return null;
-};
+  return null
+}
 
 export function ProtectRoute({ children }) {
   const location = useLocation();

@@ -50,8 +50,6 @@ exports.registerUser = async (req, res) => {
     const userSchema = yup.object().shape({
         username: yup.string().min(3).max(30).required(),
         password: yup.string().min(3).max(30).required(),
-        email: yup.string().email().required(),
-        phone: yup.string().required(),
     });
     try {
         const validData = await userSchema.validate(req.body);
@@ -62,8 +60,6 @@ exports.registerUser = async (req, res) => {
             data: {
                 username: validData.username,
                 password: hashedPassword,
-                email: validData.email,
-                phone: validData.phone,
             },
         });
 

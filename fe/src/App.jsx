@@ -8,14 +8,22 @@ import Dasboard from "./apps/admin/Dasboard";
 import { ProtectRoute, withRole } from "./utils/ProtectRoute";
 import Auth from "./apps/auth";
 import { ActiveRouteProvider } from "./utils/ActiveRouteContext";
-import ManajemenBengkel from "./apps/admin/Bengkel";
 import SukuCadang from "./apps/admin/sukucadang/SukuCadang";
-import AddSukuCadang from "./apps/admin/sukucadang/addSukuCadang";
+import ManajemenBengkel from "./apps/admin/bengkel/Bengkel";
+import ManageBengkel from "./apps/admin/bengkel/ManageBengkel";
+import PesanSukuCadang from "./apps/admin/sukucadang/PesanSukuCadang";
+import TransaksiBengkel from "./apps/admin/bengkel/TransaksiBengkel";
+import ServiceToGo from "./apps/admin/servicetogo/ServiceToGo";
+import ManageSukuCadang from "./apps/admin/sukucadang/ManageSukuCadang";
 
 const ProtectedDasboard = withRole(Dasboard, ['superadmin']);
 const ProtectedManajemenBengkel = withRole(ManajemenBengkel, ['superadmin']);
 const ProtectedSukuCadang = withRole(SukuCadang, ['superadmin']);
-const ProtectedAddSukuCadang = withRole(AddSukuCadang, ['superadmin']);
+const ProtectedManageSukuCadang = withRole(ManageSukuCadang, ['superadmin']);
+const ProtectedManageBengkel = withRole(ManageBengkel, ['superadmin']);
+const ProtectedPesanSukuCadang = withRole(PesanSukuCadang, ['superadmin']);
+const ProtectedServiceToGo = withRole(ServiceToGo, ['superadmin']);
+const ProtectedTransaksiBengkel = withRole(TransaksiBengkel, ['superadmin']);
 
 export default function App() {
   return (
@@ -43,6 +51,22 @@ export default function App() {
             }
           />
           <Route
+            path="/manajemenBengkel/editBengkel/:id"
+            element={
+              <ProtectRoute>
+                <ProtectedManageBengkel />
+              </ProtectRoute>
+            }
+          />
+          <Route
+            path="/manajemenBengkel/addBengkel"
+            element={
+              <ProtectRoute>
+                <ProtectedManageBengkel />
+              </ProtectRoute>
+            }
+          />
+          <Route
             path="/manajemenSukuCadang"
             element={
               <ProtectRoute>
@@ -54,7 +78,7 @@ export default function App() {
             path="/manajemenSukuCadang/AddSukuCadang"
             element={
               <ProtectRoute>
-                <ProtectedAddSukuCadang />
+                <ProtectedManageSukuCadang />
               </ProtectRoute>
             }
           />
@@ -62,7 +86,31 @@ export default function App() {
             path="/manajemenSukuCadang/editSukuCadang/:id"
             element={
               <ProtectRoute>
-                <ProtectedAddSukuCadang />
+                <ProtectedManageSukuCadang />
+              </ProtectRoute>
+            }
+          />
+          <Route
+            path="/pesanSukuCadang"
+            element={
+              <ProtectRoute>
+                <ProtectedPesanSukuCadang />
+              </ProtectRoute>
+            }
+          />
+          <Route
+            path="/serviceToGo"
+            element={
+              <ProtectRoute>
+                <ProtectedServiceToGo />
+              </ProtectRoute>
+            }
+          />
+          <Route
+            path="/transaksiBengkel"
+            element={
+              <ProtectRoute>
+                <ProtectedTransaksiBengkel />
               </ProtectRoute>
             }
           />

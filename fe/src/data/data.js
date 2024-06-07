@@ -57,6 +57,21 @@ export const slides = [
       icon: 'PackageSearch',
       label: 'Suku Cadang'
     },
+    {
+      href: '/pesanSukuCadang',
+      icon: 'ScrollText',
+      label: 'Pesan Suku Cadang'
+    },
+    {
+      href: '/serviceToGo',
+      icon: 'Bike',
+      label: 'Service to Go'
+    },
+    {
+      href: '/transaksiBengkel',
+      icon: 'ShoppingBasket',
+      label: 'Transaksi Bengkel'
+    },
 
     
     

@@ -29,7 +29,7 @@ export default function ActiveRoute({ href, icon, label }) {
         onClick={onClick}
       >
         <Icon name={icon} size={24} color="white" />
-        <Link className="font-normal text-white" to={href}>
+        <Link className="font-normal text-md text-white" to={href}>
           {label}
         </Link>
       </section>

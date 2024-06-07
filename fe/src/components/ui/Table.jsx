@@ -1,5 +1,4 @@
 import { Trash, Edit } from "lucide-react";
-
 const getNestedProperty = (obj, path) => {
   return path.split('.').reduce((obj, key) => (obj && obj[key] !== 'undefined') ? obj[key] : undefined, obj);
 }
@@ -17,7 +16,7 @@ const Tables = ({ columns, data, onEdit, onDelete }) => {
         </tr>
       </thead>
       <tbody>
-        {data.map((row, rowIndex) => (
+        {data?.map((row, rowIndex) => (
           <tr className="border-b border-neutral-300" key={rowIndex}>
             <td className="text-center">{rowIndex + 1}</td> 
             {columns.map((column, colIndex) => (

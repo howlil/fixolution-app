@@ -27,7 +27,7 @@ export default function InputImg({ label, onSelectImage, linkImage }) {
 
   return (
     <div className="flex flex-col">
-      <label className="font-normal text-neutral-800 text-md">{label}</label>
+      <label className="font-normal text-neutral-800 text-md mb-2">{label}</label>
       <div className="flex items-center border rounded-xl border-neutral-900">
         <input
           className="hidden"
@@ -36,7 +36,7 @@ export default function InputImg({ label, onSelectImage, linkImage }) {
           accept="image/*"
           name="image"
           id="image"
-          required={!apiImage} // Only required if there is no existing image
+          required={!apiImage} 
         />
         <button type="button" onClick={handleClick} className="py-2 px-4 mr-3 bg-base rounded-l-xl text-white">
           Upload

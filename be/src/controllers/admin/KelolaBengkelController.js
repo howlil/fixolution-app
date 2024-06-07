@@ -1,185 +1,242 @@
 const { prisma } = require('../../configs/prisma');
 const yup = require('yup');
+const multer = require('multer');
+const path = require('path');
 
+const bengkelSchema = yup.object().shape({
+  namaBengkel: yup.string().required(),
+  username: yup.string().required(),
+  password: yup.string().required(),
+  noHp: yup.string().required(),
+  alamat: yup.string().required(),
+  status: yup.mixed().oneOf(['Aktif', 'TidakAktif']).required(),
+  gmapsLink: yup.string().optional().url(),
+  fotos: yup.array().of(yup.string().required()),
+});
 
 exports.addBengkel = async (req, res) => {
-    const bengkelSchema = yup.object().shape({
-        namaBengkel: yup.string().required(),
-        pemilik: yup.string().required(),
-        nomorTelp: yup.string().required(),
-        alamat: yup.string(),
-        fotoBengkel: yup.string(),
-        status: yup.string().oneOf(['AKTIF', 'TIDAKAKTIF']).required(),
+  try {
+    const validData = await bengkelSchema.validate({
+      ...req.body,
+      fotos: req.files ? req.files.map(file => file.filename) : []
     });
-    try {
-        
-        const validData = await bengkelSchema.validate(req.body);
 
-        const newBengkel = await prisma.bengkel.create({
-            data: {
-                nama: validData.namaBengkel,
-                pemilik: validData.pemilik,
-                nomorTelp: validData.nomorTelp,
-                alamat: validData.alamat || null,
-                foto: validData.fotoBengkel || null,
-                status: validData.status,
-            },
-        });
+    const existingBengkel = await prisma.bengkel.findUnique({
+      where: { username: validData.username }
+    });
 
-        return res.status(201).json({
-            status: 201,
-            message: "Bengkel berhasil ditambahkan",
-            data: newBengkel,
-            success: true,
-        });
-    } catch (err) {
-        if (err instanceof yup.ValidationError) {
-            return res.status(400).json({
-                status: 400,
-                message: err.errors[0],
-                data: null,
-                success: false,
-            });
-        } else {
-            console.error('Database error:', err);
-            return res.status(500).json({
-                status: 500,
-                message: "Database error",
-                data: null,
-                success: false,
-            });
+    if (existingBengkel) {
+      return res.status(400).json({
+        message: "Username sudah ada, gunakan username lain",
+        data: null,
+        success: false,
+      });
+    }
+
+    const newBengkel = await prisma.bengkel.create({
+      data: {
+        ...validData,
+        fotos: {
+          create: validData.fotos.map(foto => ({ foto }))
         }
+      },
+    });
+
+    return res.status(201).json({
+      message: "Bengkel berhasil ditambahkan",
+      data: newBengkel,
+      success: true,
+    });
+  } catch (err) {
+    if (err instanceof yup.ValidationError) {
+      return res.status(400).json({
+        message: err.errors[0],
+        data: null,
+        success: false,
+      });
+    } else {
+      console.error('Database error:', err);
+      return res.status(500).json({
+        message: "Database error",
+        data: null,
+        success: false,
+      });
     }
+  }
 };
 
-exports.deleteBengkel = async (req, res) => {
-    try {
-        const { id } = req.params;
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../../../public/images/bengkel'));
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
 
-        const deletedBengkel = await prisma.bengkel.delete({
-            where: { id },
-        });
-
-        return res.status(200).json({
-            status: 200,
-            message: "Bengkel berhasil dihapus",
-            data: deletedBengkel,
-            success: true,
-        });
-    } catch (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({
-            status: 500,
-            message: "Database error",
-            data: null,
-            success: false,
-        });
-    }
+const fileFilter = function (req, file, cb) {
+  const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+  if (!allowedTypes.includes(file.mimetype)) {
+    const error = new multer.MulterError("LIMIT_UNEXPECTED_FILE");
+    error.message = "Jenis File Tidak Diizinkan, Hanya JPEG dan PNG yang Diizinkan";
+    return cb(error, false);
+  }
+  cb(null, true);
 };
+
+exports.uploadFoto = multer({ 
+  storage: storage, 
+  fileFilter: fileFilter 
+}).array("fotos", 10);
 
 exports.editBengkel = async (req, res) => {
-    const editBengkelSchema = yup.object().shape({
-        namaBengkel: yup.string().required(),
-        pemilik: yup.string().required(),
-        nomorTelp: yup.string().required(),
-        alamat: yup.string(),
-        fotoBengkel: yup.string(),
-        status: yup.string().oneOf(['AKTIF', 'TIDAKAKTIF']).required(),
+  try {
+    const { id } = req.params;
+
+    const validData = await bengkelSchema.validate({
+      ...req.body,
+      fotos: req.files ? req.files.map(file => file.filename) : []
     });
 
-    try {
-        const validData = await editBengkelSchema.validate(req.body);
-        const { id } = req.params;
+    const existingBengkel = await prisma.bengkel.findUnique({
+      where: { id },
+      include: { fotos: true }
+    });
 
-        const updatedBengkel = await prisma.bengkel.update({
-            where: { id },
-            data: {
-                nama: validData.namaBengkel,
-                pemilik: validData.pemilik,
-                nomorTelp: validData.nomorTelp,
-                alamat: validData.alamat || null,
-                foto: validData.fotoBengkel || null,
-                status: validData.status,
-            },
-        });
-
-        return res.status(200).json({
-            status: 200,
-            message: "Bengkel berhasil diperbarui",
-            data: updatedBengkel,
-            success: true,
-        });
-    } catch (err) {
-        if (err instanceof yup.ValidationError) {
-            return res.status(400).json({
-                status: 400,
-                message: err.errors[0],
-                data: null,
-                success: false,
-            });
-        } else {
-            console.error('Database error:', err);
-            return res.status(500).json({
-                status: 500,
-                message: "Database error",
-                data: null,
-                success: false,
-            });
-        }
+    if (!existingBengkel) {
+      return res.status(404).json({
+        message: "Bengkel tidak ditemukan",
+        data: null,
+        success: false,
+      });
     }
+
+    if (validData.fotos.length > 0) {
+      await prisma.foto.deleteMany({
+        where: { bengkelId: id }
+      });
+
+      await prisma.foto.createMany({
+        data: validData.fotos.map(foto => ({
+          foto,
+          bengkelId: id
+        }))
+      });
+    }
+
+    // Update bengkel data excluding photos (fotos are handled separately)
+    const updatedBengkel = await prisma.bengkel.update({
+      where: { id },
+      data: {
+        namaBengkel: validData.namaBengkel,
+        username: validData.username,
+        password: validData.password,
+        noHp: validData.noHp,
+        alamat: validData.alamat,
+        status: validData.status,
+        gmapsLink: validData.gmapsLink
+      }
+    });
+
+    return res.status(200).json({
+      message: "Bengkel berhasil diperbarui",
+      data: updatedBengkel,
+      success: true,
+    });
+  } catch (err) {
+    if (err instanceof yup.ValidationError) {
+      return res.status(400).json({
+        message: err.errors[0],
+        data: null,
+        success: false,
+      });
+    } else {
+      console.error('Database error:', err);
+      return res.status(500).json({
+        message: "Database error",
+        data: null,
+        success: false,
+      });
+    }
+  }
+};
+
+
+exports.deleteBengkel = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedBengkel = await prisma.bengkel.delete({
+      where: { id },
+    });
+
+    return res.status(200).json({
+      message: "Bengkel berhasil dihapus",
+      data: deletedBengkel,
+      success: true,
+    });
+  } catch (err) {
+    console.error('Database error:', err);
+    return res.status(500).json({
+      message: "Database error",
+      data: null,
+      success: false,
+    });
+  }
 };
 
 exports.getAllBengkel = async (req, res) => {
-    try {
-        const bengkels = await prisma.bengkel.findMany();
-
-        return res.status(200).json({
-            status: 200,
-            message: "Berhasil mengambil data semua bengkel",
-            data: bengkels,
-            success: true,
-        });
-    } catch (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({
-            status: 500,
-            message: "Database error",
-            data: null,
-            success: false,
-        });
-    }
+  try {
+    const bengkelList = await prisma.bengkel.findMany({
+      include: {
+        fotos: true,
+      },
+    });
+    return res.status(200).json({
+      message: "Berhasil mengambil semua bengkel",
+      data: bengkelList,
+      success: true,
+    });
+  } catch (err) {
+    console.error('Database error:', err);
+    return res.status(500).json({
+      message: "Database error",
+      data: null,
+      success: false,
+    });
+  }
 };
 
 exports.getBengkelById = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
+    
+    const bengkel = await prisma.bengkel.findUnique({
+      where: { id },
+      include: {
+        fotos: true,
+      },
+    });
 
-        const bengkel = await prisma.bengkel.findUnique({
-            where: { id },
-        });
-
-        if (!bengkel) {
-            return res.status(404).json({
-                status: 404,
-                message: "Bengkel tidak ditemukan",
-                data: null,
-                success: false,
-            });
-        }
-
-        return res.status(200).json({
-            status: 200,
-            message: "Berhasil mengambil data bengkel",
-            data: bengkel,
-            success: true,
-        });
-    } catch (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({
-            status: 500,
-            message: "Database error",
-            data: null,
-            success: false,
-        });
+    if (!bengkel) {
+      return res.status(404).json({
+        message: "Bengkel tidak ditemukan",
+        data: null,
+        success: false,
+      });
     }
+
+    return res.status(200).json({
+      message: "Berhasil mengambil bengkel",
+      data: bengkel,
+      success: true,
+    });
+  } catch (err) {
+    console.error('Database error:', err);
+    return res.status(500).json({
+      message: "Database error",
+      data: null,
+      success: false,
+    });
+  }
 };

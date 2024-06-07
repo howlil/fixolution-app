@@ -9,7 +9,7 @@ import addSukuCadang from "../../../apis/sukuCadang/addSukuCadang";
 import editSukuCadang from "../../../apis/sukuCadang/editSukuCadang";
 import getSukuCadangById from "../../../apis/sukuCadang/getSukuCadangById";
 
-export default function AddSukuCadang() {
+export default function ManageSukuCadang() {
   const navigate = useNavigate();
   const { id } = useParams(); 
   const [nama, setNama] = useState("");

@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -19,27 +19,33 @@ model superadmin {
 
 model bengkel {
   id         String   @id @default(cuid())
+  namaBengkel String
   username   String   @unique
   password   String
-  email      String?
-  phone      String?
-  alamat     String?
-  foto       String?
-  status     String
+  noHp       String
+  alamat     String
+  status     statusBengkel 
   gmapsLink  String? 
   layanan_bengkels layanan[]
   invoices        invoice[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   tokens     token[]
+  fotos      foto[]
+}
+
+model foto {
+  id        String   @id @default(cuid())
+  foto       String
+  bengkelId String
+  bengkel   bengkel  @relation(fields: [bengkelId], references: [id])
 }
 
 model user {
   id         String   @id @default(cuid())
   username   String   @unique
   password   String
-  email      String?
-  phone      String?
+  noHp       String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   transaksis transaksi[]

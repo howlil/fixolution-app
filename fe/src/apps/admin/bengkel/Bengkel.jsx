@@ -1,23 +1,22 @@
 import Button from "../../../components/ui/Button";
 import Layout from "../../../components/admin/layout";
 import { useNavigate } from "react-router-dom";
-import getAllSukuCadang from "../../../apis/sukuCadang/getSukuCadang";
 import { useEffect, useState } from "react";
 import Tables from "../../../components/ui/Table";
 import ModalDelete from "../../../components/admin/modals/modalDelete";
-import deleteSukuCadang from "../../../apis/sukuCadang/deleteSukuCadang";
+import getAllBengkel from "../../../apis/bengkel/getAllBengkel";
 
-export default function SukuCadang() {
+export default function ManajemenBengkel() {
   const navigate = useNavigate();
-  const [sukuCadang, setSukuCadang] = useState([]);
+  const [bengkel, setBengkel] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
 
   const columns = [
-    { header: "Nama Suku Cadang", accessor: "nama" },
-    { header: "Harga", accessor: "harga" },
-    { header: "Stok", accessor: "stok" },
+    { header: "Nama Bengkel", accessor: "namaBengkel" },
+    { header: "No HP", accessor: "noHp" },
+    { header: "Alamat", accessor: "alamat" },
   ];
 
   useEffect(() => {
@@ -25,52 +24,52 @@ export default function SukuCadang() {
   }, []);
 
   const fetchData = async () => {
-    const data = await getAllSukuCadang();
-    setSukuCadang(data.data);
+    const data = await getAllBengkel();
+    setBengkel(data.data);
     console.log(data.data);
   };
+
   const handleEdit = (row) => {
     setEditId(row.id);
-    navigate(`/manajemenSukuCadang/editSukuCadang/${row.id}`);
+    navigate(`/manajemenBengkel/editBengkel/${row.id}`);
   };
 
   const handleDelete = async () => {
     try {
       const id = deleteId;
-      await deleteSukuCadang(id);
+      await deleteBengkel(id);
       fetchData();
       setShowDeleteModal(false);
     } catch (error) {
       console.error("Delete error:", error);
     }
   };
+
   return (
     <Layout>
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-3xl">Suku Cadang</h1>
-        <Button
-          onClick={() => navigate("/manajemenSukuCadang/AddSukuCadang")}
-          variant="primary"
-          custom="px-8 py-1.5"
-        >
-          Tambah Data
+        <h1 className="font-semibold text-3xl">Manajemen Bengkel</h1>
+        <Button 
+        variant="primary"   
+        onClick={() => navigate("/manajemenBengkel/AddBengkel")}
+        custom="px-8 py-1.5">
+          Tambah Bengkel
         </Button>
       </div>
       <section className="mt-8">
         <Tables
           columns={columns}
-          data={sukuCadang}
+          data={bengkel}
           onEdit={handleEdit}
           onDelete={(row) => {
             setDeleteId(row.id);
             setShowDeleteModal(true);
-          }}
-        />
+          }}        />
       </section>
       {showDeleteModal && (
         <ModalDelete
-          onClose={() => setShowDeleteModal(false)}
           onDelete={handleDelete}
+          onClose={() => setShowDeleteModal(false)}
         />
       )}
     </Layout>
