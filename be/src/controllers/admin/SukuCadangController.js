@@ -17,6 +17,19 @@ exports.addSukucadang = async (req, res) => {
             ...req.body,
             foto: req.file ? req.file.filename : undefined
         });
+        const existingSukucadang = await prisma.sukucadang.findFirst({
+            where: {
+                nama: validData.nama,
+            },
+        });
+
+        if (existingSukucadang) {
+            return res.status(400).json({
+                message: "Suku cadang sudah ada",
+                data: null,
+                success: false,
+            });
+        }
 
         const newSukucadang = await prisma.sukucadang.create({
             data: validData,
@@ -80,6 +93,22 @@ exports.editSukucadang = async (req, res) => {
             ...req.body,
             foto: req.file ? req.file.filename : undefined
         });
+        const existingSukucadang = await prisma.sukucadang.findFirst({
+            where: {
+                AND: [
+                    { nama: validData.nama }, 
+                    { NOT: { id } }
+                ]
+            }
+        });
+
+        if (existingSukucadang) {
+            return res.status(400).json({
+                message: "Suku cadang dengan nama yang sama sudah ada",
+                data: null,
+                success: false,
+            });
+        }
 
         const updatedSukucadang = await prisma.sukucadang.update({
             where: { id },
@@ -113,6 +142,18 @@ exports.deleteSukucadang = async (req, res) => {
     try {
         const { id } = req.params;
 
+        const existingSukucadang = await prisma.sukucadang.findUnique({
+            where: { id },
+        });
+
+        if (!existingSukucadang) {
+            return res.status(404).json({
+                message: "Suku cadang tidak ditemukan",
+                data: null,
+                success: false,
+            });
+        }
+
         const deletedSukucadang = await prisma.sukucadang.delete({
             where: { id },
         });
@@ -131,10 +172,16 @@ exports.deleteSukucadang = async (req, res) => {
         });
     }
 };
-
 exports.getAllSukuCadang = async (req, res) => {
     try {
         const sukuCadangs = await prisma.sukucadang.findMany();
+        if (sukuCadangs.length === 0) {
+            return res.status(404).json({
+                message: "Tidak ada suku cadang",
+                data: null,
+                success: false,
+            });
+        }
 
         return res.status(200).json({
             message: "Berhasil mengambil semua suku cadang",

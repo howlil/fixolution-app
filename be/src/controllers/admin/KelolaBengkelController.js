@@ -2,6 +2,7 @@ const { prisma } = require('../../configs/prisma');
 const yup = require('yup');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 const bengkelSchema = yup.object().shape({
   namaBengkel: yup.string().required(),
@@ -16,7 +17,7 @@ const bengkelSchema = yup.object().shape({
 
 exports.addBengkel = async (req, res) => {
   try {
-    const validData = await bengkelSchema.validate({
+    let validData = await bengkelSchema.validate({
       ...req.body,
       fotos: req.files ? req.files.map(file => file.filename) : []
     });
@@ -32,6 +33,9 @@ exports.addBengkel = async (req, res) => {
         success: false,
       });
     }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(validData.password, salt);
+    validData = { ...validData, password: hashedPassword };
 
     const newBengkel = await prisma.bengkel.create({
       data: {
@@ -93,7 +97,7 @@ exports.editBengkel = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const validData = await bengkelSchema.validate({
+    let validData = await bengkelSchema.validate({
       ...req.body,
       fotos: req.files ? req.files.map(file => file.filename) : []
     });
@@ -111,6 +115,12 @@ exports.editBengkel = async (req, res) => {
       });
     }
 
+    if (validData.password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(validData.password, salt);
+      validData.password = hashedPassword;
+    }
+
     if (validData.fotos.length > 0) {
       await prisma.foto.deleteMany({
         where: { bengkelId: id }
@@ -124,17 +134,10 @@ exports.editBengkel = async (req, res) => {
       });
     }
 
-    // Update bengkel data excluding photos (fotos are handled separately)
     const updatedBengkel = await prisma.bengkel.update({
       where: { id },
       data: {
-        namaBengkel: validData.namaBengkel,
-        username: validData.username,
-        password: validData.password,
-        noHp: validData.noHp,
-        alamat: validData.alamat,
-        status: validData.status,
-        gmapsLink: validData.gmapsLink
+        ...validData
       }
     });
 
@@ -166,6 +169,18 @@ exports.deleteBengkel = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const existingBengkel = await prisma.bengkel.findUnique({
+      where: { id },
+    });
+
+    if (!existingBengkel) {
+      return res.status(404).json({
+        message: "Bengkel tidak ditemukan",
+        data: null,
+        success: false,
+      });
+    }
+
     const deletedBengkel = await prisma.bengkel.delete({
       where: { id },
     });
@@ -192,6 +207,13 @@ exports.getAllBengkel = async (req, res) => {
         fotos: true,
       },
     });
+    if (bengkelList.length === 0) {
+      return res.status(404).json({
+        message: "Tidak ada data bengkel",
+        data: null,
+        success: false,
+      });
+    }
     return res.status(200).json({
       message: "Berhasil mengambil semua bengkel",
       data: bengkelList,
@@ -240,3 +262,4 @@ exports.getBengkelById = async (req, res) => {
     });
   }
 };
+

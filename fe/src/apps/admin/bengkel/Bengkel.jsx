@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Tables from "../../../components/ui/Table";
 import ModalDelete from "../../../components/admin/modals/modalDelete";
 import getAllBengkel from "../../../apis/bengkel/getAllBengkel";
+import deleteBengkel from "../../../apis/bengkel/deleteBengkel";
 
 export default function ManajemenBengkel() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export default function ManajemenBengkel() {
     try {
       const id = deleteId;
       await deleteBengkel(id);
-      fetchData();
+      setBengkel(bengkel.filter((item) => item.id !== deleteId));
       setShowDeleteModal(false);
     } catch (error) {
       console.error("Delete error:", error);

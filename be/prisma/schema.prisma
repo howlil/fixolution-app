@@ -8,37 +8,36 @@ generator client {
 }
 
 model superadmin {
-  id            String   @id @default(cuid())
-  username      String   @unique
-  password      String
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  tokens        token[]
-
-}
-
-model bengkel {
   id         String   @id @default(cuid())
-  namaBengkel String
   username   String   @unique
   password   String
-  noHp       String
-  alamat     String
-  status     statusBengkel 
-  gmapsLink  String? 
-  layanan_bengkels layanan[]
-  invoices        invoice[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   tokens     token[]
-  fotos      foto[]
+}
+
+model bengkel {
+  id             String   @id @default(cuid())
+  namaBengkel    String
+  username       String   @unique
+  password       String
+  noHp           String
+  alamat         String
+  status         statusBengkel 
+  gmapsLink      String?
+  layanan_bengkels layanan[]
+  invoices       invoice[]
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  tokens         token[]
+  fotos          foto[]
 }
 
 model foto {
   id        String   @id @default(cuid())
-  foto       String
+  foto      String
   bengkelId String
-  bengkel   bengkel  @relation(fields: [bengkelId], references: [id])
+  bengkel   bengkel  @relation(fields: [bengkelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model user {
@@ -55,12 +54,13 @@ model user {
 
 model layanan {
   id          String   @id @default(cuid())
-  nama        String
+  namaLayanan        String
   deskripsi   String
   harga       Float
-  kontak      String
+  jamBuka     String 
+  jamTutup    String
   bengkel_id  String
-  bengkel     bengkel @relation(fields: [bengkel_id], references: [id])
+  bengkel     bengkel @relation(fields: [bengkel_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model sukucadang {
@@ -84,7 +84,7 @@ model transaksi {
   alamat             String
   created_at         DateTime @default(now())
   updated_at         DateTime @default(now())
-  user               user     @relation(fields: [user_id], references: [id])
+  user               user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   transaksis_sukucadang transaksiSukucadang[]
 }
 
@@ -93,8 +93,8 @@ model transaksiSukucadang {
   transaksi_id       String
   sukucadang_id      String
   quantity           Int
-  transaksi          transaksi @relation(fields: [transaksi_id], references: [id])
-  sukucadang         sukucadang @relation(fields: [sukucadang_id], references: [id])
+  transaksi          transaksi @relation(fields: [transaksi_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sukucadang         sukucadang @relation(fields: [sukucadang_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([transaksi_id, sukucadang_id])
 }
@@ -114,7 +114,7 @@ model invoice {
   status      status   @default(Pending)
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
-  bengkel     bengkel @relation(fields: [bengkel_id], references: [id])
+  bengkel     bengkel @relation(fields: [bengkel_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model token {
@@ -125,11 +125,10 @@ model token {
   token       String  @db.Text
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
-  user        user? @relation(fields: [user_id], references: [id])
-  superadmin  superadmin? @relation(fields: [admin_id], references: [id])
-  bengkel     bengkel? @relation(fields: [bengkel_id], references: [id])
+  user        user? @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  superadmin  superadmin? @relation(fields: [admin_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bengkel     bengkel? @relation(fields: [bengkel_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
-
 
 model servicetogoRequest {
   id             String   @id @default(cuid())
@@ -139,7 +138,7 @@ model servicetogoRequest {
   status         status   @default(Pending)
   created_at     DateTime @default(now())
   updated_at     DateTime @default(now())
-  user           user     @relation(fields: [user_id], references: [id])
+  user           user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum status {

@@ -7,9 +7,13 @@ export default function ArrayImg({ label, onSelectImages, links }) {
   const [selectedImages, setSelectedImages] = useState([]);
 
   useEffect(() => {
-    if (links) {
+    if (Array.isArray(links)) {
       setApiImages(links);
-      setFileNames(links.map((link) => link.split("/").pop()));
+      setFileNames(
+        links.map((link) =>
+          typeof link === "string" ? link.split("/").pop() : ""
+        )
+      );
     }
   }, [links]);
 
@@ -39,9 +43,13 @@ export default function ArrayImg({ label, onSelectImages, links }) {
     setSelectedImages(updatedSelectedImages);
   };
 
+  const displayImages = selectedImages.length > 0 ? selectedImages : apiImages;
+
   return (
     <div className="flex flex-col">
-      <label className="font-normal text-neutral-800 text-md mb-2">{label}</label>
+      <label className="font-normal text-neutral-800 text-md mb-2">
+        {label}
+      </label>
       <div className="flex items-center border rounded-xl border-neutral-900">
         <input
           className="hidden"
@@ -60,41 +68,39 @@ export default function ArrayImg({ label, onSelectImages, links }) {
           Upload
         </button>
         <span className="text-sm text-gray-700">
-        {fileNames.length > 0 ? (fileNames.join(", ").length > 30 ? fileNames.join(", ").substring(0, 30) + "..." : fileNames.join(", ")) : "Upload gambar"}          </span>
+          {fileNames.length > 0
+            ? fileNames.join(", ").length > 10
+              ? fileNames.join(", ").substring(0, 20) + "..."
+              : fileNames.join(", ")
+            : "Upload gambar"}
+        </span>
       </div>
-      {selectedImages.length > 0 && (
+      {displayImages.length > 0 && (
         <div className="mt-2">
+          <p className="font-normal text-neutral-800 text-md">
+            {selectedImages.length > 0 ? "Selected Images:" : "Uploaded Images:"}
+          </p>
           <div className="flex flex-wrap">
-            {selectedImages.map((image, index) => (
+            {displayImages.map((image, index) => (
               <div key={index} className="relative w-16 h-16 mr-2 mt-2">
                 <img
-                  src={image}
-                  alt="Selected"
-                  className="w-full h-full object-cover rounded-md"
-                />
-                <button
-                  type="button"
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full  p-1"
-                  onClick={() => handleRemoveImage(index)}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {apiImages.length > 0 && (
-        <div className="mt-2">
-          <p className="font-normal text-neutral-800 text-md">Uploaded Images:</p>
-          <div className="flex flex-wrap">
-            {apiImages?.map((link, index) => (
-              <div key={index} className="relative w-16 h-16 mr-2 mt-2">
-                <img
-                  src={link}
-                  alt="Uploaded"
+                  src={
+                    selectedImages.length > 0
+                      ? image
+                      : `${import.meta.env.VITE_API_URL}/fotoBengkel/${image}`
+                  }
+                  alt={selectedImages.length > 0 ? "Selected" : "Uploaded"}
                   className="w-full h-full object-cover rounded-full"
                 />
+                {selectedImages.length > 0 && (
+                  <button
+                    type="button"
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                    onClick={() => handleRemoveImage(index)}
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
             ))}
           </div>

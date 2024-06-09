@@ -20,29 +20,42 @@ export default function ManageBengkel() {
   const [alamat, setAlamat] = useState("");
   const [noHp, setNoHp] = useState("");
   const [gmapsLink, setGmapsLink] = useState("");
-  const [status, setStatus] = useState("Aktif");
+  const [status, setStatus] = useState("");
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     if (id) {
       setIsEditing(true);
-      getBengkelById(id).then((response) => {
-        const bengkel = response.data;
-        setNama(bengkel.namaBengkel);
-        setUsername(bengkel.username);
-        setPassword(bengkel.password); 
-        setAlamat(bengkel.alamat);
-        setNoHp(bengkel.noHp);
-        setGmapsLink(bengkel.gmapsLink);
-        setStatus(bengkel.status);
-      }).catch((error) => {
-        console.error("Failed to fetch bengkel data:", error);
-      });
+      getBengkelById(id)
+        .then((response) => {
+          const bengkel = response.data;
+          setNama(bengkel.namaBengkel);
+          setUsername(bengkel.username);
+          setPassword(bengkel.password); 
+          setAlamat(bengkel.alamat);
+          setNoHp(bengkel.noHp);
+          setGmapsLink(bengkel.gmapsLink);
+          setStatus(bengkel.status);
+          setImages(bengkel.fotos || []); 
+        })
+        .catch((error) => {
+          console.error("Failed to fetch bengkel data:", error);
+        });
     }
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const bengkelData = { nama, username, password, alamat, noHp, gmapsLink, status };
+    const bengkelData = {
+      namaBengkel: nama,
+      username,
+      password,
+      alamat,
+      noHp,
+      gmapsLink,
+      status,
+      images,
+    };
 
     try {
       if (isEditing) {
@@ -50,7 +63,7 @@ export default function ManageBengkel() {
       } else {
         await addBengkel(bengkelData);
       }
-      navigate("/manajemenBengkel"); 
+      navigate("/manajemenBengkel");
     } catch (error) {
       console.error("Failed to submit form:", error);
     }
@@ -61,7 +74,7 @@ export default function ManageBengkel() {
       <h1 className="font-semibold text-3xl">
         {isEditing ? "Edit" : "Tambah"} Bengkel
       </h1>
-      <form  onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <section className="grid mt-12 grid-cols-2 gap-4">
           <section className="space-y-4">
             <Input
@@ -89,7 +102,7 @@ export default function ManageBengkel() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               customClass="border-neutral-500"
-              required={!isEditing} 
+              required={!isEditing}
             />
             <TextArea
               label="Alamat"
@@ -120,7 +133,8 @@ export default function ManageBengkel() {
             />
             <ArrayImg
               label="Foto Bengkel"
-              onSelectImages={(files) => console.log(files)}
+              onSelectImages={(files) => setImages(files)}
+              links={images}
             />
             <Select
               label="Status Akun"

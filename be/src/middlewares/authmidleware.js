@@ -53,11 +53,11 @@ exports.authenticateToken = async (req, res, next) => {
   }
 };
 
-exports.authorize = (requiredType) => {
+exports.authorize = (...requiredTypes) => {
   return (req, res, next) => {
-      if (req.userType !== requiredType) {
+    if (!requiredTypes.includes(req.userType)) {
           return res.status(403).json({
-              message: "Unauthorized",
+              message: "tidak ada hak akses",
               data: null,
               success: false,
           });

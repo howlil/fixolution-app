@@ -4,46 +4,62 @@ const yup = require('yup');
 const {createToken} = require('../../utils/token');
 
 exports.registerSuperadmin = async (req, res) => {
-    const superadminSchema = yup.object().shape({
-        username: yup.string().min(3).max(30).required(),
-        password: yup.string().min(3).max(30).required(),
-    });
+  const superadminSchema = yup.object().shape({
+      username: yup.string().min(3).max(30).required(),
+      password: yup.string().min(3).max(30).required(),
+  });
 
-    try {
-        await superadminSchema.validate(req.body);
+  try {
+      await superadminSchema.validate(req.body);
 
-        const { username, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
+      const { username, password } = req.body;
 
-        const user = await prisma.superadmin.create({
-            data: {
-                username,
-                password: hashedPassword,
-            },
-        });
+      // Check if a superadmin with the same username already exists
+      const existingUser = await prisma.superadmin.findUnique({
+          where: {
+              username: username,
+          },
+      });
 
-        res.status(201).json({
-            message: "Regis berhasil",
-            data: user,
-            success: true,
-        });
-    } catch (error) {
-        console.error('Registration Error:', error); 
+      if (existingUser) {
+          return res.status(400).json({
+            message: "Username sudah terdaftar",
+            data: null,
+              success: false,
+          });
+      }
 
-        if (error instanceof yup.ValidationError) {
-            res.status(400).json({
-                message: error.errors[0],
-                data: null,
-                success: false,
-            });
-        } else {
-            res.status(500).json({
-                message: "Internal Server Error",
-                data: null,
-                success: false,
-            });
-        }
-    }
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const user = await prisma.superadmin.create({
+          data: {
+              username: username,
+              password: hashedPassword,
+          },
+      });
+
+      res.status(201).json({
+          message: "Regis berhasil",
+          data: user,
+          success: true,
+      });
+  } catch (error) {
+      console.error('Registration Error:', error);
+
+      if (error instanceof yup.ValidationError) {
+          res.status(400).json({
+              message: error.errors[0],
+              data: null,
+              success: false,
+          });
+      } else {
+          res.status(500).json({
+              message: "Internal Server Error",
+              data: null,
+              success: false,
+          });
+      }
+  }
 };
 
 exports.registerUser = async (req, res) => {
@@ -53,6 +69,19 @@ exports.registerUser = async (req, res) => {
     });
     try {
         const validData = await userSchema.validate(req.body);
+        const existingUser = await prisma.user.findUnique({
+          where: {
+              username: validData.username,
+          },
+      });
+
+      if (existingUser) {
+          return res.status(400).json({
+              message: "Username sudah terdaftar",
+              data: null,
+              success: false,
+          });
+      }
 
         const hashedPassword = await bcrypt.hash(validData.password, 10);
 
@@ -107,7 +136,7 @@ exports.registerUser = async (req, res) => {
       let userType = superadmin ? 'superadmin' : user ? 'user' : 'bengkel';
   
       if (!account) {
-        return res.status(401).json({
+        return res.status(400).json({
           message: "Invalid username or password",
           data: null,
           success: false,
@@ -117,7 +146,7 @@ exports.registerUser = async (req, res) => {
       const isValidPassword = await bcrypt.compare(password, account.password);
   
       if (!isValidPassword) {
-        return res.status(401).json({
+        return res.status(400).json({
           message: "Invalid username or password",
           data: null,
           success: false,
