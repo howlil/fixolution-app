@@ -3,16 +3,15 @@ import Layout from "../../../components/admin/layout";
 import { useNavigate } from "react-router-dom";
 import getAllSukuCadang from "../../../apis/sukuCadang/getSukuCadang";
 import { useEffect, useState } from "react";
-import Tables from "../../../components/ui/Table";
 import ModalDelete from "../../../components/admin/modals/modalDelete";
 import deleteSukuCadang from "../../../apis/sukuCadang/deleteSukuCadang";
+import Tables from "../../../components/ui/Table";
 
 export default function SukuCadang() {
   const navigate = useNavigate();
   const [sukuCadang, setSukuCadang] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [editId, setEditId] = useState(null);
 
   const columns = [
     { header: "Nama Suku Cadang", accessor: "nama" },
@@ -34,6 +33,10 @@ export default function SukuCadang() {
     navigate(`/manajemenSukuCadang/editSukuCadang/${row.id}`);
   };
 
+  const handleView = (row) => { 
+    navigate(`/manajemenSukuCadang/${row.id}/transaksiSukuCadang`);
+  }
+
   const handleDelete = async () => {
     try {
       const id = deleteId;
@@ -49,7 +52,7 @@ export default function SukuCadang() {
       <div className="flex justify-between items-center">
         <h1 className="font-semibold text-3xl">Suku Cadang</h1>
         <Button
-          onClick={() => navigate("/manajemenSukuCadang/AddSukuCadang")}
+          onClick={() => navigate("/manajemenSukuCadang/addSukuCadang")}
           variant="primary"
           custom="px-8 py-1.5"
         >
@@ -60,6 +63,7 @@ export default function SukuCadang() {
         <Tables
           columns={columns}
           data={sukuCadang}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={(row) => {
             setDeleteId(row.id);

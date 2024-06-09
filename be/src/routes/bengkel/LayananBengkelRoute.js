@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const layananController = require("../../controllers/admin/LayananBengkelController");
+const layananController = require("../../controllers/bengkel/LayananBengkelController");
 const {
   authenticateToken,
   authorize,

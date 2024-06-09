@@ -12,7 +12,7 @@ export default function ManajemenBengkel() {
   const [bengkel, setBengkel] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [editId, setEditId] = useState(null);
+
 
   const columns = [
     { header: "Nama Bengkel", accessor: "namaBengkel" },
@@ -31,9 +31,11 @@ export default function ManajemenBengkel() {
   };
 
   const handleEdit = (row) => {
-    setEditId(row.id);
     navigate(`/manajemenBengkel/editBengkel/${row.id}`);
   };
+  const handleView = (row) => {
+    navigate(`/manajemenBengkel/${row.id}/layananBengkel`);
+  }
 
   const handleDelete = async () => {
     try {
@@ -61,6 +63,7 @@ export default function ManajemenBengkel() {
         <Tables
           columns={columns}
           data={bengkel}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={(row) => {
             setDeleteId(row.id);

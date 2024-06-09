@@ -15,6 +15,9 @@ import PesanSukuCadang from "./apps/admin/sukucadang/PesanSukuCadang";
 import TransaksiBengkel from "./apps/admin/bengkel/TransaksiBengkel";
 import ServiceToGo from "./apps/admin/servicetogo/ServiceToGo";
 import ManageSukuCadang from "./apps/admin/sukucadang/ManageSukuCadang";
+import LayananBengkel from "./apps/admin/layananBengkel/LayananBengkel";
+import KelolaLayananBengkel from "./apps/admin/layananBengkel/KelolaLayananBengkel";
+import TransaksiSukuCadang from "./apps/admin/sukucadang/TransaksiSukuCadang";
 
 const ProtectedDasboard = withRole(Dasboard, ['superadmin']);
 const ProtectedManajemenBengkel = withRole(ManajemenBengkel, ['superadmin']);
@@ -24,6 +27,9 @@ const ProtectedManageBengkel = withRole(ManageBengkel, ['superadmin']);
 const ProtectedPesanSukuCadang = withRole(PesanSukuCadang, ['superadmin']);
 const ProtectedServiceToGo = withRole(ServiceToGo, ['superadmin']);
 const ProtectedTransaksiBengkel = withRole(TransaksiBengkel, ['superadmin']);
+const ProtectedTransaksiSukuCadang = withRole(TransaksiSukuCadang, ['superadmin']);
+const ProtectedLayananBengkel = withRole(LayananBengkel, ['superadmin']);
+const ProtectedKelolaLayananBengkel = withRole(KelolaLayananBengkel, ['superadmin']);
 
 export default function App() {
   return (
@@ -42,11 +48,29 @@ export default function App() {
               </ProtectRoute>
             }
           />
+
+          {/* BENGKEL */}
           <Route
             path="/manajemenBengkel"
             element={
               <ProtectRoute>
                 <ProtectedManajemenBengkel />
+              </ProtectRoute>
+            }
+          />
+          <Route
+            path="/manajemenBengkel/:id/layananBengkel"
+            element={
+              <ProtectRoute>
+                <ProtectedLayananBengkel />
+              </ProtectRoute>
+            }
+          />
+          <Route
+            path="/manajemenBengkel/:id/layananBengkel/addLayananBengkel"
+            element={
+              <ProtectRoute>
+                <ProtectedKelolaLayananBengkel />
               </ProtectRoute>
             }
           />
@@ -66,6 +90,17 @@ export default function App() {
               </ProtectRoute>
             }
           />
+
+          <Route
+            path="/transaksiBengkel"
+            element={
+              <ProtectRoute>
+                <ProtectedTransaksiBengkel />
+              </ProtectRoute>
+            }
+          />
+          {/* SUKU CADANG */}
+
           <Route
             path="/manajemenSukuCadang"
             element={
@@ -75,7 +110,15 @@ export default function App() {
             }
           />
           <Route
-            path="/manajemenSukuCadang/AddSukuCadang"
+            path="/manajemenSukuCadang/:id/transaksiSukuCadang"
+            element={
+              <ProtectRoute>
+                <ProtectedTransaksiSukuCadang />
+              </ProtectRoute>
+            }
+          />
+          <Route
+            path="/manajemenSukuCadang/addSukuCadang"
             element={
               <ProtectRoute>
                 <ProtectedManageSukuCadang />
@@ -98,19 +141,13 @@ export default function App() {
               </ProtectRoute>
             }
           />
+
+          {/* SERVICE TO GO */}
           <Route
             path="/serviceToGo"
             element={
               <ProtectRoute>
                 <ProtectedServiceToGo />
-              </ProtectRoute>
-            }
-          />
-          <Route
-            path="/transaksiBengkel"
-            element={
-              <ProtectRoute>
-                <ProtectedTransaksiBengkel />
               </ProtectRoute>
             }
           />
