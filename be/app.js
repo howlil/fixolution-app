@@ -22,6 +22,8 @@ app.use('/api/', server.auth);
 app.use('/api/', server.adminBengkel);
 app.use('/api/', server.sukuCadang);
 app.use('/api/', server.layananBengkel);
+app.use('/api/', server.dashbaoard);
+app.use('/api/', server.transaksiSukuCadang);
 
 
 app.use("/api/fotoBengkel/", express.static("public/images/bengkel"));

@@ -11,7 +11,7 @@ const Select = ({ label, options, onChange }) => {
           onChange={onChange}
           className="px-3 py-1.5 text-gray-700 border-neutral-400 rounded-2xl border"
         >
-         <option value="">Select option</option>
+         <option value="">Select </option>
   
           {options?.map((option, index) => (
             <option className="text-black" key={index} value={option.value}>
