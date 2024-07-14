@@ -11,7 +11,7 @@ export default async function getAllSukuCadang(  ) {
     
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/getAllSukuCadang`;
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/getAllSukuCadang`;
       const response = await fetch(apiUrl, requestOptions);
       const data = await response.json();
       console.log(data);

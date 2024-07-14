@@ -11,7 +11,7 @@ export default async function addBengkel(namaBengkel, username, password, noHp, 
   formdata.append("alamat", alamat);
   formdata.append("status", status);
   formdata.append("gmapsLink", gmapsLink);
-  for (let i = 0; i < foto.files.length; i++) {
+  for (let i = 0; i < foto?.files?.length; i++) {
     formdata.append("fotos", fileInput.files[i]);w
   }
   const requestOptions = {
@@ -25,7 +25,6 @@ export default async function addBengkel(namaBengkel, username, password, noHp, 
     const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/addBengkel`;
     const response = await fetch(apiUrl, requestOptions);
     const data = await response.json();
-    console.log(data);
 
     return data;
   } catch (error) {

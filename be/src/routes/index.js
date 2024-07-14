@@ -11,7 +11,7 @@ server.adminBengkel = adminBengkel;
 server.sukuCadang = sukuCadang;
 server.layananBengkel = layananBengkel;
 server.dashbaoard = dashbaoard;
-server.transaksiSukuCadang = transaksiSukuCadang;
+// server.transaksiSukuCadang = transaksiSukuCadang;
 
 
 module.exports = server;

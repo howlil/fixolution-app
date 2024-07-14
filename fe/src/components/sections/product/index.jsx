@@ -1,31 +1,31 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CardProduct from "./CardProduct";
 import wa from "public/wa.svg";
 import Button from "../../ui/Button";
+import getAllSukuCadang from "../../../apis/sukuCadang/getSukuCadang";
+import { useNavigate } from "react-router-dom";
 
 const Produk = () => {
-  const products = [
-    {
-      img: "public/s1.png",
-      title: "Product Title 1",
-      description: "Menyediakan layanan suku cadang untuk pemesanan Anda",
-    },
-    {
-      img: "public/s2.png",
-      title: "Product Title 2",
-      description: "Menyediakan layanan suku cadang untuk pemesanan Anda",
-    },
-    {
-      img: "public/s2.png",
-      title: "Product Title 2",
-      description: "Menyediakan layanan suku cadang untuk pemesanan Anda",
-    },
-    {
-      img: "public/s2.png",
-      title: "Product Title 2",
-      description: "Menyediakan layanan suku cadang untuk pemesanan Anda2",
-    },
-  ];
+  const [sukuCadang, setSukuCadang] = useState([]);
+  const [showAll, setShowAll] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    const data = await getAllSukuCadang();
+    setSukuCadang(data.data);
+  };
+
+  const handleClick = (id) => {
+    navigate(`/detailSukuCadang/${id}`);
+  };
+
+  const toggleShowAll = () => {
+    setShowAll(!showAll);
+  };
 
   return (
     <>
@@ -34,7 +34,14 @@ const Produk = () => {
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-neutral-100">SHOP</h1>
           <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-medium">Our Products</h3>
         </figure>
-        <CardProduct products={products} />
+        <CardProduct products={showAll ? sukuCadang : sukuCadang.slice(0, 4)} onClick={handleClick} />
+        {sukuCadang.length >= 4 && (
+          <div className="text-center mt-8">
+            <Button onClick={toggleShowAll} className="bg-col text-white py-2 px-4 rounded">
+              {showAll ? "Show Less" : "View More"}
+            </Button>
+          </div>
+        )}
       </section>
       <section className="bg-white flex flex-col sm:flex-row justify-between px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 items-center">
         <h1 className="font-medium text-xl mb-4 sm:mb-0">Need More Information?</h1>

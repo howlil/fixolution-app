@@ -1,4 +1,4 @@
-export default async function LoginAkun( username, password ) {
+export default async function Register( username, password ) {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");  
 
@@ -15,14 +15,10 @@ const requestOptions = {
 };
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/login`;
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/register`;
       const response = await fetch(apiUrl, requestOptions);
       const data = await response.json();
-      const token = data.data.token;
   
-      if (token) {
-        localStorage.setItem("token", token);
-      }
       return data;
     } catch (error) {
       console.error("Fetch error:", error);

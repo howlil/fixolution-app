@@ -7,23 +7,19 @@ export default function ArrayImg({ label, onSelectImages, links }) {
 
   useEffect(() => {
     if (Array.isArray(links)) {
-      setApiImages(links);
-      setFileNames(
-        links.map((link) =>
-          typeof link === "object" ? link.name : ""
-        )
-      );
+      setApiImages(links.map(link => (typeof link === "object" ? URL.createObjectURL(link) : link)));
+      setFileNames(links.map(link => (typeof link === "object" ? link.name : "")));
     }
   }, [links]);
 
   const handleChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      const newFileNames = files.map((file) => file.name);
-      const newImages = files.map((file) => URL.createObjectURL(file));
-      setFileNames((prevFileNames) => [...prevFileNames, ...newFileNames]);
-      setApiImages((prevApiImages) => [...prevApiImages, ...newImages]);
-      onSelectImages(files);
+      const newFileNames = files.map(file => file.name);
+      const newImages = files.map(file => URL.createObjectURL(file));
+      setFileNames(prevFileNames => [...prevFileNames, ...newFileNames]);
+      setApiImages(prevApiImages => [...prevApiImages, ...newImages]);
+      onSelectImages(prevFiles => [...prevFiles, ...files]);
     }
   };
 
@@ -32,12 +28,9 @@ export default function ArrayImg({ label, onSelectImages, links }) {
   };
 
   const handleRemoveImage = (index) => {
-    const updatedApiImages = [...apiImages];
-    const updatedFileNames = [...fileNames];
-    updatedApiImages.splice(index, 1);
-    updatedFileNames.splice(index, 1);
-    setApiImages(updatedApiImages);
-    setFileNames(updatedFileNames);
+    setFileNames(prevFileNames => prevFileNames.filter((_, i) => i !== index));
+    setApiImages(prevApiImages => prevApiImages.filter((_, i) => i !== index));
+    onSelectImages(prevFiles => prevFiles.filter((_, i) => i !== index));
   };
 
   return (
@@ -78,7 +71,7 @@ export default function ArrayImg({ label, onSelectImages, links }) {
               <div key={index} className="relative w-16 h-16 mr-2 mt-2">
                 <img
                   src={image}
-                  alt=""
+                  alt={`image-${index}`}
                   className="w-full h-full object-cover rounded-md"
                 />
                 <button

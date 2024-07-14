@@ -27,15 +27,12 @@ router.delete(
   SukuCadangController.deleteSukucadang
 );
 router.get(
-  "/admin/getAllSukuCadang",
-  authenticateToken,
-  authorize("superadmin"),
+  "/getAllSukuCadang",
   SukuCadangController.getAllSukuCadang
 );
+
 router.get(
-  "/admin/getSukuCadangById/:id",
-  authenticateToken,
-  authorize("superadmin"),
+  "/getSukuCadangById/:id",
   SukuCadangController.getSukuCadangById
 );
 

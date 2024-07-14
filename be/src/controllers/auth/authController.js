@@ -65,7 +65,7 @@ exports.registerSuperadmin = async (req, res) => {
 exports.registerUser = async (req, res) => {
     const userSchema = yup.object().shape({
         username: yup.string().min(3).max(30).required(),
-        password: yup.string().min(3).max(30).required(),
+        password: yup.string().min(6).max(30).required(),
     });
     try {
         const validData = await userSchema.validate(req.body);

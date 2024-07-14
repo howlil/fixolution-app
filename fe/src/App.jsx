@@ -18,6 +18,7 @@ import ManageSukuCadang from "./apps/admin/sukucadang/ManageSukuCadang";
 import LayananBengkel from "./apps/admin/layananBengkel/LayananBengkel";
 import KelolaLayananBengkel from "./apps/admin/layananBengkel/KelolaLayananBengkel";
 import TransaksiSukuCadang from "./apps/admin/sukucadang/TransaksiSukuCadang";
+import DetailProduct from "./components/sections/product/DetailProduct";
 
 const ProtectedDasboard = withRole(Dasboard, ['superadmin']);
 const ProtectedManajemenBengkel = withRole(ManajemenBengkel, ['superadmin']);
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/daftar" element={<Auth />} />
           <Route path="/login" element={<Auth />} />
+          <Route path="/detailSukuCadang/:id" element={<DetailProduct />} />
 
           <Route
             path="/dashboard"

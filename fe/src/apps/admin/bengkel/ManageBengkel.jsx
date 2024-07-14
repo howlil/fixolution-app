@@ -46,22 +46,20 @@ export default function ManageBengkel() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const bengkelData = {
-      namaBengkel: nama,
-      username,
-      password,
-      alamat,
-      noHp,
-      gmapsLink,
-      status,
-      images,
-    };
-
     try {
       if (isEditing) {
-        await editBengkel(id, bengkelData);
+        await editBengkel(id, {
+          namaBengkel: nama,
+          username,
+          password,
+          alamat,
+          noHp,
+          gmapsLink,
+          status,
+          fotos: images
+        });
       } else {
-        await addBengkel(bengkelData);
+        await addBengkel(nama, username, password, noHp, alamat, status, gmapsLink, images);
       }
       navigate("/manajemenBengkel");
     } catch (error) {
