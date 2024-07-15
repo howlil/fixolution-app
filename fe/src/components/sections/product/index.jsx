@@ -27,6 +27,13 @@ const Produk = () => {
     setShowAll(!showAll);
   };
 
+  if (!sukuCadang) {
+    return 
+    (<>
+      Tidak Ada Barang
+    </>);
+  }
+
   return (
     <>
       <section className="bg-neutral-900 p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20">
@@ -34,7 +41,7 @@ const Produk = () => {
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-neutral-100">SHOP</h1>
           <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-medium">Our Products</h3>
         </figure>
-        <CardProduct products={showAll ? sukuCadang : sukuCadang.slice(0, 4)} onClick={handleClick} />
+        <CardProduct products={showAll ? sukuCadang : sukuCadang?.slice(0, 4)} onClick={handleClick} />
         {sukuCadang.length >= 4 && (
           <div className="text-center mt-8">
             <Button onClick={toggleShowAll} className="bg-col text-white py-2 px-4 rounded">
