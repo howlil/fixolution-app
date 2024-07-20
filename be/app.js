@@ -9,9 +9,8 @@ const cors = require("cors");
 const multer = require("multer");
 
 const jwtSecret = process.env.JWT_SECRET;
-const dbUrl = process.env.DATABASE_URL;
-const PORT = process.env.PORT || 8080;
-
+const databaseUrl = process.env.DATABASE_URL;
+const port = process.env.PORT || 8080;
 
 
 const corsOptions = {
@@ -39,16 +38,11 @@ app.use('/api/', server.adminBengkel);
 app.use('/api/', server.sukuCadang);
 app.use('/api/', server.layananBengkel);
 app.use('/api/', server.dashbaoard);
-// app.use('/api/', server.transaksiSukuCadang);
 
 
 app.use("/api/fotoBengkel/", express.static("public/images/bengkel"));
 app.use("/api/fotoSukuCadang/", express.static("public/images/sukuCadang"));
 
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 
 
 app.use((req, res, next) => {
