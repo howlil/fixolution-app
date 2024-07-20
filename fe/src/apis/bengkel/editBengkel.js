@@ -12,10 +12,11 @@ formdata.append("alamat", alamat);
 formdata.append("status", status);
 formdata.append("gmapsLink", gmapsLink)
 
-for (let i = 0; i < fileInput.files.length; i++) {
-  formdata.append("fotos", fileInput.files[i]);
+if (fotos && fotos.files) {
+  for (let i = 0; i < fotos.files.length; i++) {
+    formdata.append("fotos", fotos.files[i]);
+  }
 }
-
 
 const requestOptions = {
 method: "PUT",

@@ -5,6 +5,7 @@ import { useEffect,useState } from "react";
 import { useParams,useNavigate } from "react-router-dom";
 import Tables from "../../../components/ui/TableNoView";
 import ModalDelete from "../../../components/admin/modals/modalDelete";
+import deleteLayananBengkel from "../../../apis/bengkel/deleteLayananBengkel";
 
 export default function LayananBengkel() {
   const [bengkel, setBengkel] = useState([]);
@@ -25,9 +26,15 @@ const fetchData = async () => {
 const handleEdit = (row) => {
   navigate(`/manajemenBengkel/editBengkel/${row.id}`);
 };
-const handleDelete  = async () => {
-
-}
+const handleDelete = async () => {
+  try {
+    const id = deleteId;
+    await deleteLayananBengkel(params.id, id);
+    setBengkel(bengkel.filter((item) => item.id !== deleteId));
+    setShowDeleteModal(false);
+  } catch (error) {
+    console.error("Delete error:", error);}
+};
 
 const columns = [
   { header: "Nama Layanan", accessor: "namaLayanan" },

@@ -11,9 +11,13 @@ export default async function addBengkel(namaBengkel, username, password, noHp, 
   formdata.append("alamat", alamat);
   formdata.append("status", status);
   formdata.append("gmapsLink", gmapsLink);
-  for (let i = 0; i < foto?.files?.length; i++) {
-    formdata.append("fotos", fileInput.files[i]);w
+
+  if (foto && foto.files) {
+    for (let i = 0; i < foto.files.length; i++) {
+      formdata.append("fotos", foto.files[i]);
+    }
   }
+
   const requestOptions = {
     method: "POST",
     headers: myHeaders,

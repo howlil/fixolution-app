@@ -20,15 +20,16 @@ export default function ManajemenBengkel() {
     { header: "Alamat", accessor: "alamat" },
   ];
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  
 
   const fetchData = async () => {
     const data = await getAllBengkel();
     setBengkel(data.data);
-    console.log(data.data);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleEdit = (row) => {
     navigate(`/manajemenBengkel/editBengkel/${row.id}`);

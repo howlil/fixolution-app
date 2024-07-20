@@ -15,4 +15,4 @@ export default function Button({ children, variant , custom = '', onClick }) {
       {children}
     </button>
   );
-};
+}
