@@ -8,14 +8,30 @@ require('dotenv').config();
 const cors = require("cors");
 const multer = require("multer");
 
+const jwtSecret = process.env.JWT_SECRET;
+const dbUrl = process.env.DATABASE_URL;
+const PORT = process.env.PORT || 8080;
+
+
+
+const corsOptions = {
+  origin: '*', 
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+
 
 var app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+
 
 
 app.use('/api/', server.auth);
@@ -28,6 +44,11 @@ app.use('/api/', server.dashbaoard);
 
 app.use("/api/fotoBengkel/", express.static("public/images/bengkel"));
 app.use("/api/fotoSukuCadang/", express.static("public/images/sukuCadang"));
+
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 
 app.use((req, res, next) => {
