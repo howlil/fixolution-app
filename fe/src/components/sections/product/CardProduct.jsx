@@ -1,5 +1,7 @@
 
 const CardProduct = ({ products, onClick }) => {
+
+
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 my-12">
       {products?.map((product) => (

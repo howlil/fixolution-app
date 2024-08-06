@@ -40,9 +40,8 @@ app.use('/api/', server.layananBengkel);
 app.use('/api/', server.dashbaoard);
 
 
-app.use("/api/fotoBengkel/", express.static("public/images/bengkel"));
-app.use("/api/fotoSukuCadang/", express.static("public/images/sukuCadang"));
-
+app.use("/api/fotoBengkel", express.static("public/images/bengkel"));
+app.use("/api/fotoSukuCadang", express.static("public/images/sukuCadang"));
 
 
 app.use((req, res, next) => {

@@ -3,6 +3,7 @@ const yup = require('yup');
 const multer = require('multer');
 const path = require('path');
 
+
 const sukucadangSchema = yup.object().shape({
     nama: yup.string().required(),
     deskripsi: yup.string().required(),
@@ -65,7 +66,7 @@ const storage = multer.diskStorage({
         }
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname);
+        cb(null, Date.now() + "-" + file.originalname);
     },
 });
 
