@@ -8,6 +8,9 @@ import InputImg from "../../../components/ui/InputImg";
 import addSukuCadang from "../../../apis/sukuCadang/addSukuCadang";
 import editSukuCadang from "../../../apis/sukuCadang/editSukuCadang";
 import getSukuCadangById from "../../../apis/sukuCadang/getSukuCadangById";
+import { showToast } from "../../../components/ui/Toaster";
+import { Toaster } from "react-hot-toast";
+import Loading from "../../../components/ui/Loading";  // Import the loading component
 
 export default function ManageSukuCadang() {
   const navigate = useNavigate();
@@ -18,12 +21,13 @@ export default function ManageSukuCadang() {
   const [stok, setStok] = useState("");
   const [fileInput, setFileInput] = useState(null);
   const [linkImage, setLinkImage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);  // Loading state
 
   useEffect(() => {
     if (id) {
       setIsEditing(true);
+      setIsLoading(true);  // Start loading
       const fetchSukuCadang = async () => {
         try {
           const response = await getSukuCadangById(id);
@@ -35,11 +39,12 @@ export default function ManageSukuCadang() {
             setStok(stok);
             setLinkImage(foto); 
           } else {
-            setErrorMessage(response.message);
+            showToast(response.message, "error");
           }
         } catch (error) {
-          setErrorMessage("An error occurred while fetching the part data");
-          console.error("Fetch error:", error);
+          showToast(error, "error");
+        } finally {
+          setIsLoading(false);  // Stop loading
         }
       };
       fetchSukuCadang();
@@ -48,23 +53,33 @@ export default function ManageSukuCadang() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!fileInput && !isEditing) { 
+      showToast("Gambar suku cadang wajib diunggah", "error");
+      return; 
+    }
+
+    setIsLoading(true);  
 
     try {
       let response;
       if (isEditing) {
-        response = await editSukuCadang( nama, deskripsi, harga, stok, fileInput,id);
+        response = await editSukuCadang(nama, deskripsi, harga, stok, fileInput, id);
+        showToast(response.message, response.success ? "success" : "error");
+
       } else {
         response = await addSukuCadang(nama, deskripsi, harga, stok, fileInput);
+        showToast(response.message, response.success ? "success" : "error");
       }
 
       if (response.success) {
         navigate("/manajemenSukuCadang");
       } else {
-        setErrorMessage(response.message);
+        showToast(response.message, "error");
       }
     } catch (error) {
-      setErrorMessage("An error occurred while saving the part");
-      console.error("Fetch error:", error);
+      showToast(error, "error");
+    } finally {
+      setIsLoading(false);  
     }
   };
 
@@ -75,8 +90,14 @@ export default function ManageSukuCadang() {
 
   return (
     <Layout>
+      <Toaster />
       <h1 className="font-semibold text-3xl">{isEditing ? "Edit" : "Tambah"} Suku Cadang</h1>
-      <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+      <form className="mt-8 space-y-4 relative" onSubmit={handleSubmit}>
+        {isLoading && (
+          <div className="fixed inset-0 bg-opacity-50 bg-gray-800 flex justify-center items-center z-50">
+            <Loading type="spin" color="#ffffff" />
+          </div>
+        )}
         <Input
           label="Nama Suku Cadang"
           customLabel="text-neutral-800 text-md"
@@ -116,9 +137,8 @@ export default function ManageSukuCadang() {
           onSelectImage={handleImageSelect}
           linkImage={linkImage} 
         />
-        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         <div className="flex justify-end">
-          <Button variant="primary" custom="px-8 mt-6 py-1.5" type="submit">
+          <Button variant="primary" custom="px-8 mt-6 py-1.5" type="submit" disabled={isLoading}>
             {isEditing ? "Perbarui" : "Simpan"}
           </Button>
         </div>

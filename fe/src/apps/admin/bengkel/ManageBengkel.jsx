@@ -9,6 +9,9 @@ import addBengkel from "../../../apis/bengkel/addBengkel";
 import editBengkel from "../../../apis/bengkel/editBengkel";
 import getBengkelById from "../../../apis/bengkel/getBengkelById"; 
 import ArrayImg from "../../../components/ui/ArrayImg";
+import { Toaster } from "react-hot-toast";
+import Loading from "../../../components/ui/Loading";
+import { showToast } from "../../../components/ui/Toaster";
 
 export default function ManageBengkel() {
   const navigate = useNavigate();
@@ -22,10 +25,12 @@ export default function ManageBengkel() {
   const [gmapsLink, setGmapsLink] = useState("");
   const [status, setStatus] = useState("");
   const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); 
 
   useEffect(() => {
     if (id) {
       setIsEditing(true);
+      setIsLoading(true);
       getBengkelById(id)
         .then((response) => {
           const bengkel = response.data;
@@ -39,16 +44,21 @@ export default function ManageBengkel() {
           setImages(bengkel.fotos || []); 
         })
         .catch((error) => {
-          console.error("Failed to fetch bengkel data:", error);
+          showToast("Failed to fetch bengkel data", "error");
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     }
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); 
+
     try {
       if (isEditing) {
-        await editBengkel(id, {
+       const res =  await editBengkel(id, {
           namaBengkel: nama,
           username,
           password,
@@ -58,22 +68,42 @@ export default function ManageBengkel() {
           status,
           fotos: images
         });
+         showToast(res.message, "success");
+         if(res.success){
+          navigate("/manajemenBengkel");
+         }
+         
       } else {
-        await addBengkel(nama, username, password, noHp, alamat, status, gmapsLink, images);
+       const res =  await addBengkel(nama, username, password, noHp, alamat, status, gmapsLink, images);
+       showToast(res.message, "success");
+       
+       if(res.success){
+        navigate("/manajemenBengkel");
+       }
       }
-      navigate("/manajemenBengkel");
+      
     } catch (error) {
-      console.error("Failed to submit form:", error);
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      showToast(errorMessage, "error");
+    } finally {
+      setIsLoading(false); 
     }
   };
 
+
   return (
     <Layout>
+      <Toaster />
       <h1 className="font-semibold text-3xl">
         {isEditing ? "Edit" : "Tambah"} Bengkel
       </h1>
       <form onSubmit={handleSubmit}>
-        <section className="grid mt-12 grid-cols-2 gap-4">
+        {isLoading && (
+          <div className="fixed h-full inset-0 flex items-center justify-center bg-opacity-50 bg-black z-50">
+            <Loading type="spin" color="#ffffff" />
+          </div>
+        )}
+        <section className={`grid mt-12 grid-cols-2 gap-4 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
           <section className="space-y-4">
             <Input
               label="Nama Bengkel"
@@ -148,7 +178,7 @@ export default function ManageBengkel() {
           </section>
         </section>
         <section className="w-full flex justify-end">
-          <Button variant="primary" type="submit" custom="px-8 py-1.5 mt-8">
+          <Button variant="primary" type="submit" custom="px-8 py-1.5 mt-8" disabled={isLoading}>
             {isEditing ? "Edit" : "Tambah"} Bengkel
           </Button>
         </section>

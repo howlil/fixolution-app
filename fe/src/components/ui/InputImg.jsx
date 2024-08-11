@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState,useEffect } from "react";
 
 export default function InputImg({ label, onSelectImage, linkImage }) {
   const [fileName, setFileName] = useState("");
@@ -36,7 +36,7 @@ export default function InputImg({ label, onSelectImage, linkImage }) {
           accept="image/*"
           name="image"
           id="image"
-          required={!apiImage} 
+          required={!apiImage} // Conditionally required
         />
         <button type="button" onClick={handleClick} className="py-2 px-4 mr-3 bg-base rounded-l-xl text-white">
           Upload

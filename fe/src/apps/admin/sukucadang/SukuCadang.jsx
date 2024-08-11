@@ -6,10 +6,13 @@ import { useEffect, useState } from "react";
 import ModalDelete from "../../../components/admin/modals/modalDelete";
 import deleteSukuCadang from "../../../apis/sukuCadang/deleteSukuCadang";
 import Tables from "../../../components/ui/Table";
+import Loading from "../../../components/ui/Loading";
 
 export default function SukuCadang() {
   const navigate = useNavigate();
   const [sukuCadang, setSukuCadang] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Loading state for fetching data
+  const [isDeleting, setIsDeleting] = useState(false); // Loading state for deleting data
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
@@ -24,29 +27,39 @@ export default function SukuCadang() {
   }, []);
 
   const fetchData = async () => {
-    const data = await getAllSukuCadang();
-    setSukuCadang(data.data);
-    console.log(data.data);
+    setIsLoading(true); // Start loading
+    try {
+      const data = await getAllSukuCadang();
+      setSukuCadang(data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false); // Stop loading
+    }
   };
+
   const handleEdit = (row) => {
-    setEditId(row.id);
     navigate(`/manajemenSukuCadang/editSukuCadang/${row.id}`);
   };
 
   const handleView = (row) => { 
     navigate(`/manajemenSukuCadang/${row.id}/transaksiSukuCadang`);
-  }
+  };
 
   const handleDelete = async () => {
+    setIsDeleting(true); // Start loading during deletion
     try {
       const id = deleteId;
       await deleteSukuCadang(id);
-      fetchData();
+      fetchData(); // Refresh the data after deletion
       setShowDeleteModal(false);
     } catch (error) {
       console.error("Delete error:", error);
+    } finally {
+      setIsDeleting(false); // Stop loading after deletion
     }
   };
+
   return (
     <Layout>
       <div className="flex justify-between items-center">
@@ -59,23 +72,35 @@ export default function SukuCadang() {
           Tambah Data
         </Button>
       </div>
-      <section className="mt-8">
-        <Tables
-          columns={columns}
-          data={sukuCadang}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={(row) => {
-            setDeleteId(row.id);
-            setShowDeleteModal(true);
-          }}
-        />
+      <section className="mt-8 relative">
+        {isLoading ? (
+          <div className="fixed inset-0  bg-opacity-50 bg-gray-800 flex justify-center items-center z-50">
+            <Loading type="spin" color="#ffffff" />
+          </div>
+        ) : (
+          <Tables
+            columns={columns}
+            data={sukuCadang}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={(row) => {
+              setDeleteId(row.id);
+              setShowDeleteModal(true);
+            }}
+          />
+        )}
       </section>
       {showDeleteModal && (
         <ModalDelete
           onClose={() => setShowDeleteModal(false)}
           onDelete={handleDelete}
+          isLoading={isDeleting} // Pass loading state to modal
         />
+      )}
+      {isDeleting && (
+        <div className="fixed inset-0  bg-opacity-50 bg-gray-800 flex justify-center items-center z-50">
+          <Loading type="spin" color="#ffffff" />
+        </div>
       )}
     </Layout>
   );

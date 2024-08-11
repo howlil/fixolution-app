@@ -1,7 +1,13 @@
-export default async function addSukuCadang( nama, deskripsi, harga, stok, fileInput) {
-    const myHeaders = new Headers();
-    const token = localStorage.getItem("token");
-    myHeaders.append("Authorization", `Bearer ${token}`);
+export default async function addSukuCadang(
+  nama,
+  deskripsi,
+  harga,
+  stok,
+  fileInput
+) {
+  const myHeaders = new Headers();
+  const token = localStorage.getItem("token");
+  myHeaders.append("Authorization", `Bearer ${token}`);
 
   const formdata = new FormData();
   formdata.append("nama", nama);
@@ -10,22 +16,21 @@ export default async function addSukuCadang( nama, deskripsi, harga, stok, fileI
   formdata.append("stok", stok);
   formdata.append("foto", fileInput);
 
-const requestOptions = {
-  method: "POST",
-  headers: myHeaders,
-  body: formdata,
-  redirect: "follow"
-};
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: formdata,
+    redirect: "follow",
+  };
 
-    try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/addSukuCadang`;
-      const response = await fetch(apiUrl, requestOptions);
-      const data = await response.json();
-      console.log(data);
+  try {
+    const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/addSukuCadang`;
+    const response = await fetch(apiUrl, requestOptions);
+    const data = await response.json();
 
-      return data;
-    } catch (error) {
-      console.error("Fetch error:", error);
-      throw error;
-    }
+    return data;
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
   }
+}
