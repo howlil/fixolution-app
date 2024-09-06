@@ -119,6 +119,10 @@ model sukucadang {
   harga       Float
   stok        Int
   foto        String
+  lebar       Float
+  tinggi       Float
+  panjang      Float
+  berat       Float
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
   merek       merek        @relation(fields: [merek_id], references: [id])

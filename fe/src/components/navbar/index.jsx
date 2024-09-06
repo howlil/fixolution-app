@@ -16,7 +16,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className='bg-base absolute top-0 z-50 w-full px-4 sm:px-6 md:px-8 lg:px-12 py-2 sm:py-3 md:py-4'>
+    <nav className='bg-base fixed top-0 z-50 w-full px-4 sm:px-6 md:px-8 lg:px-12 py-2 sm:py-3 md:py-4'>
       <header className='flex justify-between items-center'>
         <img onClick={()=>navigate("/")} src={logo1} className='w-24 cursor-pointer sm:w-32 md:w-48 lg:w-60' alt="logo" />
         {isMobile ? (
