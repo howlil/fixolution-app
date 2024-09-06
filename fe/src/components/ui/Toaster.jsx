@@ -48,6 +48,7 @@ const CustomToast = ({ message, type, onClick }) => {
         </button>
         <span>{message}</span>
       </div>
+
     </div>
   );
 };

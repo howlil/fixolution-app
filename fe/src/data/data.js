@@ -1,6 +1,6 @@
-import image1 from 'public/s1.png';
-import image2 from 'public/s2.png';
-import image3 from 'public/s3.png';
+import image1 from '../images/s1.png';
+import image2 from '../images/s2.png';
+import image3 from '../images/s3.png';
 
 export const slides = [
     { img: image1, 

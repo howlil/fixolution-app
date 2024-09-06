@@ -1,4 +1,4 @@
-import img from 'public/logo2.svg';
+import img from '../../../images/logo2.svg';
 import SidebarNav from './SideNav';
 import { Link,useNavigate } from 'react-router-dom';
 import { PanelRightOpen } from 'lucide-react';

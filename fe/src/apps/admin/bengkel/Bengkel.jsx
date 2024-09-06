@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Tables from "../../../components/ui/Table";
 import ModalDelete from "../../../components/admin/modals/modalDelete";
-import getAllBengkel from "../../../apis/bengkel/getAllBengkel";
-import deleteBengkel from "../../../apis/bengkel/deleteBengkel";
 import Loading from "../../../components/ui/Loading";
-
+import api from "../../../utils/axios";
+import {showToast} from '../../../components/ui/Toaster'
+import { Toaster } from "react-hot-toast";
 export default function ManajemenBengkel() {
   const navigate = useNavigate();
   const [bengkel, setBengkel] = useState([]);
@@ -16,20 +16,20 @@ export default function ManajemenBengkel() {
   const [isLoading, setIsLoading] = useState(true); // Loading state
 
   const columns = [
-    { header: "Nama Bengkel", accessor: "namaBengkel" },
-    { header: "No HP", accessor: "noHp" },
+    { header: "Nama Bengkel", accessor: "nama_bengkel" },
+    { header: "No HP", accessor: "no_hp" },
     { header: "Alamat", accessor: "alamat" },
   ];
 
   const fetchData = async () => {
     setIsLoading(true); // Start loading
     try {
-      const data = await getAllBengkel();
-      setBengkel(data.data);
+      const data = await api.get(`/admin/getAllBengkel`);
+      setBengkel(data.data.data);
     } catch (error) {
       console.error("Failed to fetch bengkel data:", error);
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false); 
     }
   };
 
@@ -47,10 +47,13 @@ export default function ManajemenBengkel() {
 
   const handleDelete = async () => {
     try {
+      setIsLoading(true); 
       const id = deleteId;
-      await deleteBengkel(id);
+      await api.delete(`admin/deleteBengkel/${id}`);
       setBengkel(bengkel.filter((item) => item.id !== deleteId));
       setShowDeleteModal(false);
+      setIsLoading(false);
+      showToast("Bengkel berhasil dihapus", "success");
     } catch (error) {
       console.error("Delete error:", error);
     }
@@ -91,6 +94,7 @@ export default function ManajemenBengkel() {
           onClose={() => setShowDeleteModal(false)}
         />
       )}
+      <Toaster />
     </Layout>
   );
 }

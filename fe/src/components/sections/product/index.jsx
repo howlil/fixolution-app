@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CardProduct from "./CardProduct";
-import wa from "public/wa.svg";
+import wa from "../../../images/wa.svg";
 import Button from "../../ui/Button";
 import getAllSukuCadang from "../../../apis/sukuCadang/getSukuCadang";
 import { useNavigate } from "react-router-dom";

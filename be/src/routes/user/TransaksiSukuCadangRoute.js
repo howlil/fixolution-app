@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const transactionController = require("../../controllers/user/TransaksiSukuCadangController");
-const md = require("../middlewares/authmidleware");
+const md = require("../../middlewares/authmidleware");
 
 // Route untuk menambahkan barang ke keranjang
 router.post(

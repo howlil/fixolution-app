@@ -19,7 +19,7 @@ export default function ArrayImg({ label, onSelectImages, links }) {
       const newImages = files.map(file => URL.createObjectURL(file));
       setFileNames(prevFileNames => [...prevFileNames, ...newFileNames]);
       setApiImages(prevApiImages => [...prevApiImages, ...newImages]);
-      onSelectImages(prevFiles => [...prevFiles, ...files]);
+      onSelectImages(prevFiles => [...prevFiles, ...files]); // Simpan objek File asli
     }
   };
 
@@ -30,7 +30,7 @@ export default function ArrayImg({ label, onSelectImages, links }) {
   const handleRemoveImage = (index) => {
     setFileNames(prevFileNames => prevFileNames.filter((_, i) => i !== index));
     setApiImages(prevApiImages => prevApiImages.filter((_, i) => i !== index));
-    onSelectImages(prevFiles => prevFiles.filter((_, i) => i !== index));
+    onSelectImages(prevFiles => prevFiles.filter((_, i) => i !== index)); // Hapus file dari array
   };
 
   return (

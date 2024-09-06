@@ -1,5 +1,5 @@
 import YoutubeEmbed from "./ytembed";
-import bg from "public/ban.png";
+import bg from "../../../images/ban.png";
 
 export default function Profile() {
   return (

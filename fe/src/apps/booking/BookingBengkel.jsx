@@ -1,6 +1,6 @@
 import Navbar from "../../components/navbar";
 import CardBooking from "../../components/sections/booking/CardBooking";
-import img from "public/ban.png";
+import img from "../../images/ban.png";
 
 export default function BookingBengkel() {
   const data = [

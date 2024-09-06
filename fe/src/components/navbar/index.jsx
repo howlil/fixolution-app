@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import logo1 from 'public/logo2.svg';
+import logo1 from '../../images/logo2.svg';
 import Nav from './Nav';
 import NavMobile from './NavMobile';
 import { Menu } from 'lucide-react';

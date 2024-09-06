@@ -1,4 +1,4 @@
-import our from "public/our.png";
+import our from "../../../images/our.png";
 import CardService from "./CardService";
 export default function About() {
   return (

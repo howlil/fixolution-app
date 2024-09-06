@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/Input";
 import { Link } from "react-router-dom";
 import Button from "../../components/ui/Button";
-import LoginAkun from "../../apis/auth/login";
 import Loading from "../../components/ui/Loading";
 import { showToast } from "../../components/ui/Toaster";
 import { Toaster } from "react-hot-toast";
+import api from "../../utils/axios";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -24,11 +24,17 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const response = await LoginAkun(username, password);
-      if (!response.success) {
+      const response = await api.post("/login", {
+        username,
+        password,
+      });
+      const token = response.data.data.token;
+      localStorage.setItem("token", token);
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+      if (!response.data.success) {
         showToast(response.message, "error");
       } else {
-        showToast(response.message, "success");
+        showToast(response.data.message, "success");
         navigate("/dashboard");
       }
     } catch (error) {
@@ -37,6 +43,7 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+  if (isLoading) return <Loading />;
 
   return (
     <div>

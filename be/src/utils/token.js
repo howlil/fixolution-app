@@ -7,6 +7,6 @@ exports.createToken = (user, userType) => {
             userType: userType,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '7d' }
     );
 };

@@ -66,6 +66,7 @@ exports.registerUser = async (req, res) => {
         username: yup.string().min(3).max(30).required(),
         password: yup.string().min(6).max(30).required(),
         no_hp : yup.string().min(10).max(13).required(),
+        nama : yup.string().min(3).max(30).optional(),
     });
     try {
         const validData = await userSchema.validate(req.body);
@@ -90,6 +91,7 @@ exports.registerUser = async (req, res) => {
                 username: validData.username,
                 password: hashedPassword,
                 no_hp: validData.no_hp,
+                nama: validData.nama, 
             },
         });
 

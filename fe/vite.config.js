@@ -9,7 +9,6 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "public": path.resolve(__dirname, "./public"),
       "@": path.resolve(__dirname, "./src"),
       "date-fns/_lib/format/longFormatters":
         "date-fns/esm/_lib/format/longFormatters/index.js",
