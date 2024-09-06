@@ -3,12 +3,12 @@ const yup = require('yup');
 const multer = require('multer');
 const path = require('path');
 
-
 const sukucadangSchema = yup.object().shape({
     nama: yup.string().required(),
     deskripsi: yup.string().required(),
     harga: yup.number().required().positive(),
     stok: yup.number().required().min(1),
+    merek_id: yup.string().required(),
     foto: yup.string().required()
 });
 
@@ -18,6 +18,7 @@ exports.addSukucadang = async (req, res) => {
             ...req.body,
             foto: req.file ? req.file.filename : undefined
         });
+
         const existingSukucadang = await prisma.sukucadang.findFirst({
             where: {
                 nama: validData.nama,
@@ -31,9 +32,27 @@ exports.addSukucadang = async (req, res) => {
                 success: false,
             });
         }
+        const merekExists = await prisma.merek.findUnique({
+            where: { id: validData.merek_id }, 
+          });
+          
+          if (!merekExists) {
+            return res.status(400).json({
+              message: "Merek tidak ditemukan, pastikan merek_id valid",
+              success: false,
+            });
+          }
+          
 
         const newSukucadang = await prisma.sukucadang.create({
-            data: validData,
+            data: {
+                nama: validData.nama,
+                deskripsi: validData.deskripsi,
+                harga: validData.harga,
+                stok: validData.stok,
+                foto: validData.foto,
+                merek_id: validData.merek_id, // Pastikan merek_id disertakan
+            },
         });
 
         return res.status(201).json({
@@ -86,18 +105,19 @@ const fileFilter = function (req, file, cb) {
 
 exports.uploadFoto = multer({ storage: storage, fileFilter: fileFilter }).single("foto");
 
-
 exports.editSukucadang = async (req, res) => {
     try {
         const { id } = req.params;
+
         const validData = await sukucadangSchema.validate({
             ...req.body,
             foto: req.file ? req.file.filename : undefined
         });
+
         const existingSukucadang = await prisma.sukucadang.findFirst({
             where: {
                 AND: [
-                    { nama: validData.nama }, 
+                    { nama: validData.nama },
                     { NOT: { id } }
                 ]
             }
@@ -113,7 +133,14 @@ exports.editSukucadang = async (req, res) => {
 
         const updatedSukucadang = await prisma.sukucadang.update({
             where: { id },
-            data: validData,
+            data: {
+                nama: validData.nama,
+                deskripsi: validData.deskripsi,
+                harga: validData.harga,
+                stok: validData.stok,
+                foto: validData.foto,
+                merek_id: validData.merek_id, // Pastikan merek_id disertakan
+            },
         });
 
         return res.status(200).json({
@@ -173,9 +200,14 @@ exports.deleteSukucadang = async (req, res) => {
         });
     }
 };
+
 exports.getAllSukuCadang = async (req, res) => {
     try {
-        const sukuCadangs = await prisma.sukucadang.findMany();
+        const sukuCadangs = await prisma.sukucadang.findMany({
+            include: {
+                merek: true, // Menambahkan relasi dengan merek
+            },
+        });
         if (sukuCadangs.length === 0) {
             return res.status(404).json({
                 message: "Tidak ada suku cadang",
@@ -205,6 +237,9 @@ exports.getSukuCadangById = async (req, res) => {
 
         const sukuCadang = await prisma.sukucadang.findUnique({
             where: { id },
+            include: {
+                merek: true, // Menambahkan relasi dengan merek
+            },
         });
 
         if (!sukuCadang) {

@@ -4,11 +4,11 @@ const yup = require('yup');
 const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
 const layananSchema = yup.object().shape({
-    namaLayanan: yup.string().required("Nama layanan diperlukan"),
+    nama_layanan: yup.string().required("Nama layanan diperlukan"), // Ganti namaLayanan menjadi nama_layanan
     harga: yup.number().required("Harga diperlukan").positive("Harga harus lebih besar dari 0"),
     deskripsi: yup.string().nullable(),
-    jamBuka: yup.string().matches(timeRegex, "Format jam buka tidak valid").nullable(),
-    jamTutup: yup.string().matches(timeRegex, "Format jam tutup tidak valid").nullable(),
+    jam_buka: yup.string().matches(timeRegex, "Format jam buka tidak valid").nullable(),
+    jam_tutup: yup.string().matches(timeRegex, "Format jam tutup tidak valid").nullable(),
 });
 
 exports.tambahLayananBengkel = async (req, res) => {
@@ -27,10 +27,11 @@ exports.tambahLayananBengkel = async (req, res) => {
         success: false,
       });
     }
+
     const existingLayanan = await prisma.layanan.findFirst({
       where: {
         AND: [
-          { namaLayanan: validData.namaLayanan }, 
+          { nama_layanan: validData.nama_layanan }, // Ganti namaLayanan menjadi nama_layanan
           { bengkel_id: bengkel_id },
         ],
       },
@@ -43,11 +44,12 @@ exports.tambahLayananBengkel = async (req, res) => {
         success: false,
       });
     }
+
     const newLayanan = await prisma.layanan.create({
       data: {
         ...validData,
         bengkel_id: bengkel_id,
-      }
+      },
     });
 
     return res.status(201).json({
@@ -71,7 +73,7 @@ exports.tambahLayananBengkel = async (req, res) => {
       });
     }
   }
-}
+};
 
 exports.getAllLayanan = async (req, res) => {
   try {
@@ -127,7 +129,7 @@ exports.getLayananById = async (req, res) => {
       success: false,
     });
   }
-}
+};
 
 exports.updateLayanan = async (req, res) => {
   try {

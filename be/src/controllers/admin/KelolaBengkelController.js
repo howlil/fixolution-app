@@ -5,14 +5,14 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 
 const bengkelSchema = yup.object().shape({
-  namaBengkel: yup.string().required(),
+  nama_bengkel: yup.string().required(),
   username: yup.string().required(),
   password: yup.string().required(),
-  noHp: yup.string().required(),
+  no_hp: yup.string().required(),
   alamat: yup.string().required(),
   status: yup.mixed().oneOf(['Aktif', 'TidakAktif']).required(),
-  gmapsLink: yup.string().optional().url(),
-  fotos: yup.array().of(yup.string().required()),
+  gmaps_link: yup.string().optional().url(),
+  foto: yup.array().of(yup.string().required()), // Pastikan ini sesuai dengan array file
 });
 
 exports.addBengkel = async (req, res) => {
@@ -33,14 +33,21 @@ exports.addBengkel = async (req, res) => {
         success: false,
       });
     }
+    
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(validData.password, salt);
     validData = { ...validData, password: hashedPassword };
 
     const newBengkel = await prisma.bengkel.create({
       data: {
-        ...validData,
-        fotos: {
+        nama_bengkel: validData.nama_bengkel,
+        username: validData.username,
+        password: validData.password,
+        no_hp: validData.no_hp,
+        alamat: validData.alamat,
+        status: validData.status,
+        gmaps_link: validData.gmaps_link,
+        foto: {  // Perubahan di sini karena model `foto` dalam bentuk tunggal
           create: validData.fotos.map(foto => ({ foto }))
         }
       },
@@ -69,6 +76,7 @@ exports.addBengkel = async (req, res) => {
   }
 };
 
+// Setting multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, '../../../public/images/bengkel'));
@@ -104,7 +112,7 @@ exports.editBengkel = async (req, res) => {
 
     const existingBengkel = await prisma.bengkel.findUnique({
       where: { id },
-      include: { fotos: true }
+      include: { foto: true } 
     });
 
     if (!existingBengkel) {
@@ -123,13 +131,13 @@ exports.editBengkel = async (req, res) => {
 
     if (validData.fotos.length > 0) {
       await prisma.foto.deleteMany({
-        where: { bengkelId: id }
+        where: { bengkel_id: id }
       });
 
       await prisma.foto.createMany({
         data: validData.fotos.map(foto => ({
           foto,
-          bengkelId: id
+          bengkel_id: id 
         }))
       });
     }
@@ -137,7 +145,13 @@ exports.editBengkel = async (req, res) => {
     const updatedBengkel = await prisma.bengkel.update({
       where: { id },
       data: {
-        ...validData
+        nama_bengkel: validData.nama_bengkel,
+        username: validData.username,
+        password: validData.password,
+        no_hp: validData.no_hp,
+        alamat: validData.alamat,
+        status: validData.status,
+        gmaps_link: validData.gmaps_link,
       }
     });
 
@@ -163,7 +177,6 @@ exports.editBengkel = async (req, res) => {
     }
   }
 };
-
 
 exports.deleteBengkel = async (req, res) => {
   try {
@@ -204,7 +217,7 @@ exports.getAllBengkel = async (req, res) => {
   try {
     const bengkelList = await prisma.bengkel.findMany({
       include: {
-        fotos: true,
+        foto: true, // Sesuaikan dengan skema foto dalam bentuk tunggal
       },
     });
     if (bengkelList.length === 0) {
@@ -236,7 +249,7 @@ exports.getBengkelById = async (req, res) => {
     const bengkel = await prisma.bengkel.findUnique({
       where: { id },
       include: {
-        fotos: true,
+        foto: true, // Sesuaikan dengan skema foto dalam bentuk tunggal
       },
     });
 
@@ -262,4 +275,3 @@ exports.getBengkelById = async (req, res) => {
     });
   }
 };
-

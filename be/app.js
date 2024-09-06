@@ -38,6 +38,9 @@ app.use('/api/', server.adminBengkel);
 app.use('/api/', server.sukuCadang);
 app.use('/api/', server.layananBengkel);
 app.use('/api/', server.dashbaoard);
+app.use('/api/', server.merek);
+app.use('/api/', server.serviceToGo);
+app.use('/api/', server.booking);
 
 
 app.use("/api/fotoBengkel", express.static("public/images/bengkel"));
@@ -100,6 +103,13 @@ app.use(function (req, res, next) {
 
 app.use(function (req, res, next) {
   res.status(404).json({ message: "Not Found" });
+});
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: "Not Found",
+    success: false,
+  });
 });
 
 module.exports = app;

@@ -8,145 +8,200 @@ generator client {
 }
 
 model superadmin {
-  id         String   @id @default(cuid())
-  username   String   @unique
-  password   String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  tokens     token[]
+  id          String    @id @default(uuid())
+  username    String    @unique
+  password    String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  token       token[]
 }
 
 model bengkel {
-  id             String   @id @default(cuid())
-  namaBengkel    String
-  username       String   @unique
-  password       String
-  noHp           String
-  alamat         String
-  status         statusBengkel 
-  gmapsLink      String?
-  layanan_bengkels layanan[]
-  invoices       invoice[]
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
-  tokens         token[]
-  fotos          foto[]
+  id           String    @id @default(uuid())
+  nama_bengkel String
+  username     String    @unique
+  password     String
+  no_hp        String
+  alamat       String
+  status       String
+  gmaps_link   String
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  foto         foto[]
+  layanan      layanan[]
+  token        token[]
+  servicetogo_request servicetogo_request[]
+  booking_layanan booking_layanan[]
 }
 
 model foto {
-  id        String   @id @default(cuid())
-  foto      String
-  bengkelId String
-  bengkel   bengkel  @relation(fields: [bengkelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id          String    @id @default(uuid())
+  foto        String
+  bengkel_id  String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  bengkel     bengkel   @relation(fields: [bengkel_id], references: [id])
 }
 
 model user {
-  id         String   @id @default(cuid())
-  username   String   @unique
-  password   String
-  noHp       String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  transaksis transaksi[]
-  servicetogo_requests servicetogoRequest[]
-  tokens     token[]
+  id          String             @id @default(uuid())
+  username    String             @unique
+  password    String
+  nama        String?
+  no_hp       String
+  created_at  DateTime           @default(now())
+  updated_at  DateTime           @updatedAt
+  alamat_pengiriman alamat_pengiriman[]
+  transaksi   transaksi[]
+  keranjang   keranjang[]
+  token       token[]
+  servicetogo_request servicetogo_request[]
+  booking_layanan booking_layanan[]
+}
+
+model keranjang {
+  id          String          @id @default(uuid())
+  user_id     String
+  total_harga Float
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
+  user        user            @relation(fields: [user_id], references: [id])
+  transaksi   transaksi[]
+  keranjang_items keranjang_items[]
+}
+
+model keranjang_items {
+  id             String     @id @default(uuid())
+  keranjang_id   String
+  sukucadang_id  String
+  harga          Float
+  jumlah         Int
+  total_harga    Float
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+  keranjang      keranjang  @relation(fields: [keranjang_id], references: [id])
+  sukucadang     sukucadang @relation(fields: [sukucadang_id], references: [id])
+}
+
+model alamat_pengiriman {
+  id           String   @id @default(uuid())
+  user_id      String
+  provinsi     String
+  kota         String
+  kecamatan    String
+  kode_pos     String
+  alamat       String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  user         user     @relation(fields: [user_id], references: [id])
+  transaksi    transaksi[]
 }
 
 model layanan {
-  id          String   @id @default(cuid())
-  namaLayanan        String
-  deskripsi   String
-  harga       Float
-  jamBuka     String 
-  jamTutup    String
-  bengkel_id  String
-  bengkel     bengkel @relation(fields: [bengkel_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id           String   @id @default(uuid())
+  nama_layanan String
+  deskripsi    String
+  harga        Float
+  jam_buka     String
+  jam_tutup    String
+  bengkel_id   String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id])
+  booking_layanan booking_layanan[]
 }
 
 model sukucadang {
-  id          String   @id @default(cuid())
+  id          String       @id @default(uuid())
+  merek_id    String
   nama        String
   deskripsi   String
   harga       Float
   stok        Int
-  foto        String        
+  foto        String
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  merek       merek        @relation(fields: [merek_id], references: [id])
+  keranjang_items keranjang_items[]
+  transaksi_sukucadang transaksi_sukucadang[]
+}
+
+model merek {
+  id          String   @id @default(uuid())
+  nama_merek  String
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
-  transaksis_sukucadang transaksiSukucadang[]
+  sukucadang  sukucadang[]
 }
 
 model transaksi {
-  id                 String   @id @default(cuid())
-  user_id            String
-  total_harga        Float
-  bukti_pembayaran   String
-  status             status   @default(Pending)
-  alamat             String
-  created_at         DateTime @default(now())
-  updated_at         DateTime @default(now())
-  user               user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  transaksis_sukucadang transaksiSukucadang[]
+  id               String   @id @default(uuid())
+  user_id          String
+  keranjang_id     String
+  bukti_pembayaran String
+  status           String
+  alamat_id        String
+  kurir            String
+  biaya_pengiriman Float
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  user             user     @relation(fields: [user_id], references: [id])
+  keranjang        keranjang @relation(fields: [keranjang_id], references: [id])
+  alamat_pengiriman alamat_pengiriman @relation(fields: [alamat_id], references: [id])
+  transaksi_sukucadang transaksi_sukucadang[]
 }
 
-model transaksiSukucadang {
-  id                 String   @id @default(cuid())
-  transaksi_id       String
-  sukucadang_id      String
-  quantity           Int
-  transaksi          transaksi @relation(fields: [transaksi_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  sukucadang         sukucadang @relation(fields: [sukucadang_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@unique([transaksi_id, sukucadang_id])
-}
-
-model servicetogo {
-  id          String   @id @default(cuid())
-  nama        String
-  deskripsi   String
-  harga       Float
-  kontak      String
-}
-
-model invoice {
-  id          String   @id @default(cuid())
-  bengkel_id  String
-  jumlah      Float
-  status      status   @default(Pending)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now())
-  bengkel     bengkel @relation(fields: [bengkel_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+model transaksi_sukucadang {
+  id               String     @id @default(uuid())
+  transaksi_id     String
+  sukucadang_id    String
+  total_barang     Int
+  total_harga      Float
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+  transaksi        transaksi  @relation(fields: [transaksi_id], references: [id])
+  sukucadang       sukucadang @relation(fields: [sukucadang_id], references: [id])
 }
 
 model token {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   user_id     String?
   admin_id    String?
   bengkel_id  String?
   token       String  @db.Text
   created_at  DateTime @default(now())
-  updated_at  DateTime @default(now())
-  user        user? @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  superadmin  superadmin? @relation(fields: [admin_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  bengkel     bengkel? @relation(fields: [bengkel_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  updated_at  DateTime @updatedAt
+  user        user?     @relation(fields: [user_id], references: [id])
+  superadmin  superadmin? @relation(fields: [admin_id], references: [id])
+  bengkel     bengkel?   @relation(fields: [bengkel_id], references: [id])
 }
 
-model servicetogoRequest {
-  id             String   @id @default(cuid())
-  user_id        String
-  gmapsLink      String? 
-  deskripsi      String
-  status         status   @default(Pending)
-  created_at     DateTime @default(now())
-  updated_at     DateTime @default(now())
-  user           user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+model servicetogo_request {
+  id           String   @id @default(uuid())
+  user_id      String
+  bengkel_id   String
+  gmaps_link   String
+  deskripsi    String
+  status       String
+  pesan_bengkel String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  user         user     @relation(fields: [user_id], references: [id])
+  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id])
 }
 
-enum status {
-  Pending
-  Diterima
-  Ditolak
-}
-enum statusBengkel {
-  Aktif
-  TidakAktif
+model booking_layanan {
+  id           String   @id @default(uuid())
+  user_id      String
+  bengkel_id   String
+  layanan_id   String
+  tanggal      Int
+  jam_mulai    Int
+  status       String
+  pesan_bengkel String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  user         user     @relation(fields: [user_id], references: [id])
+  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id])
+  layanan      layanan  @relation(fields: [layanan_id], references: [id])
 }
