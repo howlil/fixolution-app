@@ -1,57 +1,82 @@
 import Layout from "../../../components/admin/layout";
 import Button from "../../../components/ui/Button";
-import getBengkelById from "../../../apis/bengkel/getBengkelById";
-import { useEffect,useState } from "react";
-import { useParams,useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Tables from "../../../components/ui/TableNoView";
 import ModalDelete from "../../../components/admin/modals/modalDelete";
-import deleteLayananBengkel from "../../../apis/bengkel/deleteLayananBengkel";
+import api from "../../../utils/axios";
+import Loading from "../../../components/ui/Loading";
+import { showToast } from "../../../components/ui/Toaster";
+import { Toaster } from "react-hot-toast";
 
 export default function LayananBengkel() {
   const [bengkel, setBengkel] = useState([]);
-  const params = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [nama_bengkel, setNamaBengkel] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const { data: response } = await api.get(`${id}/getAllLayananBengkel`);
+
+      const updatedData = response.data.map((item) => ({
+        ...item,
+        jamOperational: `${item.jam_buka} - ${item.jam_tutup}`,
+      }));
+
+      setBengkel(updatedData);
+      setNamaBengkel(updatedData[0]?.bengkel?.nama_bengkel || "");
+    } catch (error) {
+      showToast("Gagal mengambil data layanan", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (row) => {
+    navigate(`/manajemenBengkel/${id}/layananBengkel/editLayananBengkel/${row.id}`);
+  };
+
+  const handleDelete = async () => {
+    try {
+      setIsLoading(true);
+      const { data: data } = await api.delete(`${id}/deleteLayananBengkel/${deleteId}`);
+      setShowDeleteModal(false);
+      showToast(data.message, "success");
+      fetchData();
+    } catch (error) {
+      showToast("Layanan bengkel gagal dihapus", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
-},[]);
+  }, []);
 
-const fetchData = async () => {
-  const bengkelId = params.id;
-    const data = await getBengkelById(bengkelId);
-    setBengkel(data.data.namaBengkel);
-}
-const handleEdit = (row) => {
-  navigate(`/manajemenBengkel/editBengkel/${row.id}`);
-};
-const handleDelete = async () => {
-  try {
-    const id = deleteId;
-    await deleteLayananBengkel(params.id, id);
-    setBengkel(bengkel.filter((item) => item.id !== deleteId));
-    setShowDeleteModal(false);
-  } catch (error) {
-    console.error("Delete error:", error);}
-};
+  const columns = [
+    { header: "Nama Layanan", accessor: "nama_layanan" },
+    { header: "Kisaran Harga", accessor: "harga" },
+    { header: "Jam Operational", accessor: "jamOperational" }, // Use the combined data
+  ];
 
-const columns = [
-  { header: "Nama Layanan", accessor: "namaLayanan" },
-  { header: "Kisaran Harga", accessor: "harga" },
-  { header: "jam Operational", accessor: "jamBuka" },
-];
-const navigateToAddLayananBengkel = () => {
-  const currentId = params.id; 
-  const newPath = `/manajemenBengkel/${currentId}/layananBengkel/addLayananBengkel`; 
-  navigate(newPath); 
-};
+  const navigateToAddLayananBengkel = () => {
+    const newPath = `/manajemenBengkel/${id}/layananBengkel/addLayananBengkel`;
+    navigate(newPath);
+  };
 
+  if (isLoading) return <Loading />;
 
   return (
     <Layout>
+      <Toaster />
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-3xl">{`Layanan ${bengkel}`}</h1>
+        <h1 className="font-semibold text-3xl">{`Layanan ${nama_bengkel}`}</h1>
         <Button
           variant="primary"
           onClick={navigateToAddLayananBengkel}
@@ -59,16 +84,17 @@ const navigateToAddLayananBengkel = () => {
         >
           Tambah Layanan
         </Button>
-
       </div>
       <section className="mt-8">
         <Tables
           columns={columns}
+          data={bengkel}
           onEdit={handleEdit}
           onDelete={(row) => {
             setDeleteId(row.id);
             setShowDeleteModal(true);
-          }}        />
+          }}
+        />
       </section>
       {showDeleteModal && (
         <ModalDelete

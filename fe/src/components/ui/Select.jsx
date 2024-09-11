@@ -1,15 +1,15 @@
 
-const Select = ({ label, options, onChange }) => {
+const Select = ({ label, options, onChange,className }) => {
     return (
       <div className="flex flex-col">
         {label && (
-          <label className="mb-1 text-md font-semibold text-gray-700">
+          <label className={`mb-1 text-md font-semibold text-gray-700 ${className}`} >
             {label}
           </label>
         )}
         <select
           onChange={onChange}
-          className="px-3 py-1.5 text-gray-700 border-neutral-400 rounded-2xl border"
+          className={`px-3 py-1.5 text-gray-700  border-neutral-400 rounded-2xl border ${className}`}
         >
          <option value="">Select </option>
   

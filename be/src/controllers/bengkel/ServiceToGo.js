@@ -136,19 +136,17 @@ exports.getServiceToGoRequestsByStatus = async (req, res) => {
   };
   
   exports.getAllServiceRequests = async (req, res) => {
-    const { bengkel_id, user_id } = req.query;
   
     try {
-      // Ambil semua request Service To Go dengan filter optional
       const requests = await prisma.servicetogo_request.findMany({
         where: {
-          // Gunakan filter hanya jika ada bengkel_id atau user_id
-          ...(bengkel_id && { bengkel_id }),  // Filter berdasarkan bengkel_id jika ada
-          ...(user_id && { user_id }),        // Filter berdasarkan user_id jika ada
+          user_id: req.userId, // Hanya request yang dikirim oleh user yang sedang login
         },
         include: {
           user: true, // Mengambil detail user yang mengirim request
-          bengkel: true, // Mengambil detail bengkel yang dipilih
+          bengkel: {
+            include :{foto:true}
+          } , 
         },
       });
   
@@ -162,6 +160,7 @@ exports.getServiceToGoRequestsByStatus = async (req, res) => {
       res.status(200).json({
         message: "Berhasil mengambil semua request Service to Go",
         data: requests,
+        type : "Service To Go",
         success: true,
       });
     } catch (err) {

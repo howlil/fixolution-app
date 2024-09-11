@@ -16,17 +16,22 @@ router.get(
   md.authenticateToken,
   transactionController.getCartItems
 );
+router.get(
+  "/cartItem/:item_id",
+  md.authenticateToken,
+  transactionController.getCartItem
+);
 
 // Route untuk mengedit item di keranjang
 router.put(
-  "/editItem/:item_id",
+  "/editItem",
   md.authenticateToken,
   transactionController.editCartItem
 );
 
 // Route untuk menghapus item dari keranjang
 router.delete(
-  "/removeCart/:item_id",
+  "/removeCart",
   md.authenticateToken,
   transactionController.removeFromCart
 );
@@ -35,7 +40,12 @@ router.delete(
 router.post(
   "/createTransaction",
   md.authenticateToken,
-  transactionController.createTransactionWithPayment
+  transactionController.createPesanan
+);
+router.put(
+  "/bayar",
+  md.authenticateToken,
+  transactionController.uploadBuktiPembayaran
 );
 
 // Route untuk admin konfirmasi transaksi

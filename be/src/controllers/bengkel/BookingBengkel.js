@@ -39,7 +39,6 @@ exports.bookLayanan = async (req, res) => {
       });
     }
 
-    // Gabungkan tanggal dan jam_mulai ke dalam satu string untuk diubah ke Unix Time
     const dateTime = `${validData.tanggal}T${validData.jam_mulai}:00`; // Format: YYYY-MM-DDTHH:MM:00
     const unixTime = Math.floor(Date.parse(dateTime) / 1000); // Konversi ke Unix timestamp
 
@@ -122,14 +121,50 @@ exports.respondToBooking = async (req, res) => {
   };
 
   
+  // exports.getAllBookings = async (req, res) => {
+  //   try {
+  //     // Ambil semua booking layanan bengkel
+  //     const bookings = await prisma.booking_layanan.findMany({
+  //       include: {
+  //         user: true,  // Include detail user
+  //         bengkel: true,  // Include detail bengkel
+  //         layanan: true,  // Include detail layanan
+  //       },
+  //     });
+  
+  //     if (bookings.length === 0) {
+  //       return res.status(404).json({
+  //         message: "Tidak ada booking yang ditemukan",
+  //         success: false,
+  //       });
+  //     }
+  
+  //     res.status(200).json({
+  //       message: "Berhasil mengambil semua booking",
+  //       data: bookings,
+  //       success: true,
+  //     });
+  //   } catch (err) {
+  //     console.error("Database error:", err);
+  //     return res.status(500).json({
+  //       message: "Database error",
+  //       success: false,
+  //     });
+  //   }
+  // };
+  
+
   exports.getAllBookings = async (req, res) => {
     try {
-      // Ambil semua booking layanan bengkel
+  
       const bookings = await prisma.booking_layanan.findMany({
+        where: { user_id :req.userId },  
         include: {
-          user: true,  // Include detail user
-          bengkel: true,  // Include detail bengkel
-          layanan: true,  // Include detail layanan
+          user: true,    
+          bengkel: {
+            include: { foto: true },
+          }, 
+          layanan: true, 
         },
       });
   
@@ -143,6 +178,7 @@ exports.respondToBooking = async (req, res) => {
       res.status(200).json({
         message: "Berhasil mengambil semua booking",
         data: bookings,
+        type : "Booking",
         success: true,
       });
     } catch (err) {

@@ -13,18 +13,9 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage }).single("bukti_bayar");
+const upload = multer({ storage: storage }).single("bukti_pembayaran");
 
-const transactionSchema = yup.object().shape({
-  suku_cadang_id: yup.string().required("Suku cadang harus dipilih"),
-  jumlah: yup
-    .number()
-    .required("Jumlah harus diisi")
-    .positive("Jumlah harus lebih besar dari 0"),
-  kode_pos: yup.string().required("Kode pos harus diisi"),
-  alamat: yup.string().required("Alamat detail harus diisi"),
-  kurir: yup.string().required("Kurir harus dipilih"),
-});
+
 
 // API untuk menambahkan barang ke keranjang
 exports.addToCart = async (req, res) => {
@@ -43,22 +34,86 @@ exports.addToCart = async (req, res) => {
       });
     }
 
-    // Tambah barang ke keranjang
-    const cartItem = await prisma.keranjang_items.create({
-      data: {
-        keranjang_id: req.userId, // Keranjang ID dari user yang login
+    // Cek apakah keranjang sudah ada untuk user ini
+    let userCart = await prisma.keranjang.findFirst({
+      where: { user_id: req.userId },
+    });
+
+    // Jika keranjang tidak ada, buat keranjang baru dengan total_harga = 0
+    if (!userCart) {
+      userCart = await prisma.keranjang.create({
+        data: {
+          user_id: req.userId, // Ensure this is coming from authenticated user
+          total_harga: 0, // Initialize the cart's total price as 0
+        },
+      });
+    }
+
+    // Cek apakah barang dengan suku_cadang_id sudah ada di keranjang
+    let existingCartItem = await prisma.keranjang_items.findFirst({
+      where: {
+        keranjang_id: userCart.id,
         sukucadang_id: suku_cadang_id,
-        harga: sukuCadang.harga,
-        jumlah: jumlah,
-        total_harga: sukuCadang.harga * jumlah,
       },
     });
 
-    res.status(201).json({
-      message: "Barang berhasil ditambahkan ke keranjang",
-      data: cartItem,
-      success: true,
-    });
+    if (existingCartItem) {
+      // Jika barang sudah ada, tambahkan jumlah dan update total_harga
+      const updatedCartItem = await prisma.keranjang_items.update({
+        where: { id: existingCartItem.id },
+        data: {
+          jumlah: {
+            increment: jumlah, // Tambahkan jumlah barang
+          },
+          total_harga: {
+            increment: sukuCadang.harga * jumlah, // Update total harga barang
+          },
+        },
+      });
+
+      // Update total harga di keranjang setelah item diupdate
+      await prisma.keranjang.update({
+        where: { id: userCart.id },
+        data: {
+          total_harga: {
+            increment: sukuCadang.harga * jumlah, // Tambahkan harga barang ke total harga keranjang
+          },
+        },
+      });
+
+      return res.status(200).json({
+        message: "Jumlah barang di keranjang berhasil diupdate",
+        data: updatedCartItem,
+        success: true,
+      });
+    } else {
+      // Jika barang belum ada, tambahkan item baru ke keranjang
+      const newCartItem = await prisma.keranjang_items.create({
+        data: {
+          keranjang_id: userCart.id, // Menggunakan keranjang ID dari user
+          sukucadang_id: suku_cadang_id,
+          harga: sukuCadang.harga,
+          jumlah: jumlah,
+          total_harga: sukuCadang.harga * jumlah,
+        },
+      });
+
+      // Update total harga di keranjang setelah item ditambahkan
+      await prisma.keranjang.update({
+        where: { id: userCart.id },
+        data: {
+          total_harga: {
+            increment: sukuCadang.harga * jumlah, // Tambah total harga ke keranjang
+          },
+        },
+      });
+
+      return res.status(201).json({
+        message: "Barang berhasil ditambahkan ke keranjang",
+        data: newCartItem,
+        success: true,
+      });
+    }
   } catch (err) {
     console.error("Database error:", err);
     return res.status(500).json({
@@ -68,8 +123,89 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-exports.createTransactionWithPayment = (req, res) => {
-  upload(req, res, async function (err) {
+
+const transactionSchema = yup.object().shape({
+  keranjang_id: yup.string().nullable(), // Tambahkan validasi untuk keranjang_id
+  alamat_id: yup.string().required("Alamat pengiriman harus dipilih"),
+  kurir: yup.string().required("Kurir harus dipilih"),
+  suku_cadang: yup.array().of(
+    yup.object().shape({
+      id: yup.string().required("ID suku cadang harus diisi"),
+      jumlah: yup
+        .number()
+        .required("Jumlah harus diisi")
+        .positive("Jumlah harus lebih dari 0"),
+    })
+  ).min(1, "Minimal ada satu suku cadang yang dipilih").required("Suku cadang harus diisi"),
+});
+
+exports.createPesanan = async (req, res) => {
+  try {
+    // Validasi data request menggunakan schema Yup
+    const validData = await transactionSchema.validate(req.body);
+
+    const { alamat_id, suku_cadang, keranjang_id } = validData; 
+
+    const alamatPengiriman = await prisma.alamat_pengiriman.findUnique({
+      where: { id: alamat_id },
+    });
+
+    if (!alamatPengiriman) {
+      return res.status(404).json({
+        message: "Alamat pengiriman tidak ditemukan",
+        success: false,
+      });
+    }
+
+    const transaksi = await prisma.transaksi.create({
+      data: {
+        user_id: req.userId,
+        keranjang_id: keranjang_id,
+        alamat_id,
+        status: "MENUNGGU_PEMBAYARAN",
+      },
+    });
+
+    // Simpan detail suku cadang ke dalam transaksi_sukucadang
+    for (const item of suku_cadang) {
+      const sukuCadang = await prisma.sukucadang.findUnique({
+        where: { id: item.id },
+      });
+
+      await prisma.transaksi_sukucadang.create({
+        data: {
+          transaksi_id: transaksi.id,
+          sukucadang_id: item.id,
+          total_barang: item.jumlah,
+          total_harga: sukuCadang.harga * item.jumlah,
+        },
+      });
+    }
+
+    res.status(201).json({
+      message: "Pesanan berhasil dibuat, silakan lanjutkan pembayaran",
+      data: transaksi,
+      success: true,
+    });
+  } catch (err) {
+    if (err instanceof yup.ValidationError) {
+      return res.status(400).json({
+        message: err.errors[0],
+        success: false,
+      });
+    }
+
+    console.error("Error saat membuat pesanan:", err);
+    res.status(500).json({
+      message: "Terjadi kesalahan saat membuat pesanan",
+      success: false,
+    });
+  }
+};
+
+
+exports.uploadBuktiPembayaran = async (req, res) => {
+  upload.single("bukti_pembayaran")(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
       return res.status(400).json({ success: false, message: err.message });
     } else if (err) {
@@ -77,90 +213,52 @@ exports.createTransactionWithPayment = (req, res) => {
     }
 
     try {
-      const validData = await transactionSchema.validate(req.body);
+      // Ambil ID transaksi dari request body atau params
+      const { transaksi_id } = req.body;
 
-      // Cek apakah suku cadang ada
-      const sukuCadang = await prisma.sukucadang.findUnique({
-        where: { id: validData.suku_cadang_id },
+      // Pastikan file bukti pembayaran ada
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Bukti pembayaran harus diunggah" });
+      }
+
+      // Cari transaksi berdasarkan ID
+      const transaksi = await prisma.transaksi.findUnique({
+        where: { id: transaksi_id },
       });
 
-      if (!sukuCadang) {
+      if (!transaksi) {
         return res.status(404).json({
-          message: "Suku cadang tidak ditemukan",
           success: false,
+          message: "Transaksi tidak ditemukan",
         });
       }
 
-      // Hitung biaya pengiriman dengan Biteship API
-      const response = await axios.post("https://api.biteship.com/v1/rates", {
-        origin_postal_code: 12440, // Kode pos asal dari bengkel
-        destination_postal_code: validData.kode_pos,
-        couriers: validData.kurir,
-        items: [
-          {
-            name: sukuCadang.nama,
-            description: sukuCadang.deskripsi,
-            value: sukuCadang.harga,
-            length: sukuCadang.length,
-            width: sukuCadang.width,
-            height: sukuCadang.height,
-            weight: sukuCadang.weight,
-            quantity: validData.jumlah,
-          },
-        ],
-      });
-
-      const shippingCosts = response.data.data[0].price;
-
-      // Buat transaksi baru
-      const transaction = await prisma.transaksi.create({
+      // Update transaksi dengan path file bukti pembayaran
+      const updatedTransaksi = await prisma.transaksi.update({
+        where: { id: transaksi_id },
         data: {
-          user_id: req.userId, // ID user yang login
-          keranjang_id: null, // Jika tidak dari keranjang
-          sukucadang_id: validData.suku_cadang_id,
-          jumlah: validData.jumlah,
-          alamat: validData.alamat,
-          kode_pos: validData.kode_pos,
-          bukti_pembayaran: req.file.filename, // Mengambil nama file bukti pembayaran
-          status: "MENUNGGU_KONFIRMASI",
-          biaya_pengiriman: shippingCosts,
-          total_harga: sukuCadang.harga * validData.jumlah + shippingCosts,
+          bukti_pembayaran: req.file.filename, // Simpan nama file
+          status: "MENUNGGU_KONFIRMASI", // Ubah status menjadi menunggu konfirmasi
         },
       });
 
-      // Simpan ke dalam model transaksi_sukucadang
-      await prisma.transaksi_sukucadang.create({
-        data: {
-          transaksi_id: transaction.id,
-          sukucadang_id: validData.suku_cadang_id,
-          total_barang: validData.jumlah,
-          total_harga: sukuCadang.harga * validData.jumlah,
-        },
-      });
-
-      res.status(201).json({
-        message: "Transaksi berhasil dibuat, menunggu konfirmasi",
-        data: transaction,
+      res.status(200).json({
         success: true,
+        message: "Bukti pembayaran berhasil diunggah",
+        data: updatedTransaksi,
       });
-    } catch (err) {
-      if (err instanceof yup.ValidationError) {
-        return res.status(400).json({
-          message: err.errors[0],
-          success: false,
-        });
-      } else {
-        console.error("Database error:", err);
-        return res.status(500).json({
-          message: "Database error",
-          success: false,
-        });
-      }
+    } catch (error) {
+      console.error("Error saat mengunggah bukti pembayaran:", error);
+      res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan server",
+      });
     }
   });
 };
 
-// API untuk konfirmasi transaksi oleh admin bengkel
 exports.confirmTransaction = async (req, res) => {
   const { transaksi_id, status, pesan_bengkel } = req.body;
 
@@ -188,7 +286,7 @@ exports.confirmTransaction = async (req, res) => {
 };
 
 exports.removeFromCart = async (req, res) => {
-  const { item_id } = req.params;
+  const { item_id } = req.body;
 
   try {
     // Cek apakah item ada di keranjang
@@ -229,7 +327,7 @@ const editCartSchema = yup.object().shape({
 });
 
 exports.editCartItem = async (req, res) => {
-  const { item_id } = req.params;
+  const { item_id } = req.body;
 
   try {
     const validData = await editCartSchema.validate(req.body);
@@ -278,11 +376,29 @@ exports.editCartItem = async (req, res) => {
 
 exports.getCartItems = async (req, res) => {
   try {
-    // Ambil semua item di keranjang user yang sedang login
+    const userCart = await prisma.keranjang.findFirst({
+      where: {
+        user_id: req.userId, // Use req.userId, which should be the logged-in user's ID
+      },
+    });
+
+    // If no cart exists for this user
+    if (!userCart) {
+      return res.status(404).json({
+        message: "Keranjang kosong",
+        success: false,
+      });
+    }
+
+    // Fetch all items in the user's cart
     const cartItems = await prisma.keranjang_items.findMany({
-      where: { user_id: req.userId },
+      where: { keranjang_id: userCart.id }, // Use keranjang_id to fetch cart items
       include: {
-        sukucadang: true, // Include detail suku cadang
+        sukucadang: {
+          include:{
+            merek:true,
+          }
+        }, // Include suku cadang details
       },
     });
 
@@ -306,3 +422,59 @@ exports.getCartItems = async (req, res) => {
     });
   }
 };
+
+exports.getCartItem = async (req, res) => {
+  const {  item_id } = req.params;
+
+  try {
+    const userCart = await prisma.keranjang.findFirst({
+      where: {
+        user_id: req.userId, // Use userId from req.params
+      },
+    });
+
+    // If no cart exists for this user
+    if (!userCart) {
+      return res.status(404).json({
+        message: "Keranjang kosong",
+        success: false,
+      });
+    }
+
+    // Fetch the specific item in the user's cart
+    const cartItem = await prisma.keranjang_items.findFirst({
+      where: {
+        keranjang_id: userCart.id, // Use keranjang_id to fetch cart item
+        id: item_id, // Use keranjang_items_id to fetch specific item
+      },
+      include: {
+        sukucadang: {
+          include: {
+            merek: true,
+          },
+        }, // Include suku cadang details
+      },
+    });
+
+    if (!cartItem) {
+      return res.status(404).json({
+        message: "Item tidak ditemukan di keranjang",
+        success: false,
+      });
+    }
+
+    res.status(200).json({
+      message: "Berhasil mengambil item di keranjang",
+      data: cartItem,
+      success: true,
+    });
+  } catch (err) {
+    console.error("Database error:", err);
+    return res.status(500).json({
+      message: "Database error",
+      success: false,
+    });
+  }
+};
+
+

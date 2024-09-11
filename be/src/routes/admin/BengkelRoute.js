@@ -28,14 +28,10 @@ router.put(
 );
 router.get(
   "/admin/getAllBengkel",
-  authenticateToken,
-  authorize("superadmin"),
   bengkelController.getAllBengkel
 );
 router.get(
   "/admin/getBengkelById/:id",
-  authenticateToken,
-  authorize("superadmin"),
   bengkelController.getBengkelById
 );
 

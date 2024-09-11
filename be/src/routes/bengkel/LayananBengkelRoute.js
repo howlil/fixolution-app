@@ -15,15 +15,11 @@ router.post(
   
   router.get(
     "/:bengkel_id/getAllLayananBengkel",
-    authenticateToken,
-    authorize("superadmin", "bengkel"),
     layananController.getAllLayanan
   );
   
   router.get(
     "/:bengkel_id/getLayananBengkelById/:id",
-    authenticateToken,
-    authorize("superadmin", "bengkel"),
     layananController.getLayananById
   );
   

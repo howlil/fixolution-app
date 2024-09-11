@@ -23,7 +23,6 @@ router.put(
 router.get(
   "/bookings",
   md.authenticateToken,
-  md.authorize("bengkel", "superadmin"),
   BookingController.getAllBookings
 );
 

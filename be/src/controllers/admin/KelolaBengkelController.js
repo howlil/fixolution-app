@@ -1,8 +1,8 @@
-const { prisma } = require('../../configs/prisma');
-const yup = require('yup');
-const multer = require('multer');
-const path = require('path');
-const bcrypt = require('bcrypt');
+const { prisma } = require("../../configs/prisma");
+const yup = require("yup");
+const multer = require("multer");
+const path = require("path");
+const bcrypt = require("bcrypt");
 
 const bengkelSchema = yup.object().shape({
   nama_bengkel: yup.string().required(),
@@ -10,7 +10,7 @@ const bengkelSchema = yup.object().shape({
   password: yup.string().required(),
   no_hp: yup.string().required(),
   alamat: yup.string().required(),
-  status: yup.mixed().oneOf(['Aktif', 'TidakAktif']).required(),
+  status: yup.mixed().oneOf(["Aktif", "TidakAktif"]).required(),
   gmaps_link: yup.string().optional().url(),
   foto: yup.array().of(yup.string().required()), // Pastikan ini sesuai dengan array file
 });
@@ -19,11 +19,11 @@ exports.addBengkel = async (req, res) => {
   try {
     let validData = await bengkelSchema.validate({
       ...req.body,
-      fotos: req.files ? req.files.map(file => file.filename) : []
+      foto: req.files ? req.files.map((file) => file.filename) : [],
     });
 
     const existingBengkel = await prisma.bengkel.findUnique({
-      where: { username: validData.username }
+      where: { username: validData.username },
     });
 
     if (existingBengkel) {
@@ -33,7 +33,7 @@ exports.addBengkel = async (req, res) => {
         success: false,
       });
     }
-    
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(validData.password, salt);
     validData = { ...validData, password: hashedPassword };
@@ -47,9 +47,10 @@ exports.addBengkel = async (req, res) => {
         alamat: validData.alamat,
         status: validData.status,
         gmaps_link: validData.gmaps_link,
-        foto: {  // Perubahan di sini karena model `foto` dalam bentuk tunggal
-          create: validData.fotos.map(foto => ({ foto }))
-        }
+        foto: {
+          // Perubahan di sini karena model `foto` dalam bentuk tunggal
+          create: validData.foto.map((foto) => ({ foto })),
+        },
       },
     });
 
@@ -66,7 +67,7 @@ exports.addBengkel = async (req, res) => {
         success: false,
       });
     } else {
-      console.error('Database error:', err);
+      console.error("Database error:", err);
       return res.status(500).json({
         message: "Database error",
         data: null,
@@ -79,10 +80,10 @@ exports.addBengkel = async (req, res) => {
 // Setting multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../../../public/images/bengkel'));
+    cb(null, path.join(__dirname, "../../../public/images/bengkel"));
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 
@@ -90,16 +91,17 @@ const fileFilter = function (req, file, cb) {
   const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
   if (!allowedTypes.includes(file.mimetype)) {
     const error = new multer.MulterError("LIMIT_UNEXPECTED_FILE");
-    error.message = "Jenis File Tidak Diizinkan, Hanya JPEG dan PNG yang Diizinkan";
+    error.message =
+      "Jenis File Tidak Diizinkan, Hanya JPEG dan PNG yang Diizinkan";
     return cb(error, false);
   }
   cb(null, true);
 };
 
-exports.uploadFoto = multer({ 
-  storage: storage, 
-  fileFilter: fileFilter 
-}).array("fotos", 10);
+exports.uploadFoto = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+}).array("foto", 10);
 
 exports.editBengkel = async (req, res) => {
   try {
@@ -107,12 +109,12 @@ exports.editBengkel = async (req, res) => {
 
     let validData = await bengkelSchema.validate({
       ...req.body,
-      fotos: req.files ? req.files.map(file => file.filename) : []
+      foto: req.files ? req.files.map((file) => file.filename) : [],
     });
 
     const existingBengkel = await prisma.bengkel.findUnique({
       where: { id },
-      include: { foto: true } 
+      include: { foto: true },
     });
 
     if (!existingBengkel) {
@@ -129,16 +131,16 @@ exports.editBengkel = async (req, res) => {
       validData.password = hashedPassword;
     }
 
-    if (validData.fotos.length > 0) {
+    if (validData.foto.length > 0) {
       await prisma.foto.deleteMany({
-        where: { bengkel_id: id }
+        where: { bengkel_id: id },
       });
 
       await prisma.foto.createMany({
-        data: validData.fotos.map(foto => ({
+        data: validData.foto.map((foto) => ({
           foto,
-          bengkel_id: id 
-        }))
+          bengkel_id: id,
+        })),
       });
     }
 
@@ -152,7 +154,7 @@ exports.editBengkel = async (req, res) => {
         alamat: validData.alamat,
         status: validData.status,
         gmaps_link: validData.gmaps_link,
-      }
+      },
     });
 
     return res.status(200).json({
@@ -168,7 +170,7 @@ exports.editBengkel = async (req, res) => {
         success: false,
       });
     } else {
-      console.error('Database error:', err);
+      console.error("Database error:", err);
       return res.status(500).json({
         message: "Database error",
         data: null,
@@ -194,6 +196,24 @@ exports.deleteBengkel = async (req, res) => {
       });
     }
 
+    // Delete related records from 'servicetogo_request', 'booking_layanan', 'layanan', and 'foto'
+    await prisma.servicetogo_request.deleteMany({
+      where: { bengkel_id: id },
+    });
+
+    await prisma.booking_layanan.deleteMany({
+      where: { bengkel_id: id },
+    });
+
+    await prisma.layanan.deleteMany({
+      where: { bengkel_id: id },
+    });
+
+    await prisma.foto.deleteMany({
+      where: { bengkel_id: id },
+    });
+
+    // Now delete the 'bengkel' record
     const deletedBengkel = await prisma.bengkel.delete({
       where: { id },
     });
@@ -204,7 +224,7 @@ exports.deleteBengkel = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error('Database error:', err);
+    console.error("Database error:", err);
     return res.status(500).json({
       message: "Database error",
       data: null,
@@ -233,7 +253,7 @@ exports.getAllBengkel = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error('Database error:', err);
+    console.error("Database error:", err);
     return res.status(500).json({
       message: "Database error",
       data: null,
@@ -245,10 +265,13 @@ exports.getAllBengkel = async (req, res) => {
 exports.getBengkelById = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const bengkel = await prisma.bengkel.findUnique({
       where: { id },
       include: {
+        layanan: true,
+        booking_layanan : true,
+        servicetogo_request: true,
         foto: true, // Sesuaikan dengan skema foto dalam bentuk tunggal
       },
     });
@@ -267,7 +290,7 @@ exports.getBengkelById = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error('Database error:', err);
+    console.error("Database error:", err);
     return res.status(500).json({
       message: "Database error",
       data: null,

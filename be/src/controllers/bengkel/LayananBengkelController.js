@@ -1,20 +1,31 @@
-const { prisma } = require('../../configs/prisma');
-const yup = require('yup');
+const { prisma } = require("../../configs/prisma");
+const yup = require("yup");
 
 const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
 const layananSchema = yup.object().shape({
-    nama_layanan: yup.string().required("Nama layanan diperlukan"), // Ganti namaLayanan menjadi nama_layanan
-    harga: yup.number().required("Harga diperlukan").positive("Harga harus lebih besar dari 0"),
-    deskripsi: yup.string().nullable(),
-    jam_buka: yup.string().matches(timeRegex, "Format jam buka tidak valid").nullable(),
-    jam_tutup: yup.string().matches(timeRegex, "Format jam tutup tidak valid").nullable(),
+  nama_layanan: yup.string().required("Nama layanan diperlukan"), // Ganti namaLayanan menjadi nama_layanan
+  harga: yup
+    .number()
+    .required("Harga diperlukan")
+    .positive("Harga harus lebih besar dari 0"),
+  deskripsi: yup.string().nullable(),
+  jam_buka: yup
+    .string()
+    .matches(timeRegex, "Format jam buka tidak valid")
+    .nullable(),
+  jam_tutup: yup
+    .string()
+    .matches(timeRegex, "Format jam tutup tidak valid")
+    .nullable(),
 });
 
 exports.tambahLayananBengkel = async (req, res) => {
   try {
     const { bengkel_id } = req.params;
-    const validData = await layananSchema.validate(req.body, { abortEarly: false });
+    const validData = await layananSchema.validate(req.body, {
+      abortEarly: false,
+    });
 
     const existingBengkel = await prisma.bengkel.findUnique({
       where: { id: bengkel_id },
@@ -60,12 +71,12 @@ exports.tambahLayananBengkel = async (req, res) => {
   } catch (err) {
     if (err instanceof yup.ValidationError) {
       return res.status(400).json({
-        message: err.errors.join(', '),
+        message: err.errors.join(", "),
         data: null,
         success: false,
       });
     } else {
-      console.error('Database error:', err);
+      console.error("Database error:", err);
       return res.status(500).json({
         message: "Database error",
         data: null,
@@ -77,7 +88,15 @@ exports.tambahLayananBengkel = async (req, res) => {
 
 exports.getAllLayanan = async (req, res) => {
   try {
-    const layanan = await prisma.layanan.findMany();
+    const layanan = await prisma.layanan.findMany({
+      include: {
+        bengkel: {
+          include: {
+            foto: true,
+          },
+        },
+      },
+    });
     if (layanan.length === 0) {
       return res.status(404).json({
         message: "Tidak ada layanan yang ditemukan",
@@ -91,7 +110,7 @@ exports.getAllLayanan = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error('Database error:', err);
+    console.error("Database error:", err);
     return res.status(500).json({
       message: "Database error",
       data: null,
@@ -122,7 +141,7 @@ exports.getLayananById = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error('Database error:', err);
+    console.error("Database error:", err);
     return res.status(500).json({
       message: "Database error",
       data: null,
@@ -146,7 +165,9 @@ exports.updateLayanan = async (req, res) => {
       });
     }
 
-    const validData = await layananSchema.validate(req.body, { abortEarly: false });
+    const validData = await layananSchema.validate(req.body, {
+      abortEarly: false,
+    });
 
     const updatedLayanan = await prisma.layanan.update({
       where: { id },
@@ -161,12 +182,12 @@ exports.updateLayanan = async (req, res) => {
   } catch (err) {
     if (err instanceof yup.ValidationError) {
       return res.status(400).json({
-        message: err.errors.join(', '),
+        message: err.errors.join(", "),
         data: null,
         success: false,
       });
     } else {
-      console.error('Database error:', err);
+      console.error("Database error:", err);
       return res.status(500).json({
         message: "Database error",
         data: null,
@@ -200,7 +221,7 @@ exports.deleteLayanan = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error('Database error:', err);
+    console.error("Database error:", err);
     return res.status(500).json({
       message: "Database error",
       data: null,

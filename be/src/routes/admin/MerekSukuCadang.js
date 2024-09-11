@@ -17,15 +17,11 @@ router.post(
 
 router.get(
   "/getAllMerek",
-  md.authenticateToken,
-  md.authorize("superadmin"),
   getAllMerek
 );
 
 router.get(
   "/getMerekById/:id",
-  md.authenticateToken,
-  md.authorize("superadmin"),
   getMerekById
 );
 

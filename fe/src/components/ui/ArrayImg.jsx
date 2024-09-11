@@ -7,19 +7,33 @@ export default function ArrayImg({ label, onSelectImages, links }) {
 
   useEffect(() => {
     if (Array.isArray(links)) {
-      setApiImages(links.map(link => (typeof link === "object" ? URL.createObjectURL(link) : link)));
-      setFileNames(links.map(link => (typeof link === "object" ? link.name : "")));
+      const newApiImages = links.map((link) => {
+        if (typeof link === "object" && link instanceof File) {
+          // Create a local URL if it's a File object
+          return URL.createObjectURL(link);
+        }
+        // Otherwise, assume it's a URL string from the server
+        return `${import.meta.env.VITE_API_BASE_URL}/fotoBengkel/${link.foto}`;
+      });
+
+      setApiImages(newApiImages);
+      setFileNames(
+        links.map((link) =>
+          typeof link === "object" && link instanceof File ? link.foto : link.foto
+        )
+      );
     }
   }, [links]);
+
 
   const handleChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      const newFileNames = files.map(file => file.name);
-      const newImages = files.map(file => URL.createObjectURL(file));
-      setFileNames(prevFileNames => [...prevFileNames, ...newFileNames]);
-      setApiImages(prevApiImages => [...prevApiImages, ...newImages]);
-      onSelectImages(prevFiles => [...prevFiles, ...files]); // Simpan objek File asli
+      const newFileNames = files.map((file) => file.name);
+      const newImages = files.map((file) => URL.createObjectURL(file));
+      setFileNames((prevFileNames) => [...prevFileNames, ...newFileNames]);
+      setApiImages((prevApiImages) => [...prevApiImages, ...newImages]);
+      onSelectImages((prevFiles) => [...prevFiles, ...files]); // Store the original File objects
     }
   };
 
@@ -28,16 +42,14 @@ export default function ArrayImg({ label, onSelectImages, links }) {
   };
 
   const handleRemoveImage = (index) => {
-    setFileNames(prevFileNames => prevFileNames.filter((_, i) => i !== index));
-    setApiImages(prevApiImages => prevApiImages.filter((_, i) => i !== index));
-    onSelectImages(prevFiles => prevFiles.filter((_, i) => i !== index)); // Hapus file dari array
+    setFileNames((prevFileNames) => prevFileNames.filter((_, i) => i !== index));
+    setApiImages((prevApiImages) => prevApiImages.filter((_, i) => i !== index));
+    onSelectImages((prevFiles) => prevFiles.filter((_, i) => i !== index)); // Remove the file
   };
 
   return (
     <div className="flex flex-col">
-      <label className="font-normal text-neutral-800 text-md mb-2">
-        {label}
-      </label>
+      <label className="font-normal text-neutral-800 text-md mb-2">{label}</label>
       <div className="flex items-center border rounded-xl border-neutral-900">
         <input
           className="hidden"
@@ -71,7 +83,7 @@ export default function ArrayImg({ label, onSelectImages, links }) {
               <div key={index} className="relative w-16 h-16 mr-2 mt-2">
                 <img
                   src={image}
-                  alt={`image-${index}`}
+                  alt={`image-${image}`}
                   className="w-full h-full object-cover rounded-md"
                 />
                 <button

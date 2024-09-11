@@ -16,7 +16,7 @@ export default function Service() {
     {
       image: image3,
       title: "Service To Go",
-      to: "/service-to-go",
+      to: "/service",
       description:
         "Memesan melalui website dimana saja dan kapan pun. Siap sedia untuk memberikan layanan langsung tanpa harus repot ke bengkel",
     },
@@ -55,7 +55,7 @@ const CardService = ({ onClick, image, title, description }) => {
   return (
     <div
       onClick={onClick}
-      className="bg-white text-start hover:shadow-xl hover:shadow-gray-700 ts p-4 rounded-lg shadow-lg"
+      className="bg-white cursor-pointer text-start hover:shadow-xl hover:shadow-gray-700 ts p-4 rounded-lg shadow-lg"
     >
       <img
         src={image}

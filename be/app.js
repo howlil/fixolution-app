@@ -42,6 +42,7 @@ app.use('/api/', server.merek);
 app.use('/api/', server.serviceToGo);
 app.use('/api/', server.booking);
 app.use('/api/', server.transaction);
+app.use('/api/', server.alamat);
 
 
 app.use("/api/fotoBengkel", express.static("public/images/bengkel"));

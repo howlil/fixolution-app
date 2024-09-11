@@ -49,7 +49,7 @@ export default function ManajemenBengkel() {
     try {
       setIsLoading(true); 
       const id = deleteId;
-      await api.delete(`admin/deleteBengkel/${id}`);
+      await api.delete(`/admin/deleteBengkel/${id}`);
       setBengkel(bengkel.filter((item) => item.id !== deleteId));
       setShowDeleteModal(false);
       setIsLoading(false);

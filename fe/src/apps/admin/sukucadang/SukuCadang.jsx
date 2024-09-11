@@ -1,12 +1,13 @@
 import Button from "../../../components/ui/Button";
 import Layout from "../../../components/admin/layout";
 import { useNavigate } from "react-router-dom";
-import getAllSukuCadang from "../../../apis/sukuCadang/getSukuCadang";
 import { useEffect, useState } from "react";
 import ModalDelete from "../../../components/admin/modals/modalDelete";
-import deleteSukuCadang from "../../../apis/sukuCadang/deleteSukuCadang";
 import Tables from "../../../components/ui/Table";
 import Loading from "../../../components/ui/Loading";
+import { showToast } from "../../../components/ui/Toaster";
+import { Toaster } from "react-hot-toast";
+import api from "../../../utils/axios";
 
 export default function SukuCadang() {
   const navigate = useNavigate();
@@ -22,37 +23,37 @@ export default function SukuCadang() {
     { header: "Stok", accessor: "stok" },
   ];
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const { data: data } = await api.get("/getAllSukuCadang");
+      setSukuCadang(data.data);
+    } catch (error) {
+      showToast("error fetch data", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true); // Start loading
-    try {
-      const data = await getAllSukuCadang();
-      setSukuCadang(data.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false); // Stop loading
-    }
-  };
 
   const handleEdit = (row) => {
     navigate(`/manajemenSukuCadang/editSukuCadang/${row.id}`);
   };
 
-  const handleView = (row) => { 
+  const handleView = (row) => {
     navigate(`/manajemenSukuCadang/${row.id}/transaksiSukuCadang`);
   };
 
   const handleDelete = async () => {
     setIsDeleting(true); // Start loading during deletion
     try {
-      const id = deleteId;
-      await deleteSukuCadang(id);
-      fetchData(); // Refresh the data after deletion
+      await api.delete(`/admin/deleteSukuCadang/${deleteId}`);
+      fetchData();
       setShowDeleteModal(false);
+      showToast("Suku Cadang berhasil dihapus", "success");
     } catch (error) {
       console.error("Delete error:", error);
     } finally {
@@ -60,8 +61,11 @@ export default function SukuCadang() {
     }
   };
 
+  if (isLoading) return <Loading />;
+
   return (
     <Layout>
+      <Toaster />
       <div className="flex justify-between items-center">
         <h1 className="font-semibold text-3xl">Suku Cadang</h1>
         <Button
@@ -96,11 +100,6 @@ export default function SukuCadang() {
           onDelete={handleDelete}
           isLoading={isDeleting} // Pass loading state to modal
         />
-      )}
-      {isDeleting && (
-        <div className="fixed inset-0  bg-opacity-50 bg-gray-800 flex justify-center items-center z-50">
-          <Loading type="spin" color="#ffffff" />
-        </div>
       )}
     </Layout>
   );

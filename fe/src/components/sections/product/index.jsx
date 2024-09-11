@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import CardProduct from "./CardProduct";
 import wa from "../../../images/wa.svg";
 import Button from "../../ui/Button";
-import getAllSukuCadang from "../../../apis/sukuCadang/getSukuCadang";
 import { useNavigate } from "react-router-dom";
+import api from "../../../utils/axios";
 
 const Produk = () => {
   const [sukuCadang, setSukuCadang] = useState([]);
@@ -15,8 +15,14 @@ const Produk = () => {
   }, []);
 
   const fetchData = async () => {
-    const data = await getAllSukuCadang();
-    setSukuCadang(data.data);
+    try {
+      const { data } = await api.get("/getAllSukuCadang");
+      // Ensure the data is an array
+      setSukuCadang(Array.isArray(data.data) ? data.data : []);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+      setSukuCadang([]); // Fallback to empty array if there's an error
+    }
   };
 
   const handleClick = (id) => {
@@ -27,11 +33,8 @@ const Produk = () => {
     setShowAll(!showAll);
   };
 
-  if (!sukuCadang) {
-    return 
-    (<>
-      Tidak Ada Barang
-    </>);
+  if (sukuCadang.length === 0) {
+    return <div className="text-center text-white">Tidak Ada Barang</div>;
   }
 
   return (
@@ -41,10 +44,10 @@ const Produk = () => {
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-neutral-100">SHOP</h1>
           <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-medium">Our Products</h3>
         </figure>
-        <CardProduct products={showAll ? sukuCadang : sukuCadang?.slice(0, 4)} onClick={handleClick} />
-        {sukuCadang.length >= 4 && (
+        <CardProduct products={showAll ? sukuCadang : sukuCadang.slice(0, 4)} onClick={handleClick} />
+        {sukuCadang.length > 4 && (
           <div className="text-center mt-8">
-            <Button onClick={toggleShowAll} className="bg-col text-white py-2 px-4 rounded">
+            <Button onClick={toggleShowAll} custom="bg-col text-white py-2 px-4 rounded">
               {showAll ? "Show Less" : "View More"}
             </Button>
           </div>

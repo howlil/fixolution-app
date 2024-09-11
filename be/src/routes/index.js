@@ -6,6 +6,7 @@ const dashbaoard = require("./admin/DashboardRoute");
 const merek = require("./admin/MerekSukuCadang");
 const serviceToGo = require("./bengkel/ServiceToGo");
 const booking = require("./bengkel/BookingBengkel");
+const alamat = require("./user/Alamat");
 const transaction = require("./user/TransaksiSukuCadangRoute");
 
 const server = {};
@@ -18,6 +19,7 @@ server.merek = merek;
 server.booking = booking;
 server.serviceToGo = serviceToGo;
 server.transaction = transaction;
+server.alamat = alamat;
 
 
 module.exports = server;

@@ -213,11 +213,28 @@ exports.deleteSukucadang = async (req, res) => {
 // Ambil semua suku cadang
 exports.getAllSukuCadang = async (req, res) => {
   try {
-    const sukuCadangs = await prisma.sukucadang.findMany({
+    const { search, merekId } = req.query;
+    const query = {
+      where: {},
       include: {
-        merek: true, // Mengambil relasi dengan tabel merek
+        merek: true, // Include relasi dengan merek
       },
-    });
+    };
+
+    // Jika ada filter berdasarkan nama suku cadang (search)
+    if (search) {
+      query.where.nama = {
+        contains: search, // Hapus opsi mode
+      };
+    }
+
+    // Jika ada filter berdasarkan merek
+    if (merekId) {
+      query.where.merek_id = merekId; // Filter berdasarkan merek_id
+    }
+
+    const sukuCadangs = await prisma.sukucadang.findMany(query);
+
     if (sukuCadangs.length === 0) {
       return res.status(404).json({
         message: "Tidak ada suku cadang",

@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import TextArea from "../../../components/ui/TextArea";
 import Select from "../../../components/ui/Select";
-import getBengkelById from "../../../apis/bengkel/getBengkelById";
 import ArrayImg from "../../../components/ui/ArrayImg";
 import { Toaster } from "react-hot-toast";
 import Loading from "../../../components/ui/Loading";
@@ -23,68 +22,74 @@ export default function ManageBengkel() {
   const [no_hp, setNoHp] = useState("");
   const [gmaps_link, setGmapsLink] = useState("");
   const [status, setStatus] = useState("");
-  const [fotos, setImages] = useState([]);
+  const [foto, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      setIsEditing(true);
-      setIsLoading(true);
-      getBengkelById(id)
-        .then((response) => {
-          const bengkel = response.data;
-          setNama(bengkel.nama_bengkel);
-          setUsername(bengkel.username);
-          setPassword(bengkel.password);
-          setAlamat(bengkel.alamat);
-          setNoHp(bengkel.no_hp);
-          setGmapsLink(bengkel.gmaps_link);
-          setStatus(bengkel.status);
-          setImages(bengkel.fotos || []);
-        })
-        .catch((error) => {
-          showToast("Failed to fetch bengkel data", "error");
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
+      const fetchBengkelData = async () => {
+          if (id) {
+              setIsEditing(true);
+              setIsLoading(true);
+              try {
+                  const response = await api.get(`/admin/getBengkelById/${id}`);
+                  const bengkel = response.data;
+                  setNama(bengkel.nama_bengkel);
+                  setUsername(bengkel.username);
+                  setPassword(bengkel.password);
+                  setAlamat(bengkel.alamat);
+                  setNoHp(bengkel.no_hp);
+                  setGmapsLink(bengkel.gmaps_link);
+                  setStatus(bengkel.status);
+                  setImages(bengkel.foto);
+              } catch (error) {
+                  showToast("Failed to fetch bengkel data", "error");
+              } finally {
+                  setIsLoading(false);
+              }
+          }
+      };
+  
+      fetchBengkelData();
   }, [id]);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+  
+    const formData = new FormData();
+    formData.append("nama_bengkel", nama_bengkel);
+    formData.append("username", username);
+    formData.append("password", password);
+    formData.append("no_hp", no_hp);
+    formData.append("alamat", alamat);
+    formData.append("status", status);
+    formData.append("gmaps_link", gmaps_link);
+
+    console.log(foto.files)
+  
+    foto.forEach((file, index) => {
+      formData.append(`foto`, file);
+    });
+
 
     try {
       if (isEditing) {
-        const res = await api.put(`/admin/editBengkel/${id}`, {
-          nama_bengkel,
-          username,
-          password,
-          no_hp,
-          alamat,
-          status,
-          gmaps_link,
-          fotos,
+        const res = await api.put(`/admin/editBengkel/${id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
         showToast(res.data.message, "success");
         if (res.data.success) {
           navigate("/manajemenBengkel");
         }
       } else {
-        const res = await api.post("/admin/addBengkel", {
-          nama_bengkel,
-          username,
-          password,
-          no_hp,
-          alamat,
-          status,
-          gmaps_link,
-          fotos,
+        const res = await api.post("/admin/addBengkel", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
         showToast(res.data.message, "success");
-
         if (res.data.success) {
           navigate("/manajemenBengkel");
         }
@@ -96,6 +101,8 @@ export default function ManageBengkel() {
       setIsLoading(false);
     }
   };
+
+  
   if (isLoading) return <Loading />;
   return (
     <Layout>
@@ -165,9 +172,9 @@ export default function ManageBengkel() {
               customClass="border-neutral-500"
             />
             <ArrayImg
-              label="fotos Bengkel"
+              label="foto  Bengkel"
               onSelectImages={(files) => setImages(files)}
-              links={fotos}
+              links={foto}
             />
             <Select
               label="Status Akun"

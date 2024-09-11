@@ -6,7 +6,6 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
-
 model superadmin {
   id          String    @id @default(uuid())
   username    String    @unique
@@ -40,7 +39,7 @@ model foto {
   bengkel_id  String
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
-  bengkel     bengkel   @relation(fields: [bengkel_id], references: [id])
+  bengkel     bengkel   @relation(fields: [bengkel_id], references: [id], onDelete: Cascade)
 }
 
 model user {
@@ -65,7 +64,7 @@ model keranjang {
   total_harga Float
   created_at  DateTime        @default(now())
   updated_at  DateTime        @updatedAt
-  user        user            @relation(fields: [user_id], references: [id])
+  user        user            @relation(fields: [user_id], references: [id], onDelete: Cascade)
   transaksi   transaksi[]
   keranjang_items keranjang_items[]
 }
@@ -79,8 +78,8 @@ model keranjang_items {
   total_harga    Float
   created_at     DateTime   @default(now())
   updated_at     DateTime   @updatedAt
-  keranjang      keranjang  @relation(fields: [keranjang_id], references: [id])
-  sukucadang     sukucadang @relation(fields: [sukucadang_id], references: [id])
+  keranjang      keranjang  @relation(fields: [keranjang_id], references: [id], onDelete: Cascade)
+  sukucadang     sukucadang @relation(fields: [sukucadang_id], references: [id], onDelete: Cascade)
 }
 
 model alamat_pengiriman {
@@ -93,7 +92,7 @@ model alamat_pengiriman {
   alamat       String
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
-  user         user     @relation(fields: [user_id], references: [id])
+  user         user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   transaksi    transaksi[]
 }
 
@@ -107,7 +106,7 @@ model layanan {
   bengkel_id   String
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
-  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id])
+  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id], onDelete: Cascade)
   booking_layanan booking_layanan[]
 }
 
@@ -120,12 +119,12 @@ model sukucadang {
   stok        Int
   foto        String
   lebar       Float
-  tinggi       Float
-  panjang      Float
+  tinggi      Float
+  panjang     Float
   berat       Float
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
-  merek       merek        @relation(fields: [merek_id], references: [id])
+  merek       merek        @relation(fields: [merek_id], references: [id], onDelete: Cascade)
   keranjang_items keranjang_items[]
   transaksi_sukucadang transaksi_sukucadang[]
 }
@@ -141,17 +140,17 @@ model merek {
 model transaksi {
   id               String   @id @default(uuid())
   user_id          String
-  keranjang_id     String
-  bukti_pembayaran String
+  keranjang_id     String?
+  bukti_pembayaran String?
   status           String
   alamat_id        String
-  kurir            String
-  biaya_pengiriman Float
+  kurir            String?
+  biaya_pengiriman Float?
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
-  user             user     @relation(fields: [user_id], references: [id])
-  keranjang        keranjang @relation(fields: [keranjang_id], references: [id])
-  alamat_pengiriman alamat_pengiriman @relation(fields: [alamat_id], references: [id])
+  user             user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  keranjang        keranjang? @relation(fields: [keranjang_id], references: [id], onDelete: Cascade)
+  alamat_pengiriman alamat_pengiriman @relation(fields: [alamat_id], references: [id], onDelete: Cascade)
   transaksi_sukucadang transaksi_sukucadang[]
 }
 
@@ -163,8 +162,8 @@ model transaksi_sukucadang {
   total_harga      Float
   created_at       DateTime   @default(now())
   updated_at       DateTime   @updatedAt
-  transaksi        transaksi  @relation(fields: [transaksi_id], references: [id])
-  sukucadang       sukucadang @relation(fields: [sukucadang_id], references: [id])
+  transaksi        transaksi  @relation(fields: [transaksi_id], references: [id], onDelete: Cascade)
+  sukucadang       sukucadang @relation(fields: [sukucadang_id], references: [id], onDelete: Cascade)
 }
 
 model token {
@@ -175,9 +174,9 @@ model token {
   token       String  @db.Text
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-  user        user?     @relation(fields: [user_id], references: [id])
-  superadmin  superadmin? @relation(fields: [admin_id], references: [id])
-  bengkel     bengkel?   @relation(fields: [bengkel_id], references: [id])
+  user        user?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  superadmin  superadmin? @relation(fields: [admin_id], references: [id], onDelete: Cascade)
+  bengkel     bengkel?   @relation(fields: [bengkel_id], references: [id], onDelete: Cascade)
 }
 
 model servicetogo_request {
@@ -190,8 +189,8 @@ model servicetogo_request {
   pesan_bengkel String?
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
-  user         user     @relation(fields: [user_id], references: [id])
-  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id])
+  user         user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id], onDelete: Cascade)
 }
 
 model booking_layanan {
@@ -205,7 +204,7 @@ model booking_layanan {
   pesan_bengkel String?
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
-  user         user     @relation(fields: [user_id], references: [id])
-  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id])
-  layanan      layanan  @relation(fields: [layanan_id], references: [id])
+  user         user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  bengkel      bengkel  @relation(fields: [bengkel_id], references: [id], onDelete: Cascade)
+  layanan      layanan  @relation(fields: [layanan_id], references: [id], onDelete: Cascade)
 }
