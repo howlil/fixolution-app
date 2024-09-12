@@ -19,6 +19,7 @@ export default function Auth() {
       }`}
     >
       <img
+        onClick={() => window.location.replace("/")}
         src={img}
         alt="s"
         className="absolute -z-10 h-full w-full object-cover"

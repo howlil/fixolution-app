@@ -1,6 +1,5 @@
 const { prisma } = require("../../configs/prisma");
 const yup = require("yup");
-const axios = require("axios");
 const multer = require("multer");
 const path = require("path");
 
@@ -13,9 +12,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage }).single("bukti_pembayaran");
-
-
+exports.upload = multer({ storage: storage });
 
 // API untuk menambahkan barang ke keranjang
 exports.addToCart = async (req, res) => {
@@ -123,29 +120,31 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-
 const transactionSchema = yup.object().shape({
   keranjang_id: yup.string().nullable(), // Tambahkan validasi untuk keranjang_id
   alamat_id: yup.string().required("Alamat pengiriman harus dipilih"),
-  kurir: yup.string().required("Kurir harus dipilih"),
-  suku_cadang: yup.array().of(
-    yup.object().shape({
-      id: yup.string().required("ID suku cadang harus diisi"),
-      jumlah: yup
-        .number()
-        .required("Jumlah harus diisi")
-        .positive("Jumlah harus lebih dari 0"),
-    })
-  ).min(1, "Minimal ada satu suku cadang yang dipilih").required("Suku cadang harus diisi"),
+  suku_cadang: yup
+    .array()
+    .of(
+      yup.object().shape({
+        id: yup.string().required("ID suku cadang harus diisi"),
+        jumlah: yup
+          .number()
+          .required("Jumlah harus diisi")
+          .positive("Jumlah harus lebih dari 0"),
+      })
+    )
+    .min(1, "Minimal ada satu suku cadang yang dipilih")
+    .required("Suku cadang harus diisi"),
 });
 
 exports.createPesanan = async (req, res) => {
   try {
-    // Validasi data request menggunakan schema Yup
     const validData = await transactionSchema.validate(req.body);
 
-    const { alamat_id, suku_cadang, keranjang_id } = validData; 
+    const { alamat_id, suku_cadang, keranjang_id } = validData;
 
+    // Cek apakah alamat pengiriman ada
     const alamatPengiriman = await prisma.alamat_pengiriman.findUnique({
       where: { id: alamat_id },
     });
@@ -157,6 +156,7 @@ exports.createPesanan = async (req, res) => {
       });
     }
 
+    // Buat transaksi baru
     const transaksi = await prisma.transaksi.create({
       data: {
         user_id: req.userId,
@@ -166,25 +166,63 @@ exports.createPesanan = async (req, res) => {
       },
     });
 
-    // Simpan detail suku cadang ke dalam transaksi_sukucadang
-    for (const item of suku_cadang) {
-      const sukuCadang = await prisma.sukucadang.findUnique({
-        where: { id: item.id },
-      });
+    let totalTransaksiHarga = 0;
 
+    // Loop melalui array `suku_cadang` yang ada di request
+    for (const item of suku_cadang) {
+      const sukuCadang = item.sukucadang; // Ambil data `sukucadang` dari keranjang item
+
+      // Cek apakah suku cadang ditemukan
+      if (!sukuCadang) {
+        return res.status(404).json({
+          message: `Suku cadang dengan ID ${item.sukucadang_id} tidak ditemukan`,
+          success: false,
+        });
+      }
+
+      // Cek stok
+      if (sukuCadang.stok < item.jumlah) {
+        return res.status(400).json({
+          message: `Stok untuk ${sukuCadang.nama} tidak mencukupi`,
+          success: false,
+        });
+      }
+
+      // Buat transaksi_sukucadang
       await prisma.transaksi_sukucadang.create({
         data: {
           transaksi_id: transaksi.id,
-          sukucadang_id: item.id,
+          sukucadang_id: sukuCadang.id,
           total_barang: item.jumlah,
           total_harga: sukuCadang.harga * item.jumlah,
         },
       });
+
+      // Kurangi stok suku cadang
+      await prisma.sukucadang.update({
+        where: { id: sukuCadang.id },
+        data: { stok: sukuCadang.stok - item.jumlah },
+      });
+
+      // Hitung total harga transaksi
+      totalTransaksiHarga += sukuCadang.harga * item.jumlah;
+
+      // Hapus item dari keranjang (jika diperlukan)
+      await prisma.keranjang_items.deleteMany({
+        where: {
+          keranjang_id: keranjang_id,
+          sukucadang_id: sukuCadang.id,
+        },
+      });
     }
 
+    // Tidak perlu update `total_harga` di transaksi karena sudah dihitung di transaksi_sukucadang
+
+    // Kirim response sukses
     res.status(201).json({
       message: "Pesanan berhasil dibuat, silakan lanjutkan pembayaran",
       data: transaksi,
+      total_harga: totalTransaksiHarga, // Berikan informasi total harga di response
       success: true,
     });
   } catch (err) {
@@ -203,61 +241,137 @@ exports.createPesanan = async (req, res) => {
   }
 };
 
+exports.getPesananById = async (req, res) => {
+  const { id_pesanan } = req.params; // Mengambil ID pesanan dari URL params
+
+  try {
+    // Cari transaksi berdasarkan ID
+    const pesanan = await prisma.transaksi.findUnique({
+      where: { id: id_pesanan },
+      include: {
+        alamat_pengiriman: true, // Ambil data alamat pengiriman
+        transaksi_sukucadang: {
+          include: {
+            sukucadang: true, // Ambil data detail suku cadang dari transaksi
+          },
+        },
+        user: {
+          select: {
+            nama: true, // Ambil nama user
+            no_hp: true, // Mengubah nomor_hp menjadi no_hp sesuai model Prisma
+          },
+        },
+      },
+    });
+
+    if (!pesanan) {
+      return res.status(404).json({
+        message: "Pesanan tidak ditemukan",
+        success: false,
+      });
+    }
+
+    // Menghitung total produk dan total harga
+    const totalProduk = pesanan.transaksi_sukucadang.reduce((total, item) => total + item.total_barang, 0);
+    const totalHarga = pesanan.transaksi_sukucadang.reduce((total, item) => total + item.total_harga, 0);
+
+    // Menyusun data untuk response
+
+    const response = {
+      kontak: {
+        nama: pesanan.user.nama,
+        nomor_hp: pesanan.user.no_hp, // Menggunakan no_hp sesuai dengan model yang benar
+      },
+      alamat: {
+        provinsi: pesanan.alamat_pengiriman.provinsi,
+        kota: pesanan.alamat_pengiriman.kota,
+        kecamatan: pesanan.alamat_pengiriman.kecamatan,
+        kelurahan: pesanan.alamat_pengiriman.kelurahan,
+        alamat_lengkap: pesanan.alamat_pengiriman.alamat,
+      },
+      metode_pembayaran: pesanan.status === "MENUNGGU_PEMBAYARAN" ? "Scan" : "Metode Lain", // Ini contoh, bisa disesuaikan
+      detail_pesanan: pesanan.transaksi_sukucadang.map((item) => ({
+        nama: item.sukucadang.nama,
+        kuantitas: item.total_barang,
+        harga: item.total_harga,
+        foto: item.sukucadang.foto,
+      })),
+      ringkasan_pesanan: {
+        total_produk: totalProduk,
+        total_harga: totalHarga,
+        biaya_pengiriman: pesanan.biaya_pengiriman || 0, // Tambahkan biaya pengiriman jika ada
+        total: totalHarga + (pesanan.biaya_pengiriman || 0),
+      },
+    };
+
+    // Kirim response sukses dengan data pesanan
+    res.status(200).json({
+      success: true,
+      data: response,
+    });
+  } catch (error) {
+    console.error("Error saat mengambil pesanan:", error);
+    res.status(500).json({
+      message: "Terjadi kesalahan server",
+      success: false,
+    });
+  }
+};
+
 
 exports.uploadBuktiPembayaran = async (req, res) => {
-  upload.single("bukti_pembayaran")(req, res, async function (err) {
-    if (err instanceof multer.MulterError) {
-      return res.status(400).json({ success: false, message: err.message });
-    } else if (err) {
-      return res.status(500).json({ success: false, message: "Server error" });
+  try {
+    // Ambil transaksi_id dari params (atau body jika diperlukan)
+    const { id_pesanan } = req.params; // atau req.body jika dikirim via body
+
+    console.log("transaksi_id:", id_pesanan);
+
+    if (!id_pesanan) {
+      return res.status(400).json({ success: false, message: "ID transaksi tidak ditemukan" });
     }
 
-    try {
-      // Ambil ID transaksi dari request body atau params
-      const { transaksi_id } = req.body;
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Bukti pembayaran harus diunggah" });
+    }
 
-      // Pastikan file bukti pembayaran ada
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Bukti pembayaran harus diunggah" });
-      }
+    // Cari transaksi berdasarkan ID (pastikan id adalah string)
+    const transaksi = await prisma.transaksi.findUnique({
+      where: { id: id_pesanan },
+    });
 
-      // Cari transaksi berdasarkan ID
-      const transaksi = await prisma.transaksi.findUnique({
-        where: { id: transaksi_id },
-      });
-
-      if (!transaksi) {
-        return res.status(404).json({
-          success: false,
-          message: "Transaksi tidak ditemukan",
-        });
-      }
-
-      // Update transaksi dengan path file bukti pembayaran
-      const updatedTransaksi = await prisma.transaksi.update({
-        where: { id: transaksi_id },
-        data: {
-          bukti_pembayaran: req.file.filename, // Simpan nama file
-          status: "MENUNGGU_KONFIRMASI", // Ubah status menjadi menunggu konfirmasi
-        },
-      });
-
-      res.status(200).json({
-        success: true,
-        message: "Bukti pembayaran berhasil diunggah",
-        data: updatedTransaksi,
-      });
-    } catch (error) {
-      console.error("Error saat mengunggah bukti pembayaran:", error);
-      res.status(500).json({
+    if (!transaksi) {
+      return res.status(404).json({
         success: false,
-        message: "Terjadi kesalahan server",
+        message: "Transaksi tidak ditemukan",
       });
     }
-  });
+
+    // Update transaksi dengan path file bukti pembayaran
+    const updatedTransaksi = await prisma.transaksi.update({
+      where: { id: id_pesanan },
+      data: {
+        bukti_pembayaran: req.file.filename, 
+        status: "MENUNGGU_KONFIRMASI", 
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Bukti pembayaran berhasil diunggah",
+      data: updatedTransaksi,
+    });
+  } catch (error) {
+    console.error("Error saat mengunggah bukti pembayaran:", error);
+    res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan server",
+    });
+  }
 };
+
+
 
 exports.confirmTransaction = async (req, res) => {
   const { transaksi_id, status, pesan_bengkel } = req.body;
@@ -395,9 +509,9 @@ exports.getCartItems = async (req, res) => {
       where: { keranjang_id: userCart.id }, // Use keranjang_id to fetch cart items
       include: {
         sukucadang: {
-          include:{
-            merek:true,
-          }
+          include: {
+            merek: true,
+          },
         }, // Include suku cadang details
       },
     });
@@ -424,7 +538,7 @@ exports.getCartItems = async (req, res) => {
 };
 
 exports.getCartItem = async (req, res) => {
-  const {  item_id } = req.params;
+  const { item_id } = req.params;
 
   try {
     const userCart = await prisma.keranjang.findFirst({
@@ -476,5 +590,3 @@ exports.getCartItem = async (req, res) => {
     });
   }
 };
-
-

@@ -16,12 +16,12 @@ export default function DetailProduct() {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { addToCart, isCartModalOpen, closeCartModal } = useCart(); // Correct usage of useCart
+  const { addToCart, isCartModalOpen, closeCartModal } = useCart(); 
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const {data:data} = await api.get(`/getSukuCadangById/${id}`);
+      const { data: data } = await api.get(`/getSukuCadangById/${id}`);
       setProduct(data.data);
       setIsLoading(false);
     } catch (error) {
@@ -45,25 +45,26 @@ export default function DetailProduct() {
 
   const handleAddToCart = async () => {
     const cartItem = {
-      suku_cadang_id: id, // Assuming product.id is the suku cadang id
+      suku_cadang_id: id, 
       jumlah: quantity,
     };
-  
+
     try {
       // Call the backend API to add the product to the cart
       setIsLoading(true);
       const response = await api.post("/add-to-cart", cartItem);
-  
+
       if (response.data.success) {
-        const cartItemId = response.data.data.id; // Pastikan keranjang_item_id dikirim dari API
-  
+        const cartItemId = response.data.data.id;
+
         addToCart({
-          keranjang_item_id: cartItemId, // Menyimpan keranjang_item_id
+          keranjang_item_id: cartItemId,
+          keranjang_id: response.data.data.keranjang_id,
           ...product,
           quantity,
           total: product.harga * quantity,
         }); // Update cart context
-  
+
         showToast("Berhasil menambahkan ke keranjang", "success");
       } else {
         showToast("Gagal menambahkan ke keranjang", "error");
@@ -73,10 +74,8 @@ export default function DetailProduct() {
       showToast("Gagal menambahkan ke keranjang", "error");
     }
   };
-  
 
-
-  if(isLoading) return <Loading />;
+  if (isLoading) return <Loading />;
   return (
     <>
       <Navbar />

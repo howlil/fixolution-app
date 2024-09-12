@@ -24,6 +24,7 @@ import SukuCadangPage from "./apps/transaksi/SukuCadangPage";
 import { CartProvider } from "./apps/transaksi/CartContex";
 import CheckoutIndex from "./apps/checkout/CheckoutIndex";
 import KeranjangPage from "./apps/keranjang/KeranjangPage";
+import BayarIndex from "./apps/bayar/BayarIndex";
 
 const ProtectedDasboard = withRole(Dasboard, ["superadmin"]);
 const ProtectedManajemenBengkel = withRole(ManajemenBengkel, ["superadmin"]);
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="/service" element={<ServiceToGoPage />} />
             <Route path="/service/:id" element={<DetailStg />} />
             <Route path="/suku-cadang" element={<SukuCadangPage />} />
+            
             <Route
               path="/keranjang"
               element={
@@ -70,10 +72,18 @@ export default function App() {
               }
             />
             <Route
-              path="/checkout/:items_id"
+              path="/checkout/:keranjang_id"
               element={
                 <ProtectRoute>
                   <CheckoutIndex />
+                </ProtectRoute>
+              } 
+            />
+            <Route
+              path="/bayar/:id_pesanan"
+              element={
+                <ProtectRoute>
+                  <BayarIndex />
                 </ProtectRoute>
               } 
             />

@@ -21,6 +21,11 @@ router.get(
   md.authenticateToken,
   transactionController.getCartItem
 );
+router.get(
+  "/pesanan/:id_pesanan",
+  md.authenticateToken,
+  transactionController.getPesananById
+);
 
 // Route untuk mengedit item di keranjang
 router.put(
@@ -38,13 +43,14 @@ router.delete(
 
 // Route untuk membuat transaksi langsung
 router.post(
-  "/createTransaction",
+  "/pesan",
   md.authenticateToken,
   transactionController.createPesanan
 );
 router.put(
-  "/bayar",
+  "/bayar/:id_pesanan",
   md.authenticateToken,
+  transactionController.upload.single("bukti_pembayaran"),
   transactionController.uploadBuktiPembayaran
 );
 

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Loading from "../../components/ui/Loading";
 import { showToast } from "../../components/ui/Toaster";
 import { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function KeranjangPage() {
   const [selectedIds, setSelectedIds] = useState([]); // Array untuk menyimpan ID item yang dipilih
@@ -13,13 +14,15 @@ export default function KeranjangPage() {
   const [keranjang, setKeranjang] = useState([]);
   const [loadingItems, setLoadingItems] = useState({});
   const [keranjangPick, setKeranjangPick] = useState([]);
+  const [keranjang_id, setKeranjangId] = useState(null);
+  const navigate = useNavigate();
 
-  // Fetch data keranjang dari API
   const fetchData = async () => {
     setIsLoading(true);
     try {
       const { data: response } = await api.get("/cartItems");
       setKeranjang(response.data);
+      setKeranjangId(response.data[0].keranjang_id);
     } catch (error) {
       showToast("Gagal memuat data", "error");
     } finally {
@@ -35,7 +38,7 @@ export default function KeranjangPage() {
   useEffect(() => {
     if (selectedIds.length > 0) {
       const filtered = keranjang.filter((item) => selectedIds.includes(item.id));
-      setKeranjangPick(filtered); // Simpan item yang dipilih di keranjangPick
+      setKeranjangPick(filtered); 
     } else {
       setKeranjangPick([]);
     }
@@ -115,6 +118,9 @@ export default function KeranjangPage() {
 
   const handleCheckout =  () => {
     if (selectedIds.length > 0) {
+      navigate(`/checkout/${keranjang_id}?items=${selectedIds.join(",")}`);
+
+
       showToast("Checkout berhasil!", "success");
     } else {
       showToast("Silakan pilih item terlebih dahulu.", "error");
