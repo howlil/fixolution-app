@@ -26,6 +26,16 @@ router.get(
   md.authenticateToken,
   transactionController.getPesananById
 );
+router.get(
+  "/pesanan",
+  md.authenticateToken,
+  transactionController.getAllPesananByUserId
+);
+router.get(
+  "/transaksi/:sukuCadang_id",
+  md.authenticateToken,
+  transactionController.getAllSukuCadangById
+);
 
 // Route untuk mengedit item di keranjang
 router.put(
@@ -56,7 +66,7 @@ router.put(
 
 // Route untuk admin konfirmasi transaksi
 router.put(
-  "/confirm-transaction",
+  "/confirm",
   md.authenticateToken,
   md.authorize("bengkel", "superadmin"),
   transactionController.confirmTransaction

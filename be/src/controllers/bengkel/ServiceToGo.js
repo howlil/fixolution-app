@@ -1,5 +1,5 @@
-const { prisma } = require('../../configs/prisma');
-const yup = require('yup');
+const { prisma } = require("../../configs/prisma");
+const yup = require("yup");
 
 // Schema validasi untuk request Service to Go
 const requestSchema = yup.object().shape({
@@ -57,7 +57,6 @@ exports.requestServiceToGo = async (req, res) => {
   }
 };
 
-
 exports.respondToServiceToGoRequest = async (req, res) => {
   const { request_id } = req.params;
   const { status, pesan_bengkel } = req.body;
@@ -84,7 +83,9 @@ exports.respondToServiceToGoRequest = async (req, res) => {
     });
 
     return res.status(200).json({
-      message: `Request berhasil ${status === "APPROVED" ? "disetujui" : "ditolak"}`,
+      message: `Request berhasil ${
+        status === "APPROVED" ? "disetujui" : "ditolak"
+      }`,
       data: updatedRequest,
       success: true,
     });
@@ -97,78 +98,109 @@ exports.respondToServiceToGoRequest = async (req, res) => {
   }
 };
 
-
 // Ambil semua request berdasarkan status
 exports.getServiceToGoRequestsByStatus = async (req, res) => {
-    const { status } = req.query;
-  
-    try {
-      // Ambil daftar request berdasarkan status
-      const requests = await prisma.servicetogo_request.findMany({
-        where: {
-          status: status.toUpperCase(),
-          bengkel_id: req.admin.bengkel_id, // Hanya request ke bengkel yang dikelola admin
-        },
-        include: {
-          user: true, // Include detail user yang mengirim request
-        },
-      });
-  
-      if (requests.length === 0) {
-        return res.status(404).json({
-          message: `Tidak ada request dengan status ${status}`,
-          success: false,
-        });
-      }
-  
-      res.status(200).json({
-        message: "Berhasil mengambil daftar request",
-        data: requests,
-        success: true,
-      });
-    } catch (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({
-        message: "Database error",
+  const { status } = req.query;
+
+  try {
+    // Ambil daftar request berdasarkan status
+    const requests = await prisma.servicetogo_request.findMany({
+      where: {
+        status: status.toUpperCase(),
+        bengkel_id: req.admin.bengkel_id, // Hanya request ke bengkel yang dikelola admin
+      },
+      include: {
+        user: true, // Include detail user yang mengirim request
+      },
+    });
+
+    if (requests.length === 0) {
+      return res.status(404).json({
+        message: `Tidak ada request dengan status ${status}`,
         success: false,
       });
     }
-  };
-  
-  exports.getAllServiceRequests = async (req, res) => {
-  
-    try {
-      const requests = await prisma.servicetogo_request.findMany({
-        where: {
-          user_id: req.userId, // Hanya request yang dikirim oleh user yang sedang login
+
+    res.status(200).json({
+      message: "Berhasil mengambil daftar request",
+      data: requests,
+      success: true,
+    });
+  } catch (err) {
+    console.error("Database error:", err);
+    return res.status(500).json({
+      message: "Database error",
+      success: false,
+    });
+  }
+};
+
+exports.getAllServiceRequests = async (req, res) => {
+  try {
+    const requests = await prisma.servicetogo_request.findMany({
+      where: {
+        user_id: req.userId, // Hanya request yang dikirim oleh user yang sedang login
+      },
+      include: {
+        user: true, // Mengambil detail user yang mengirim request
+        bengkel: {
+          include: { foto: true },
         },
-        include: {
-          user: true, // Mengambil detail user yang mengirim request
-          bengkel: {
-            include :{foto:true}
-          } , 
-        },
-      });
-  
-      if (requests.length === 0) {
-        return res.status(404).json({
-          message: "Tidak ada request Service to Go yang ditemukan",
-          success: false,
-        });
-      }
-  
-      res.status(200).json({
-        message: "Berhasil mengambil semua request Service to Go",
-        data: requests,
-        type : "Service To Go",
-        success: true,
-      });
-    } catch (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({
-        message: "Database error",
+      },
+    });
+
+    if (requests.length === 0) {
+      return res.status(404).json({
+        message: "Tidak ada request Service to Go yang ditemukan",
         success: false,
       });
     }
-  };
-  
+
+    res.status(200).json({
+      message: "Berhasil mengambil semua request Service to Go",
+      data: requests,
+      type: "Service To Go",
+      success: true,
+    });
+  } catch (err) {
+    console.error("Database error:", err);
+    return res.status(500).json({
+      message: "Database error",
+      success: false,
+    });
+  }
+};
+
+exports.getAllServiceRequest = async (req, res) => {
+  try {
+    const requests = await prisma.servicetogo_request.findMany({
+      where: {
+        bengkel_id: req.userId, // Hanya request yang dikirim oleh user yang sedang login
+      },
+      include: {
+        user: true, // Mengambil detail user yang mengirim request
+        bengkel:true
+      },
+    });
+
+    if (requests.length === 0) {
+      return res.status(404).json({
+        message: "Tidak ada request Service to Go yang ditemukan",
+        success: false,
+      });
+    }
+
+    res.status(200).json({
+      message: "Berhasil mengambil semua request Service to Go",
+      data: requests,
+      type: "Service To Go",
+      success: true,
+    });
+  } catch (err) {
+    console.error("Database error:", err);
+    return res.status(500).json({
+      message: "Database error",
+      success: false,
+    });
+  }
+};

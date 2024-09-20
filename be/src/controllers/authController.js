@@ -157,8 +157,15 @@ exports.login = async (req, res) => {
       });
     }
 
+    const dataToken ={
+      user_id: user ? user.id : null,
+      admin_id: superadmin ? superadmin.id : null,
+      bengkel_id: bengkel ? bengkel.id : null,
+      userType: userType,
+    }
+
     // Buat token menggunakan informasi yang relevan
-    const token = createToken(account, userType);
+    const token = createToken(account, dataToken);
 
     // Simpan token hanya dengan field ID yang relevan
     await prisma.token.create({

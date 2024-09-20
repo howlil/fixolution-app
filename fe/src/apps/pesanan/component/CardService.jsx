@@ -20,7 +20,7 @@ export default function CardService({ service, tipe }) {
           <div>
             <span className="text-xs font-medium text-neutral-400">{tipe}</span>
             <h1 className="text-lg font-semibold">{bengkel?.nama_bengkel}</h1>
-            <p className="text-sm text-gray-500">{deskripsi}</p>
+            <p className="text-sm text-gray-500">Masalah :{deskripsi}</p>
           </div>
           <div className="mt-8">
             <p className="text-sm text-gray-500">

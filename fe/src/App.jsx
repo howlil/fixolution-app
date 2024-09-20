@@ -25,21 +25,27 @@ import { CartProvider } from "./apps/transaksi/CartContex";
 import CheckoutIndex from "./apps/checkout/CheckoutIndex";
 import KeranjangPage from "./apps/keranjang/KeranjangPage";
 import BayarIndex from "./apps/bayar/BayarIndex";
+import ManageBooking from "./apps/admin/booking/ManageBooking";
 
 const ProtectedDasboard = withRole(Dasboard, ["superadmin"]);
 const ProtectedManajemenBengkel = withRole(ManajemenBengkel, ["superadmin"]);
 const ProtectedSukuCadang = withRole(SukuCadang, ["superadmin"]);
 const ProtectedManageSukuCadang = withRole(ManageSukuCadang, ["superadmin"]);
-const ProtectedManageBengkel = withRole(ManageBengkel, ["superadmin"]);
+const ProtectedManageBengkel = withRole(ManageBengkel, ["superadmin","bengkel"]);
 const ProtectedPesanSukuCadang = withRole(PesanSukuCadang, ["superadmin"]);
-const ProtectedServiceToGo = withRole(ServiceToGo, ["superadmin"]);
+const ProtectedServiceToGo = withRole(ServiceToGo, ["superadmin","bengkel"]);
 const ProtectedTransaksiBengkel = withRole(TransaksiBengkel, ["superadmin"]);
+const ProtectedManageBooking = withRole(ManageBooking, [
+  "superadmin",
+  "bengkel",
+]);
 const ProtectedTransaksiSukuCadang = withRole(TransaksiSukuCadang, [
   "superadmin",
 ]);
-const ProtectedLayananBengkel = withRole(LayananBengkel, ["superadmin"]);
+const ProtectedLayananBengkel = withRole(LayananBengkel, ["superadmin","bengkel"]);
 const ProtectedKelolaLayananBengkel = withRole(KelolaLayananBengkel, [
   "superadmin",
+  "bengkel"
 ]);
 
 export default function App() {
@@ -62,7 +68,7 @@ export default function App() {
             <Route path="/service" element={<ServiceToGoPage />} />
             <Route path="/service/:id" element={<DetailStg />} />
             <Route path="/suku-cadang" element={<SukuCadangPage />} />
-            
+
             <Route
               path="/keranjang"
               element={
@@ -77,7 +83,7 @@ export default function App() {
                 <ProtectRoute>
                   <CheckoutIndex />
                 </ProtectRoute>
-              } 
+              }
             />
             <Route
               path="/bayar/:id_pesanan"
@@ -85,7 +91,7 @@ export default function App() {
                 <ProtectRoute>
                   <BayarIndex />
                 </ProtectRoute>
-              } 
+              }
             />
 
             <Route
@@ -97,6 +103,15 @@ export default function App() {
               }
             />
 
+            {/* //BOOKING */}
+            <Route
+              path="/booking"
+              element={
+                <ProtectRoute>
+                  <ProtectedManageBooking />
+                </ProtectRoute>
+              }
+            />
             {/* BENGKEL */}
             <Route
               path="/manajemenBengkel"
@@ -108,6 +123,14 @@ export default function App() {
             />
             <Route
               path="/manajemenBengkel/:id/layananBengkel"
+              element={
+                <ProtectRoute>
+                  <ProtectedLayananBengkel />
+                </ProtectRoute>
+              }
+            />
+            <Route
+              path="/layananBengkel"
               element={
                 <ProtectRoute>
                   <ProtectedLayananBengkel />
@@ -190,7 +213,7 @@ export default function App() {
               }
             />
             <Route
-              path="/pesanSukuCadang"
+              path="/booking"
               element={
                 <ProtectRoute>
                   <ProtectedPesanSukuCadang />

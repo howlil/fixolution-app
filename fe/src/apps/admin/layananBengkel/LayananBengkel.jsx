@@ -17,6 +17,20 @@ export default function LayananBengkel() {
   const [deleteId, setDeleteId] = useState(null);
   const [nama_bengkel, setNamaBengkel] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Calculate total pages
+  const totalPages = Math.ceil(bengkel.length / itemsPerPage);
+
+  // Get data for the current page
+  const currentData = bengkel.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const fetchData = async () => {
     try {
@@ -31,25 +45,31 @@ export default function LayananBengkel() {
       setBengkel(updatedData);
       setNamaBengkel(updatedData[0]?.bengkel?.nama_bengkel || "");
     } catch (error) {
-      showToast("Gagal mengambil data layanan", "error");
+      setErrorMessage(error.response.data.message);
+      showToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleEdit = (row) => {
-    navigate(`/manajemenBengkel/${id}/layananBengkel/editLayananBengkel/${row.id}`);
+    navigate(
+      `/manajemenBengkel/${id}/layananBengkel/editLayananBengkel/${row.id}`
+    );
   };
 
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      const { data: data } = await api.delete(`${id}/deleteLayananBengkel/${deleteId}`);
+      const { data: data } = await api.delete(
+        `${id}/deleteLayananBengkel/${deleteId}`
+      );
       setShowDeleteModal(false);
       showToast(data.message, "success");
       fetchData();
     } catch (error) {
-      showToast("Layanan bengkel gagal dihapus", "error");
+      setErrorMessage(error.response.data.message);
+      showToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -62,12 +82,21 @@ export default function LayananBengkel() {
   const columns = [
     { header: "Nama Layanan", accessor: "nama_layanan" },
     { header: "Kisaran Harga", accessor: "harga" },
-    { header: "Jam Operational", accessor: "jamOperational" }, // Use the combined data
+    { header: "Jam Operational", accessor: "jamOperational" },
   ];
 
   const navigateToAddLayananBengkel = () => {
     const newPath = `/manajemenBengkel/${id}/layananBengkel/addLayananBengkel`;
     navigate(newPath);
+  };
+
+  // Pagination handlers
+  const goToPreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   if (isLoading) return <Loading />;
@@ -88,13 +117,48 @@ export default function LayananBengkel() {
       <section className="mt-8">
         <Tables
           columns={columns}
-          data={bengkel}
+          data={currentData} // Display paginated data here
           onEdit={handleEdit}
           onDelete={(row) => {
             setDeleteId(row.id);
             setShowDeleteModal(true);
           }}
         />
+
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center mt-12">
+          <button
+            className={`px-4 py-2 rounded-md ${
+              currentPage === 1
+                ? "text-gray-400 cursor-not-allowed"
+                : "bg-base text-white"
+            }`}
+            onClick={goToPreviousPage}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            className={`px-4 py-2 rounded-md ${
+              currentPage === totalPages
+                ? "text-gray-400 cursor-not-allowed"
+                : "bg-base text-white"
+            }`}
+            onClick={goToNextPage}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+
+        {errorMessage && (
+          <p className="text-red-500 text-center mt-12">{errorMessage}</p>
+        )}
       </section>
       {showDeleteModal && (
         <ModalDelete

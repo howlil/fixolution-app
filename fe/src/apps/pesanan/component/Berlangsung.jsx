@@ -1,8 +1,9 @@
 import CardBooking from "./CardBooking";
 import CardService from "./CardService";
+import CardSukuCadang from "./CardSukuCadang";
 
-export default function Berlangsung({ data, dataSTG }) {
-  const tipe = data.type ;
+export default function Berlangsung({ data, dataSTG, dataSuku }) {
+  const tipe = data.type;
   const tipeSTG = dataSTG.type;
   const isPending = Array.isArray(data?.data)
     ? data.data.filter((item) => item.status === "PENDING")
@@ -12,6 +13,13 @@ export default function Berlangsung({ data, dataSTG }) {
     ? dataSTG?.data?.filter((item) => item.status === "PENDING")
     : [];
 
+  const isPendingSUku = Array.isArray(dataSuku?.data)
+    ? dataSuku?.data?.filter(
+        (item) =>
+          item.status === "MENUNGGU_KONFIRMASI" ||
+          item.status === "MENUNGGU_PEMBAYARAN"
+      )
+    : [];
 
   return (
     <div>
@@ -22,6 +30,10 @@ export default function Berlangsung({ data, dataSTG }) {
       {isPendingSTG &&
         isPendingSTG.map((item) => (
           <CardService key={item.id} service={item} tipe={tipeSTG} />
+        ))}
+      {isPendingSUku &&
+        isPendingSUku.map((item) => (
+          <CardSukuCadang key={item.id} service={item} />
         ))}
     </div>
   );

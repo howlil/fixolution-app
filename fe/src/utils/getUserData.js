@@ -5,7 +5,7 @@ export const getUserData = () => {
   
     try {
       const decoded = jwtDecode(token);
-      return decoded || null;
+      return decoded.userType || null;
     } catch (error) {
       console.error("Failed to decode token:", error);
       return null;

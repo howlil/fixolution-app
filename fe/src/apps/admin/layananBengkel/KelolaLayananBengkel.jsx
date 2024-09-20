@@ -18,10 +18,8 @@ export default function KelolaLayananBengkel() {
   const [jamBuka, setJamBuka] = useState("");
   const [jamTutup, setJamTutup] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const isEditing = Boolean(layanan_id); 
+  const isEditing = Boolean(layanan_id);
 
-  
-  
   useEffect(() => {
     if (isEditing) {
       setIsLoading(true);
@@ -36,14 +34,14 @@ export default function KelolaLayananBengkel() {
           setJamTutup(layanan.jam_tutup);
         })
         .catch((error) => {
-          showToast("Gagal mengambil data layanan", "error");
+          setErrorMessage(error.response.data.message);
+          showToast(error.response.data.message, "error");
         })
         .finally(() => {
           setIsLoading(false);
         });
     }
   }, [id, layanan_id, isEditing]);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,16 +63,13 @@ export default function KelolaLayananBengkel() {
         showToast("Layanan berhasil diperbarui", "success");
       } else {
         // Create new layanan
-        const response = await api.post(
-          `/${id}/addLayananBengkel`,
-          payload
-        );
+        const response = await api.post(`/${id}/addLayananBengkel`, payload);
         showToast("Layanan berhasil ditambahkan", "success");
       }
       navigate(`/manajemenBengkel/${id}/layananBengkel`);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Terjadi kesalahan";
-      showToast(errorMessage, "error");
+      setErrorMessage(error.response.data.message)
+      showToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
     }

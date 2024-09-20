@@ -47,6 +47,7 @@ app.use('/api/', server.alamat);
 
 app.use("/api/fotoBengkel", express.static("public/images/bengkel"));
 app.use("/api/fotoSukuCadang", express.static("public/images/sukuCadang"));
+app.use("/api/payments", express.static("public/images/payments"));
 
 
 app.use((req, res, next) => {

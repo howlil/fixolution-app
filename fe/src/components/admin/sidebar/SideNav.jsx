@@ -1,29 +1,17 @@
 import ActiveRoute from "./ActiveRoute";
-import {jwtDecode} from "jwt-decode";
-import { navDataAdmin } from "../../../data/data";
-
-const getUserTypeFromToken = () => {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-
-  try {
-    const decoded = jwtDecode(token);
-    return decoded?.userType || null;
-  } catch (error) {
-    console.error("Failed to decode token:", error);
-    return null;
-  }
-};
+import { navDataAdmin, navDataBengkel } from "../../../data/data";
+import { getUserData } from "../../../utils/getUserData";
 
 export default function SidebarNav() {
-  const userType = getUserTypeFromToken();
+  const userType = getUserData();
+
 
   let navData;
-  if (userType === "superadmin") {
+  if (userType.userType === "superadmin") {
     navData = navDataAdmin;
-  } else if (userType === "user") {
+  } else if (userType.userType === "user") {
     navData = navDataUser;
-  } else if (userType === "bengkel") {   
+  } else if (userType.userType === "bengkel") {
     navData = navDataBengkel;
   }
 

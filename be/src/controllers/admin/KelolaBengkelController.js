@@ -105,7 +105,8 @@ exports.uploadFoto = multer({
 
 exports.editBengkel = async (req, res) => {
   try {
-    const { id } = req.params;
+    // Jika userType bukan superadmin, gunakan req.userId sebagai ID bengkel
+    const bengkel_id = req.userType === "superadmin" ? req.params.id : req.userId;
 
     let validData = await bengkelSchema.validate({
       ...req.body,
@@ -113,7 +114,7 @@ exports.editBengkel = async (req, res) => {
     });
 
     const existingBengkel = await prisma.bengkel.findUnique({
-      where: { id },
+      where: { id: bengkel_id },
       include: { foto: true },
     });
 
@@ -133,19 +134,19 @@ exports.editBengkel = async (req, res) => {
 
     if (validData.foto.length > 0) {
       await prisma.foto.deleteMany({
-        where: { bengkel_id: id },
+        where: { bengkel_id },
       });
 
       await prisma.foto.createMany({
         data: validData.foto.map((foto) => ({
           foto,
-          bengkel_id: id,
+          bengkel_id,
         })),
       });
     }
 
     const updatedBengkel = await prisma.bengkel.update({
-      where: { id },
+      where: { id: bengkel_id },
       data: {
         nama_bengkel: validData.nama_bengkel,
         username: validData.username,
@@ -262,17 +263,19 @@ exports.getAllBengkel = async (req, res) => {
   }
 };
 
+// Get Bengkel Berdasarkan ID
 exports.getBengkelById = async (req, res) => {
   try {
-    const { id } = req.params;
+    // Jika userType bukan superadmin, gunakan req.userId sebagai ID bengkel
+    const bengkel_id = req.userType === "superadmin" ? req.params.id : req.userId;
 
     const bengkel = await prisma.bengkel.findUnique({
-      where: { id },
+      where: { id: bengkel_id },
       include: {
         layanan: true,
-        booking_layanan : true,
+        booking_layanan: true,
         servicetogo_request: true,
-        foto: true, // Sesuaikan dengan skema foto dalam bentuk tunggal
+        foto: true, // Sertakan foto bengkel
       },
     });
 

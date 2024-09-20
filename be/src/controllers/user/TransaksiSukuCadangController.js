@@ -272,8 +272,14 @@ exports.getPesananById = async (req, res) => {
     }
 
     // Menghitung total produk dan total harga
-    const totalProduk = pesanan.transaksi_sukucadang.reduce((total, item) => total + item.total_barang, 0);
-    const totalHarga = pesanan.transaksi_sukucadang.reduce((total, item) => total + item.total_harga, 0);
+    const totalProduk = pesanan.transaksi_sukucadang.reduce(
+      (total, item) => total + item.total_barang,
+      0
+    );
+    const totalHarga = pesanan.transaksi_sukucadang.reduce(
+      (total, item) => total + item.total_harga,
+      0
+    );
 
     // Menyusun data untuk response
 
@@ -289,7 +295,8 @@ exports.getPesananById = async (req, res) => {
         kelurahan: pesanan.alamat_pengiriman.kelurahan,
         alamat_lengkap: pesanan.alamat_pengiriman.alamat,
       },
-      metode_pembayaran: pesanan.status === "MENUNGGU_PEMBAYARAN" ? "Scan" : "Metode Lain", // Ini contoh, bisa disesuaikan
+      metode_pembayaran:
+        pesanan.status === "MENUNGGU_PEMBAYARAN" ? "Scan" : "Metode Lain", // Ini contoh, bisa disesuaikan
       detail_pesanan: pesanan.transaksi_sukucadang.map((item) => ({
         nama: item.sukucadang.nama,
         kuantitas: item.total_barang,
@@ -318,6 +325,199 @@ exports.getPesananById = async (req, res) => {
   }
 };
 
+exports.getAllPesananByUserId = async (req, res) => {
+  const userId = req.userId; // Mengambil userId dari request (misalnya dari middleware autentikasi)
+
+  try {
+    // Cari semua transaksi berdasarkan userId
+    const pesananList = await prisma.transaksi.findMany({
+      where: { user_id: userId }, // Filter pesanan berdasarkan userId
+      include: {
+        alamat_pengiriman: true, // Ambil data alamat pengiriman
+        transaksi_sukucadang: {
+          include: {
+            sukucadang: true, // Ambil detail suku cadang
+          },
+        },
+        user: {
+          select: {
+            nama: true,
+            no_hp: true,
+          },
+        },
+      },
+    });
+
+    if (pesananList.length === 0) {
+      return res.status(404).json({
+        message: "Pesanan tidak ditemukan untuk user ini",
+        success: false,
+      });
+    }
+
+    // Proses setiap pesanan untuk membuat response
+    const response = pesananList.map((pesanan) => {
+      // Menghitung total produk dan total harga untuk setiap pesanan
+      const totalProduk = pesanan.transaksi_sukucadang.reduce(
+        (total, item) => total + item.total_barang,
+        0
+      );
+      const totalHarga = pesanan.transaksi_sukucadang.reduce(
+        (total, item) => total + item.total_harga,
+        0
+      );
+
+      return {
+        kontak: {
+          nama: pesanan.user.nama,
+          nomor_hp: pesanan.user.no_hp,
+        },
+        alamat: {
+          provinsi: pesanan.alamat_pengiriman.provinsi,
+          kota: pesanan.alamat_pengiriman.kota,
+          kecamatan: pesanan.alamat_pengiriman.kecamatan,
+          kelurahan: pesanan.alamat_pengiriman.kelurahan,
+          alamat_lengkap: pesanan.alamat_pengiriman.alamat,
+        },
+        metode_pembayaran:
+          pesanan.status === "MENUNGGU_PEMBAYARAN" ? "Scan" : "Metode Lain", // Contoh saja
+        detail_pesanan: pesanan.transaksi_sukucadang.map((item) => ({
+          nama: item.sukucadang.nama,
+          kuantitas: item.total_barang,
+          harga: item.total_harga,
+          foto: item.sukucadang.foto,
+        })),
+        ringkasan_pesanan: {
+          total_produk: totalProduk,
+          total_harga: totalHarga,
+          biaya_pengiriman: pesanan.biaya_pengiriman || 0,
+          total: totalHarga + (pesanan.biaya_pengiriman || 0),
+        },
+        status: pesanan.status,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: response,
+      type: "Suku Cadang",
+    });
+  } catch (error) {
+    console.error("Error saat mengambil semua pesanan:", error);
+    res.status(500).json({
+      message: "Terjadi kesalahan server",
+      success: false,
+    });
+  }
+};
+
+exports.getAllSukuCadangById = async (req, res) => {
+  const { sukuCadang_id } = req.params; // Mengambil id_suku_cadang dan bulan dari params (bulan opsional)
+  const { bulan } = req.query; // Mengambil bulan dari query params
+  try {
+    // Definisikan filter dasar untuk id suku cadang
+    let filter = {
+      sukucadang_id: sukuCadang_id,
+    };
+
+    // Jika parameter bulan diberikan, tambahkan filter berdasarkan bulan
+    if (bulan) {
+      filter.transaksi = {
+        created_at: {
+          gte: new Date(`${bulan}-01T00:00:00.000Z`),
+          lt: new Date(`${bulan}-31T23:59:59.999Z`),
+        },
+      };
+    }
+
+    // Cari transaksi berdasarkan filter yang ada (dengan atau tanpa bulan)
+    const sukuCadangList = await prisma.transaksi_sukucadang.findMany({
+      where: filter,
+      include: {
+        sukucadang: true, // Tampilkan semua detail suku cadang
+        transaksi: {
+          include: {
+            user: true, // Tampilkan semua detail user (pemesan)
+            alamat_pengiriman: true, // Jika ada relasi lain dalam transaksi seperti alamat pengiriman, bisa disertakan
+          },
+        },
+      },
+    });
+
+    if (sukuCadangList.length === 0) {
+      return res.status(404).json({
+        message: "Tidak ada transaksi untuk suku cadang ini",
+        success: false,
+      });
+    }
+
+    // Proses setiap item untuk membuat response
+    const response = sukuCadangList.map((item) => {
+      return {
+        // Informasi Pemesan
+        pemesan: {
+          nama: item.transaksi.user.nama,
+          email: item.transaksi.user.email,
+          no_hp: item.transaksi.user.no_hp,
+          alamat_pengiriman: {
+            provinsi: item.transaksi.alamat_pengiriman?.provinsi || "N/A",
+            kota: item.transaksi.alamat_pengiriman?.kota || "N/A",
+            alamat_lengkap:
+              item.transaksi.alamat_pengiriman?.alamat_lengkap || "N/A",
+            kode_pos: item.transaksi.alamat_pengiriman?.kode_pos || "N/A",
+          },
+        },
+
+        // Informasi Suku Cadang
+        suku_cadang: {
+          nama: item.sukucadang.nama,
+          harga: item.sukucadang.harga,
+          stok: item.sukucadang.stok,
+          kategori: item.sukucadang.kategori || "Tidak ada kategori", // Asumsi kategori ada
+        },
+
+        // Informasi Transaksi
+        transaksi: {
+          id_transaksi: item.transaksi.id,
+          status: item.transaksi.status,
+          metode_pembayaran: item.transaksi.metode_pembayaran || "Tidak ada metode pembayaran", // Jika ada data metode pembayaran
+          total_harga: item.transaksi.total_harga || 0, // Asumsi ada field total_harga
+          tanggal_transaksi: new Date(
+            item.transaksi.created_at
+          ).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+          bukti_transaksi: item.transaksi.bukti_pembayaran || "Tidak ada bukti transaksi", // Jika ada bukti transaksi
+        },
+
+        // Informasi Detail Produk
+        detail_produk: {
+          jumlah: item.total_barang || 0, // Asumsi field `total_barang` adalah jumlah barang
+          harga_satuan: item.harga_satuan || 0, // Jika ada harga per satuan
+          total_harga: item.total_harga || 0, // Jika ada total harga dari item
+        },
+
+        // Status Konfirmasi
+        konfirmasi: item.transaksi.status,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: response,
+      type: "Suku Cadang",
+    });
+  } catch (error) {
+    console.error("Error saat mengambil semua suku cadang:", error);
+    res.status(500).json({
+      message: "Terjadi kesalahan server",
+      success: false,
+    });
+  }
+};
+
 
 exports.uploadBuktiPembayaran = async (req, res) => {
   try {
@@ -327,7 +527,9 @@ exports.uploadBuktiPembayaran = async (req, res) => {
     console.log("transaksi_id:", id_pesanan);
 
     if (!id_pesanan) {
-      return res.status(400).json({ success: false, message: "ID transaksi tidak ditemukan" });
+      return res
+        .status(400)
+        .json({ success: false, message: "ID transaksi tidak ditemukan" });
     }
 
     if (!req.file) {
@@ -352,8 +554,8 @@ exports.uploadBuktiPembayaran = async (req, res) => {
     const updatedTransaksi = await prisma.transaksi.update({
       where: { id: id_pesanan },
       data: {
-        bukti_pembayaran: req.file.filename, 
-        status: "MENUNGGU_KONFIRMASI", 
+        bukti_pembayaran: req.file.filename,
+        status: "MENUNGGU_KONFIRMASI",
       },
     });
 
@@ -371,17 +573,14 @@ exports.uploadBuktiPembayaran = async (req, res) => {
   }
 };
 
-
-
 exports.confirmTransaction = async (req, res) => {
-  const { transaksi_id, status, pesan_bengkel } = req.body;
+  const { transaksi_id, status } = req.body;
 
   try {
     const transaction = await prisma.transaksi.update({
       where: { id: transaksi_id },
       data: {
-        status: status === "DITERIMA" ? "DALAM_PENGIRIMAN" : "DITOLAK",
-        pesan_bengkel: pesan_bengkel || "",
+        status: status === "DITERIMA" ? "DITERIMA" : "DITOLAK",
       },
     });
 

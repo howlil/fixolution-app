@@ -24,7 +24,8 @@ export default function KeranjangPage() {
       setKeranjang(response.data);
       setKeranjangId(response.data[0].keranjang_id);
     } catch (error) {
-      showToast("Gagal memuat data", "error");
+      setErrorMessage(error.response.data.message);
+      showToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -37,15 +38,20 @@ export default function KeranjangPage() {
   // Memfilter item yang dipilih berdasarkan selectedIds
   useEffect(() => {
     if (selectedIds.length > 0) {
-      const filtered = keranjang.filter((item) => selectedIds.includes(item.id));
-      setKeranjangPick(filtered); 
+      const filtered = keranjang.filter((item) =>
+        selectedIds.includes(item.id)
+      );
+      setKeranjangPick(filtered);
     } else {
       setKeranjangPick([]);
     }
   }, [selectedIds, keranjang]);
 
   // Menghitung subtotal harga semua barang yang dipilih
-  const subtotal = keranjangPick.reduce((acc, item) => acc + item.total_harga, 0);
+  const subtotal = keranjangPick.reduce(
+    (acc, item) => acc + item.total_harga,
+    0
+  );
 
   // Menghitung total kuantitas produk yang dipilih
   const totalQuantity = keranjangPick.reduce(
@@ -77,7 +83,8 @@ export default function KeranjangPage() {
         showToast(response.message || "Gagal memperbarui keranjang", "error");
       }
     } catch (error) {
-      showToast("Gagal memperbarui keranjang", "error");
+      setErrorMessage(error.response.data.message);
+      showToast(error.response.data.message, "error");
     } finally {
       setLoadingItems((prev) => ({ ...prev, [id]: false })); // Set loading false setelah selesai
     }
@@ -96,10 +103,14 @@ export default function KeranjangPage() {
         fetchData(); // Memperbarui data keranjang setelah item dihapus
         showToast("Item berhasil dihapus dari keranjang", "success");
       } else {
-        showToast(response.message || "Gagal menghapus item dari keranjang", "error");
+        showToast(
+          response.message || "Gagal menghapus item dari keranjang",
+          "error"
+        );
       }
     } catch (error) {
-      showToast("Gagal menghapus item dari keranjang", "error");
+      setErrorMessage(error.response.data.message);
+      showToast(error.response.data.message, "error");
     } finally {
       setLoadingItems((prev) => ({ ...prev, [id]: false })); // Set loading false setelah selesai
     }
@@ -114,12 +125,9 @@ export default function KeranjangPage() {
     }
   };
 
-  
-
-  const handleCheckout =  () => {
+  const handleCheckout = () => {
     if (selectedIds.length > 0) {
       navigate(`/checkout/${keranjang_id}?items=${selectedIds.join(",")}`);
-
 
       showToast("Checkout berhasil!", "success");
     } else {

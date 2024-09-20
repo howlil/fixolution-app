@@ -26,4 +26,10 @@ router.get(
   BookingController.getAllBookings
 );
 
+router.get(
+  "/bookingsByBengkel",
+  md.authenticateToken,
+  BookingController.getBookingsByBengkel
+)
+
 module.exports = router;

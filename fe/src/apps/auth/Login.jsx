@@ -7,6 +7,7 @@ import Loading from "../../components/ui/Loading";
 import { showToast } from "../../components/ui/Toaster";
 import { Toaster } from "react-hot-toast";
 import api from "../../utils/axios";
+import { getUserData } from "../../utils/getUserData";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -35,7 +36,16 @@ export default function Login() {
         showToast(response.message, "error");
       } else {
         showToast(response.data.message, "success");
-        navigate("/dashboard");
+        const userData = getUserData();
+        if (userData.userType === "superadmin") {
+          navigate("/dashboard");
+        }
+        if (userData.userType === "user") {
+          navigate("/");
+        }
+        if (userData.userType === "bengkel") {
+          navigate("/booking");
+        }
       }
     } catch (error) {
       showToast("An error occurred during login", "error");

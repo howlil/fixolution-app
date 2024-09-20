@@ -6,9 +6,9 @@ import { showToast } from "../../../components/ui/Toaster";
 import { Trash, Edit, Eye, Check, X } from "lucide-react";
 import Loading from "../../../components/ui/Loading";
 
-export default function ServiceToGo() {
+export default function ManageBooking() {
   const [data, setData] = useState([]);
-  const [selectedService, setSelectedService] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -18,11 +18,11 @@ export default function ServiceToGo() {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
+  
   // Calculate total pages
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
-  // Get current page data
+  // Get the current page data
   const currentData = data.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -31,8 +31,8 @@ export default function ServiceToGo() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await api.get("/allRequest");
-        setData(res.data.data); // Assuming `res.data.data` contains the service request array
+        const res = await api.get("/bookingsByBengkel");
+        setData(res.data.data);
       } catch (error) {
         showToast("Terjadi kesalahan", "error");
       } finally {
@@ -43,27 +43,21 @@ export default function ServiceToGo() {
   }, []);
 
   const openModal = (row, action) => {
-    setSelectedService(row);
+    setSelectedBooking(row);
     setActionType(action);
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
-    setSelectedService(null);
+    setSelectedBooking(null);
     setWhatsappNumber("");
     setRejectionReason("");
   };
 
   const handleSubmit = async () => {
-    if (actionType === "APPROVE" && !whatsappNumber) {
-      showToast("error", "WhatsApp number is required for approval.");
-      return;
-    }
-    if (actionType === "REJECT" && !rejectionReason) {
-      showToast("Rejection reason is required.", "error");
-      return;
-    }
+    if (actionType === "APPROVE" && !whatsappNumber) return;
+    if (actionType === "REJECT" && !rejectionReason) return;
 
     try {
       const payload = {
@@ -72,31 +66,49 @@ export default function ServiceToGo() {
           actionType === "APPROVE" ? whatsappNumber : rejectionReason,
       };
 
-      // Send the API request
-      await api.put(`/respond/${selectedService.id}`, payload);
+      await api.put(`/booking/respond/${selectedBooking.id}`, payload);
 
       setData((prevData) =>
         prevData.map((item) =>
-          item.id === selectedService.id
-            ? {
-                ...item,
-                status: actionType === "APPROVE" ? "APPROVED" : "REJECTED",
-              }
+          item.id === selectedBooking.id
+            ? { ...item, status: payload.status }
             : item
         )
       );
 
-      showToast("Service updated successfully", "success");
+      showToast("Booking updated successfully", "success");
       closeModal();
     } catch (error) {
-      console.error("Error updating service:", error);
-      showToast("Failed to update service", "error");
+      showToast("Failed to update booking", "error");
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) return <Loading />;
+
+  const formatDate = (timestamp) => {
+    if (timestamp) {
+      const date = new Date(timestamp * 1000);
+      return date.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    }
+    return "Invalid Date";
+  };
+
+  const formatTime = (timestamp) => {
+    if (timestamp) {
+      const date = new Date(timestamp * 1000);
+      return date.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+    return "Invalid Time";
+  };
 
   // Pagination handlers
   const goToPreviousPage = () => {
@@ -110,51 +122,49 @@ export default function ServiceToGo() {
   return (
     <Layout>
       <Toaster />
-      <h1 className="text-xl text-base font-semibold">
-        Manage Selected Services
-      </h1>
+      <h1 className="text-xl text-base font-semibold">Manage Booking</h1>
       <section className="mt-12">
-        <table className="w-full table-auto">
+        <table className="w-full">
           <thead className="bg-neutral-100 rounded-t-lg">
             <tr>
-              <th className="py-2 px-4 font-semibold text-center">No</th>
-              <th className="py-2 px-4 font-semibold text-start">Nama</th>
-              <th className="py-2 px-4 font-semibold text-start">No. Handphone</th>
-              <th className="py-2 px-4 font-semibold text-start">Alamat</th>
-              <th className="py-2 px-4 font-semibold text-start">Masalah Kendaraan</th>
-              <th className="py-2 px-4 font-semibold text-start">No. Montir</th>
-              <th className="py-2 px-4 font-semibold text-center">Aksi</th>
+              <th className="py-2 font-semibold text-center">No</th>
+              <th className="py-2 font-semibold text-start pl-4">Nama</th>
+              <th className="py-2 font-semibold text-start pl-4">No Hp</th>
+              <th className="py-2 font-semibold text-start pl-4">Layanan</th>
+              <th className="py-2 font-semibold text-start pl-4">Tanggal</th>
+              <th className="py-2 font-semibold text-start pl-4">Jam</th>
+              <th className="py-2 font-semibold text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {currentData.length > 0 ? (
               currentData.map((row, rowIndex) => (
-                <tr key={row.id} className="hover:bg-gray-50">
-                  <td className="text-center py-2 px-4">
+                <tr key={row.id} className="border-b border-neutral-300">
+                  <td className="text-center py-2">
                     {(currentPage - 1) * itemsPerPage + rowIndex + 1}
                   </td>
-                  <td className="py-2 px-4 text-start">{row.user.nama}</td>
-                  <td className="py-2 px-4 text-start">{row.user.no_hp}</td>
-                  <td className="py-2 px-4 text-start">
-                    <a className="text-blue-400 underline" href={row.gmaps_link}>
-                      {row.gmaps_link.slice(0, 20)}
-                    </a>
+                  <td className="py-2 text-start pl-4">{row.user.nama}</td>
+                  <td className="py-2 text-start pl-4">{row.user.no_hp}</td>
+                  <td className="py-2 text-start pl-4">
+                    {row.layanan.nama_layanan}
                   </td>
-                  <td className="py-2 px-4 text-start">
-                    {row.deskripsi || "Masalah tidak tersedia"}
+                  <td className="py-2 text-start pl-4">
+                    {formatDate(row.tanggal)}
                   </td>
-                  <td className="py-2 px-4 text-start">
-                    {row.pesan_bengkel || "Belum ditentukan"}
+                  <td className="py-2 text-start pl-4">
+                    {formatTime(row.jam_mulai)}
                   </td>
-                  <td className="py-2 px-4 flex justify-center space-x-2">
+                  <td className="py-2 flex justify-center space-x-2">
                     {row.status === "PENDING" ? (
                       <>
+                        {/* Reject Button */}
                         <button
                           className="bg-red-500 hover:bg-red-600 text-white p-2 rounded"
                           onClick={() => openModal(row, "REJECT")}
                         >
                           <X size={20} />
                         </button>
+                        {/* Confirm Button */}
                         <button
                           className="bg-green-500 hover:bg-green-600 text-white p-2 rounded"
                           onClick={() => openModal(row, "APPROVE")}
@@ -163,9 +173,13 @@ export default function ServiceToGo() {
                         </button>
                       </>
                     ) : row.status === "APPROVED" ? (
-                      <span className="text-green-600">Dikonfirmasi</span>
+                      <span className="text-green-600 border border-green-600 rounded p-1">
+                        Dikonfirmasi
+                      </span>
                     ) : row.status === "REJECTED" ? (
-                      <span className="text-red-600">Ditolak</span>
+                      <span className="text-red-600 border border-red-600 rounded p-1">
+                        Ditolak
+                      </span>
                     ) : null}
                   </td>
                 </tr>
@@ -173,7 +187,7 @@ export default function ServiceToGo() {
             ) : (
               <tr>
                 <td colSpan="7" className="text-center py-4">
-                  No services available.
+                  No bookings available.
                 </td>
               </tr>
             )}

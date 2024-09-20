@@ -30,5 +30,10 @@ router.get(
   md.authenticateToken,
   ServiceToGoController.getAllServiceRequests
 );
+router.get(
+  "/allRequest",
+  md.authenticateToken,
+  ServiceToGoController.getAllServiceRequest
+);
 
 module.exports = router;

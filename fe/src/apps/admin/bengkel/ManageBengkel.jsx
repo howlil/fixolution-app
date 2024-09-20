@@ -26,36 +26,37 @@ export default function ManageBengkel() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-      const fetchBengkelData = async () => {
-          if (id) {
-              setIsEditing(true);
-              setIsLoading(true);
-              try {
-                  const response = await api.get(`/admin/getBengkelById/${id}`);
-                  const bengkel = response.data;
-                  setNama(bengkel.nama_bengkel);
-                  setUsername(bengkel.username);
-                  setPassword(bengkel.password);
-                  setAlamat(bengkel.alamat);
-                  setNoHp(bengkel.no_hp);
-                  setGmapsLink(bengkel.gmaps_link);
-                  setStatus(bengkel.status);
-                  setImages(bengkel.foto);
-              } catch (error) {
-                  showToast("Failed to fetch bengkel data", "error");
-              } finally {
-                  setIsLoading(false);
-              }
-          }
-      };
-  
-      fetchBengkelData();
+    const fetchBengkelData = async () => {
+      if (id) {
+        setIsEditing(true);
+        setIsLoading(true);
+        try {
+          const response = await api.get(`/admin/getBengkelById/${id}`);
+          const bengkel = response.data;
+          setNama(bengkel.nama_bengkel);
+          setUsername(bengkel.username);
+          setPassword(bengkel.password);
+          setAlamat(bengkel.alamat);
+          setNoHp(bengkel.no_hp);
+          setGmapsLink(bengkel.gmaps_link);
+          setStatus(bengkel.status);
+          setImages(bengkel.foto);
+        } catch (error) {
+          setErrorMessage(error.response.data.message);
+          showToast(error.response.data.message, "error");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchBengkelData();
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     const formData = new FormData();
     formData.append("nama_bengkel", nama_bengkel);
     formData.append("username", username);
@@ -65,12 +66,11 @@ export default function ManageBengkel() {
     formData.append("status", status);
     formData.append("gmaps_link", gmaps_link);
 
-    console.log(foto.files)
-  
+    console.log(foto.files);
+
     foto.forEach((file, index) => {
       formData.append(`foto`, file);
     });
-
 
     try {
       if (isEditing) {
@@ -95,14 +95,13 @@ export default function ManageBengkel() {
         }
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "An error occurred";
-      showToast(errorMessage, "error");
+      setErrorMessage(error.response.data.message);
+      showToast(error.response.data.message, "error");  
     } finally {
       setIsLoading(false);
     }
   };
 
-  
   if (isLoading) return <Loading />;
   return (
     <Layout>

@@ -1,18 +1,21 @@
 import React from "react";
 
 export default function CardBooking({ pesanan, tipe }) {
-  const { bengkel, layanan, status, tanggal, jam_mulai } = pesanan;
+  const { bengkel, layanan, status, tanggal, jam_mulai, pesan_bengkel } =
+    pesanan;
 
   return (
     <div className="border-b-2 pb-4 mb-4 w-full bg-white p-4">
       <div className="flex gap-6">
-        <img
-          className="w-36 h-36 object-cover rounded-lg"
-          src={`${import.meta.env.VITE_API_BASE_URL}/fotoBengkel/${
-            bengkel?.foto?.[0]?.foto
-          }`}
-          alt={bengkel?.nama_bengkel}
-        />
+        {bengkel?.foto?.[0]?.foto && (
+          <img
+            className="w-36 h-36 object-cover rounded-lg"
+            src={`${import.meta.env.VITE_API_BASE_URL}/fotoBengkel/${
+              bengkel?.foto?.[0]?.foto
+            }`}
+            alt={bengkel?.nama_bengkel}
+          />
+        )}
 
         {/* Detail pesanan */}
         <div className="flex-1 flex flex-col justify-between">
@@ -45,7 +48,7 @@ export default function CardBooking({ pesanan, tipe }) {
           <h1 className="text-lg font-semibold text-gray-800">
             Rp{layanan.harga.toLocaleString("id-ID")}
           </h1>
-          <div className="mb-4">
+          <div className="mb-4 text-end space-y-3">
             <span
               className={`px-4 py-2 rounded-md font-medium text-white ${
                 status === "PENDING"
@@ -61,6 +64,9 @@ export default function CardBooking({ pesanan, tipe }) {
               {status === "APPROVED" && "Telah Dikonfirmasi"}
               {status === "REJECTED" && "Ditolak"}
             </span>
+            <p>
+              Pesan Bengkel: <span className="font-semibold">{pesan_bengkel || "belum ada pesan"}</span>
+            </p>
           </div>
         </div>
       </div>

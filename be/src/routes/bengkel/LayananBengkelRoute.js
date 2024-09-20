@@ -15,11 +15,13 @@ router.post(
   
   router.get(
     "/:bengkel_id/getAllLayananBengkel",
+    authenticateToken,
     layananController.getAllLayanan
   );
   
   router.get(
     "/:bengkel_id/getLayananBengkelById/:id",
+    authenticateToken,
     layananController.getLayananById
   );
   

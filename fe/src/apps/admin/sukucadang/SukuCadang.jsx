@@ -17,6 +17,10 @@ export default function SukuCadang() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1); // Current page
+  const itemsPerPage = 10; // Items per page
+
   const columns = [
     { header: "Nama Suku Cadang", accessor: "nama" },
     { header: "Harga", accessor: "harga" },
@@ -61,6 +65,24 @@ export default function SukuCadang() {
     }
   };
 
+  // Pagination functions
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sukuCadang.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(sukuCadang.length / itemsPerPage);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
   if (isLoading) return <Loading />;
 
   return (
@@ -82,16 +104,48 @@ export default function SukuCadang() {
             <Loading type="spin" color="#ffffff" />
           </div>
         ) : (
-          <Tables
-            columns={columns}
-            data={sukuCadang}
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={(row) => {
-              setDeleteId(row.id);
-              setShowDeleteModal(true);
-            }}
-          />
+          <>
+            <Tables
+              columns={columns}
+              data={currentItems} // Only show the current page's items
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={(row) => {
+                setDeleteId(row.id);
+                setShowDeleteModal(true);
+              }}
+            />
+            {/* Pagination Controls */}
+            <div className="flex justify-between items-center mt-12">
+              <button
+                className={`px-4 py-2 rounded-md ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "bg-base text-white"
+                }`}
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                className={`px-4 py-2 rounded-md ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "bg-base text-white"
+                }`}
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
+          </>
         )}
       </section>
       {showDeleteModal && (

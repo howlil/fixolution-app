@@ -22,7 +22,7 @@ export default function Auth() {
         onClick={() => window.location.replace("/")}
         src={img}
         alt="s"
-        className="absolute -z-10 h-full w-full object-cover"
+        className="absolute cursor-pointer -z-10 h-full w-full object-cover"
       />
 
       {daftar ? (
@@ -52,7 +52,9 @@ export default function Auth() {
       ) : login ? (
         <section className="space-y-6 w-full sm:w-1/3  ">
           <figure className="flex justify-center">
-            <img src={logo} className="w-64" alt="l" />
+            <img 
+            onClick={() => window.location.replace("/")}
+            src={logo} className="w-64 cursor-pointer " alt="l" />
           </figure>
           <Login />
         </section>

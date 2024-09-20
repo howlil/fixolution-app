@@ -32,6 +32,7 @@ router.get(
 );
 router.get(
   "/admin/getBengkelById/:id",
+  authenticateToken,
   bengkelController.getBengkelById
 );
 

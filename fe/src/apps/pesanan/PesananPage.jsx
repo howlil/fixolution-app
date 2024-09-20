@@ -17,6 +17,7 @@ export default function PesananPage() {
   const data = getUserData();
   const [dataBooking, setDataBooking] = useState([]);
   const [dataSTG, setDataSTG] = useState([]);
+  const [dataSuku, setDataSuku] = useState([]);
 
   const navItems = [
     {
@@ -37,11 +38,13 @@ export default function PesananPage() {
         setIsLoading(true);
         const { data: response } = await api.get("/bookings");
         const { data: responseSTG } = await api.get("/allRequests");
+        const {data: responseSuku} = await api.get("/pesanan");
         if (!response.success) {
           showToast("Gagal mengambil data pesanan", "error");
         }
         setDataBooking(response);
         setDataSTG(responseSTG);
+        setDataSuku(responseSuku);
       } catch (error) {
         showToast("Terjadi kesalahan saat mengambil data pesanan", "error");
       } finally {
@@ -79,8 +82,8 @@ export default function PesananPage() {
           ))}
         </div>
         <div className="mt-8">
-          {path === "/pesanan/berlangsung" && <Berlangsung dataSTG={dataSTG} data={dataBooking} />}
-          {path === "/pesanan/selesai" && <Selesai dataSTG={dataSTG} data={dataBooking} />}
+          {path === "/pesanan/berlangsung" && <Berlangsung dataSTG={dataSTG} dataSuku={dataSuku} data={dataBooking} />}
+          {path === "/pesanan/selesai" && <Selesai dataSTG={dataSTG} dataSuku={dataSuku} data={dataBooking} />}
         </div>
       </div>
 

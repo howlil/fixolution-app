@@ -41,7 +41,8 @@ exports.authenticateToken = async (req, res, next) => {
       }
 
       req.userId = decoded.id;
-      req.userType = decoded.userType;
+      req.userType = decoded.userType.userType;
+      
       next();
     });
   } catch (error) {
