@@ -7,6 +7,9 @@ const __dirname = path.dirname(fileURLToPath(new URL(import.meta.url)));
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    historyApiFallback: true
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
