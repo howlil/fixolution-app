@@ -66,7 +66,7 @@ export default function Dashboard() {
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      showToast("Gagal mengambil data", "error");
+      console.error("Error fetching data:", error);
     }
   };
 

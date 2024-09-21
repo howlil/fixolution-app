@@ -20,7 +20,7 @@ const sukucadangSchema = yup.object().shape({
 // Setup untuk upload foto suku cadang
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../../../public/images/sukucadang"));
+    cb(null, path.join(__dirname, "../../../public/images/sukuCadang"));
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);

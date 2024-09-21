@@ -24,7 +24,7 @@ export default function BayarIndex() {
         const { data } = await api.get(`/pesanan/${id_pesanan}`);
         setDataPesanan(data.data);
       } catch (error) {
-        showToast("Gagal memuat data", "error");
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -56,7 +56,7 @@ export default function BayarIndex() {
       showToast("Bukti pembayaran berhasil diunggah", "success");
       window.location.href("/pesanan/berlangsung");
     } catch (error) {
-      showToast("Gagal mengunggah bukti pembayaran", "error");
+      console.error("Error fetching data:", error);
     }finally {
       setIsLoading(false);
     }

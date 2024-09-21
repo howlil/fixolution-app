@@ -43,7 +43,7 @@ export default function ManageBengkel() {
           setImages(bengkel.foto);
         } catch (error) {
           setErrorMessage(error.response.data.message);
-          showToast(error.response.data.message, "error");
+          console.error("Error fetching data:", error);
         } finally {
           setIsLoading(false);
         }

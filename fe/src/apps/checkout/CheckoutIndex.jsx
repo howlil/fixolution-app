@@ -39,7 +39,7 @@ export default function CheckoutIndex() {
         setItems(fetchedItems);
         setIsLoading(false);
       } catch (error) {
-        showToast("Gagal memuat data", "error");
+      console.error("Error fetching data:", error);
         setIsLoading(false);
       }
     };

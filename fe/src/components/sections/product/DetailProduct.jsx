@@ -9,6 +9,7 @@ import Loading from "../../ui/Loading";
 import { showToast } from "../../ui/Toaster";
 import { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getUserData } from "../../../utils/getUserData";
 
 export default function DetailProduct() {
   const { id } = useParams();
@@ -16,7 +17,9 @@ export default function DetailProduct() {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const user = getUserData();
   const { addToCart, isCartModalOpen, closeCartModal } = useCart(); 
+
 
   const fetchData = async () => {
     try {
@@ -25,7 +28,7 @@ export default function DetailProduct() {
       setProduct(data.data);
       setIsLoading(false);
     } catch (error) {
-      showToast("Gagal memuat data", "error");
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -44,6 +47,11 @@ export default function DetailProduct() {
   };
 
   const handleAddToCart = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     const cartItem = {
       suku_cadang_id: id, 
       jumlah: quantity,
@@ -71,7 +79,7 @@ export default function DetailProduct() {
       }
       setIsLoading(false);
     } catch (error) {
-      showToast("Gagal menambahkan ke keranjang", "error");
+      console.error("Error fetching data:", error);
     }
   };
 

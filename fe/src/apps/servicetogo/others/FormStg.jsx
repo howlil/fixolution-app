@@ -34,7 +34,7 @@ export default function FormStg() {
       setGmapsLink("");
       setDeskripsi("");
     } catch (error) {
-      showToast("Terjadi kesalahan saat mengirim data", "error");
+      console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
     }

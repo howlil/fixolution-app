@@ -46,7 +46,7 @@ export default function PesananPage() {
         setDataSTG(responseSTG);
         setDataSuku(responseSuku);
       } catch (error) {
-        showToast("Terjadi kesalahan saat mengambil data pesanan", "error");
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }

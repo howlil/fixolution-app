@@ -107,7 +107,7 @@ export default function SukuCadang() {
           <>
             <Tables
               columns={columns}
-              data={currentItems} // Only show the current page's items
+              data={currentItems}
               onView={handleView}
               onEdit={handleEdit}
               onDelete={(row) => {

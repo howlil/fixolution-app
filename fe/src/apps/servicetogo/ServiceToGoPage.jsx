@@ -21,7 +21,7 @@ export default function ServiceToGoPage() {
         const { data: data } = await api.get(`/admin/getAllBengkel`);
         setBengkel(data.data);
       } catch (error) {
-        showToast("error fetch data", error);
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -44,7 +44,9 @@ export default function ServiceToGoPage() {
 
   return (
     <div
-      className="relative py-36 bg-black bg-opacity-95"
+      className={`relative py-36 bg-black bg-opacity-95 ${
+        bengkel?.length === 0 ? "h-screen" : ""
+      }`}
       style={{
         backgroundImage: `url(${img})`,
         backgroundSize: "cover",
@@ -57,11 +59,20 @@ export default function ServiceToGoPage() {
       {/* Main Content */}
       <div className="relative z-10">
         <Navbar />
-        <h1 className="text-2xl text-center mb-16 border-b pb-8 font-semibold text-white">
-          Silahkan Pilih Bengkel 
-        </h1>
-        {/* Pass handleStg to CardStg */}
-        <CardStg data={bengkel} onClick={handleStg} />
+        {bengkel.length > 0 ? (
+          <div className="container mx-auto">
+            <h1 className="text-2xl text-center mb-16 border-b pb-8 font-semibold text-white">
+              Silahkan Pilih Bengkel
+            </h1>
+            <CardStg data={bengkel} onClick={handleStg} />
+          </div>
+        ) : (
+          <div className="text-white text-center">
+            <h1 className="text-2xl font-bold">
+              Maaf, belum ada bengkel yang tersedia
+            </h1>
+          </div>
+        )}
       </div>
     </div>
   );

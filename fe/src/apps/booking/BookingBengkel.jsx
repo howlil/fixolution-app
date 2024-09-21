@@ -12,8 +12,7 @@ export default function BookingBengkel() {
   const [bengkel, setBengkel] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const data = getUserData();
-  const isLogin = data
-
+  const isLogin = data;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,7 +21,7 @@ export default function BookingBengkel() {
         const { data: data } = await api.get(`/admin/getAllBengkel`);
         setBengkel(data.data);
       } catch (error) {
-        showToast("error fetch data", error);
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -40,11 +39,12 @@ export default function BookingBengkel() {
     }
     window.location.href = `/booking-bengkel/${id}`; // Gunakan ID di URL
   };
-  
 
   return (
     <div
-      className="relative py-36 bg-black bg-opacity-95"
+      className={`relative py-36 bg-black bg-opacity-95 ${
+        bengkel?.length === 0 ? "h-screen" : ""
+      }`}
       style={{
         backgroundImage: `url(${img})`,
         backgroundSize: "cover",
@@ -57,10 +57,20 @@ export default function BookingBengkel() {
       {/* Konten */}
       <div className="relative z-10">
         <Navbar />
-        <h1 className="text-2xl text-center mb-16 border-b  pb-8  font-semibold text-white">
-          Silahkan Pilih Bengkel Yang Ingin Kamu Booking
-        </h1>
-        <CardBooking onClick={handleBooking} data={bengkel} />
+        {bengkel.length > 0 ? (
+          <div className="container mx-auto px-4">
+            <h1 className="text-2xl text-center mb-16 border-b  pb-8  font-semibold text-white">
+              Silahkan Pilih Bengkel Yang Ingin Kamu Booking
+            </h1>
+            <CardBooking onClick={handleBooking} data={bengkel} />
+          </div>
+        ) : (
+          <div className="text-white text-center">
+            <h1 className="text-2xl font-bold">
+              Maaf, belum ada bengkel yang tersedia
+            </h1>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -46,7 +46,7 @@ export default function SukuCadangPage() {
         const { data: merekData } = await api.get("/getAllMerek");
         setMerek(merekData.data);
       } catch (error) {
-        showToast("Terjadi kesalahan saat mengambil data merek", "error");
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false); // End initial load
       }
@@ -70,7 +70,7 @@ export default function SukuCadangPage() {
           showToast(response.message, response.success);
         }
       } catch (error) {
-        showToast("Terjadi kesalahan saat mengambil data suku cadang", "error");
+        console.log(error)
       } finally {
         setIsSearchLoading(false); // End loading for search
       }
@@ -120,13 +120,17 @@ export default function SukuCadangPage() {
             <div className="flex justify-center items-center h-64">
               <Loading />
             </div>
-          ) : (
+          ) : data.length >0 ? (
             <CardSC
               onClick={(id) =>
                 (window.location.href = `/detailSukuCadang/${id}`)
               }
               products={data}
             />
+          ) : (
+            <div className="flex justify-center items-center h-64">
+              <p className="text-gray-500">Belum Ada Suku Cadang</p>
+            </div>
           )}
         </div>
       </section>

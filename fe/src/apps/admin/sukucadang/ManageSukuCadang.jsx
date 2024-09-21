@@ -95,11 +95,10 @@ export default function ManageSukuCadang() {
       return;
     }
 
-    if(!merekId){
-      showToast("Merek suku cadang wajib dipilih", "error");
+    if (!nama || !harga || !stok || !lebar || !tinggi || !panjang || !berat || !merekId) {
+      showToast("Please fill in all fields", "error");
       return;
     }
-
     setIsLoading(true);
 
     try {
@@ -131,16 +130,10 @@ export default function ManageSukuCadang() {
         });
       }
 
-      showToast(
-        response.data.message,
-        response.data.success ? "success" : "error"
-      );
-
-      if (response.data.success) {
         navigate("/manajemenSukuCadang");
-      }
+      
     } catch (error) {
-      showToast(error, "error");
+      showToast(error.message || "Error occurred", "error");
     } finally {
       setIsLoading(false);
     }

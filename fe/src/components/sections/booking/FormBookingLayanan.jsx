@@ -48,7 +48,7 @@ export default function FormBookingLayanan({ data }) {
         showToast(response.data.message, "error");
       }
     } catch (error) {
-      showToast("Terjadi kesalahan saat melakukan booking", "error");
+      console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
     }

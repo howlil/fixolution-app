@@ -21,7 +21,7 @@ export default function DetailBookingBengkel() {
         const { data: data } = await api.get(`/admin/getBengkelById/${id}`);
         setData(data.data);
       } catch (error) {
-        showToast("Terjadi kesalahan", "error");
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
