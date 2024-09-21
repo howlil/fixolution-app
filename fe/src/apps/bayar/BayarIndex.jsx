@@ -57,7 +57,7 @@ export default function BayarIndex() {
       window.location.href("/pesanan/berlangsung");
     } catch (error) {
       console.error("Error fetching data:", error);
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -68,11 +68,11 @@ export default function BayarIndex() {
     <>
       <Navbar />
       <Toaster />
-      <div className="my-28 mx-12">
+      <div className="md:my-28 my-20 mx-4 md:mx-12">
         {dataPesanan ? (
           <>
-            <h1 className="text-3xl font-semibold mb-8">Pesanan</h1>
-            <div className="grid grid-cols-2 gap-6">
+            <h1 className="md:text-3xl text-xl font-semibold mb-8">Pesanan</h1>
+            <div className="grid md:grid-cols-2 gap-6">
               {/* Left Section */}
               <div className="space-y-8">
                 <InformasiKontakAlamat

@@ -79,7 +79,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <Toaster />
-      <section className="grid grid-cols-3 gap-3">
+      <section className="grid lg:grid-cols-3 gap-3">
         {data.map((item, index) => (
           <CardDashboard key={index} icon={item.icon} name={item.name} data={item.data} />
         ))}

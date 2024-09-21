@@ -36,9 +36,11 @@ const InformasiKontakAlamat = ({ data, alamat }) => {
             <p className="text-gray-400">Kecamatan</p>
             <p className="font-normal text-sm">{alamat.kecamatan}</p>
           </div>
-          <div >
+          <div>
             <p className="text-gray-400">Alamat Lengkap</p>
-            <p className="font-normal text-sm">{alamat.alamat_lengkap}</p>
+            <p className="font-normal break-words text-sm">
+              {alamat.alamat_lengkap}
+            </p>
           </div>
         </div>
       </div>

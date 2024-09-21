@@ -70,7 +70,7 @@ export default function SukuCadangPage() {
           showToast(response.message, response.success);
         }
       } catch (error) {
-        console.log(error)
+        console.log(error);
       } finally {
         setIsSearchLoading(false); // End loading for search
       }
@@ -86,7 +86,7 @@ export default function SukuCadangPage() {
     <div>
       <Navbar />
       <Toaster />
-      <section className="mt-36 mx-12">
+      <section className="md:mt-36 mt-20 mx-4 md:mx-12">
         <div className="pb-6 border-b-2">
           <h1 className="text-2xl font-semibold">Suku Cadang Fixolution</h1>
           <p className="text-md text-gray-500">
@@ -103,7 +103,7 @@ export default function SukuCadangPage() {
             onChange={(e) => setSearch(e.target.value)} // Set search input value
           />
           <div className="flex items-center gap-4 text-sm text-gray-500">
-            Filter by Merek
+            <p className="hidden md:block">Filter by Merek</p>
             <Select
               options={merek.map((item) => ({
                 label: item.nama_merek,
@@ -120,7 +120,7 @@ export default function SukuCadangPage() {
             <div className="flex justify-center items-center h-64">
               <Loading />
             </div>
-          ) : data.length >0 ? (
+          ) : data.length > 0 ? (
             <CardSC
               onClick={(id) =>
                 (window.location.href = `/detailSukuCadang/${id}`)

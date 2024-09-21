@@ -36,7 +36,7 @@ export default function Navbar() {
         </ul>
       )}
 
-      {data && (
+      {data != null && (
         <>
           {isUser && (
             <>

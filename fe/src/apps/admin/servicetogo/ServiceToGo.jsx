@@ -34,7 +34,7 @@ export default function ServiceToGo() {
         const res = await api.get("/allRequest");
         setData(res.data.data); // Assuming `res.data.data` contains the service request array
       } catch (error) {
-        showToast("Terjadi kesalahan", "error");
+        console.error("Error fetching services:", error);
       } finally {
         setLoading(false);
       }
@@ -110,107 +110,112 @@ export default function ServiceToGo() {
   return (
     <Layout>
       <Toaster />
-      <h1 className="text-xl text-base font-semibold">
+      <h1 className="text-xl md:text-3xl  font-semibold">
         Manage Selected Services
       </h1>
-      <section className="mt-12">
-        <table className="w-full table-auto">
-          <thead className="bg-neutral-100 rounded-t-lg">
-            <tr>
-              <th className="py-2 px-4 font-semibold text-center">No</th>
-              <th className="py-2 px-4 font-semibold text-start">Nama</th>
-              <th className="py-2 px-4 font-semibold text-start">No. Handphone</th>
-              <th className="py-2 px-4 font-semibold text-start">Alamat</th>
-              <th className="py-2 px-4 font-semibold text-start">Masalah Kendaraan</th>
-              <th className="py-2 px-4 font-semibold text-start">No. Montir</th>
-              <th className="py-2 px-4 font-semibold text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.length > 0 ? (
-              currentData.map((row, rowIndex) => (
-                <tr key={row.id} className="hover:bg-gray-50">
-                  <td className="text-center py-2 px-4">
-                    {(currentPage - 1) * itemsPerPage + rowIndex + 1}
-                  </td>
-                  <td className="py-2 px-4 text-start">{row.user.nama}</td>
-                  <td className="py-2 px-4 text-start">{row.user.no_hp}</td>
-                  <td className="py-2 px-4 text-start">
-                    <a className="text-blue-400 underline" href={row.gmaps_link}>
-                      {row.gmaps_link.slice(0, 20)}
-                    </a>
-                  </td>
-                  <td className="py-2 px-4 text-start">
-                    {row.deskripsi || "Masalah tidak tersedia"}
-                  </td>
-                  <td className="py-2 px-4 text-start">
-                    {row.pesan_bengkel || "Belum ditentukan"}
-                  </td>
-                  <td className="py-2 px-4 flex justify-center space-x-2">
-                    {row.status === "PENDING" ? (
-                      <>
-                        <button
-                          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded"
-                          onClick={() => openModal(row, "REJECT")}
-                        >
-                          <X size={20} />
-                        </button>
-                        <button
-                          className="bg-green-500 hover:bg-green-600 text-white p-2 rounded"
-                          onClick={() => openModal(row, "APPROVE")}
-                        >
-                          <Check size={20} />
-                        </button>
-                      </>
-                    ) : row.status === "APPROVED" ? (
-                      <span className="text-green-600">Dikonfirmasi</span>
-                    ) : row.status === "REJECTED" ? (
-                      <span className="text-red-600">Ditolak</span>
-                    ) : null}
-                  </td>
+      {data.length > 0 ? (
+        <>
+          <section className="md:mt-12 mt-6 overflow-x-scroll">
+            <table className="w-full table-auto">
+              <thead className="bg-neutral-100 rounded-t-lg">
+                <tr>
+                  <th className="py-2 px-4 font-semibold text-center">No</th>
+                  <th className="py-2 px-4 font-semibold text-start">Nama</th>
+                  <th className="py-2 px-4 font-semibold text-start">
+                    No. Handphone
+                  </th>
+                  <th className="py-2 px-4 font-semibold text-start">Alamat</th>
+                  <th className="py-2 px-4 font-semibold text-start">
+                    Masalah Kendaraan
+                  </th>
+                  <th className="py-2 px-4 font-semibold text-start">
+                    No. Montir
+                  </th>
+                  <th className="py-2 px-4 font-semibold text-center">Aksi</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center py-4">
-                  No services available.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
+              </thead>
+              <tbody>
+                {currentData.map((row, rowIndex) => (
+                  <tr key={row.id} className="hover:bg-gray-50">
+                    <td className="text-center py-2 px-4">
+                      {(currentPage - 1) * itemsPerPage + rowIndex + 1}
+                    </td>
+                    <td className="py-2 px-4 text-start">{row.user.nama}</td>
+                    <td className="py-2 px-4 text-start">{row.user.no_hp}</td>
+                    <td className="py-2 px-4 text-start">
+                      <a
+                        className="text-blue-400 underline"
+                        href={row.gmaps_link}
+                      >
+                        {row.gmaps_link.slice(0, 20)}
+                      </a>
+                    </td>
+                    <td className="py-2 px-4 text-start">
+                      {row.deskripsi || "Masalah tidak tersedia"}
+                    </td>
+                    <td className="py-2 px-4 text-start">
+                      {row.pesan_bengkel || "Belum ditentukan"}
+                    </td>
+                    <td className="py-2 px-4 flex justify-center space-x-2">
+                      {row.status === "PENDING" ? (
+                        <>
+                          <button
+                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded"
+                            onClick={() => openModal(row, "REJECT")}
+                          >
+                            <X size={20} />
+                          </button>
+                          <button
+                            className="bg-green-500 hover:bg-green-600 text-white p-2 rounded"
+                            onClick={() => openModal(row, "APPROVE")}
+                          >
+                            <Check size={20} />
+                          </button>
+                        </>
+                      ) : row.status === "APPROVED" ? (
+                        <span className="text-green-600">Dikonfirmasi</span>
+                      ) : row.status === "REJECTED" ? (
+                        <span className="text-red-600">Ditolak</span>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+          <div className="flex justify-between items-center mt-12">
+            <button
+              className={`px-4 py-2 rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "bg-base text-white"
+              }`}
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
 
-      {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-12">
-        <button
-          className={`px-4 py-2 rounded-md ${
-            currentPage === 1
-              ? "text-gray-400 cursor-not-allowed"
-              : "bg-base text-white"
-          }`}
-          onClick={goToPreviousPage}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
 
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-
-        <button
-          className={`px-4 py-2 rounded-md ${
-            currentPage === totalPages
-              ? "text-gray-400 cursor-not-allowed"
-              : "bg-base text-white"
-          }`}
-          onClick={goToNextPage}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+            <button
+              className={`px-4 py-2 rounded-md ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "bg-base text-white"
+              }`}
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </>
+      ) : (
+        <h2 className="text-center mt-6">Tidak ada data</h2>
+      )}
 
       {/* Modal for Confirmation or Rejection */}
       {showModal && (

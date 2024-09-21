@@ -20,7 +20,7 @@ export default function SidebarIndex() {
         </section>
         <SidebarNav />
       </section>
-      <Link className="flex m-10" onClick={handleLogout}>
+      <Link className="flex m-12 md:m-10" onClick={handleLogout}>
         <PanelRightOpen size={24} color="white" />
         <p className="text-white pl-3">Logout</p>
       </Link>

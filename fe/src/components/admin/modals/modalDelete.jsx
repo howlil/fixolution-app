@@ -12,7 +12,7 @@ export default function ModalDelete({ onClose, onDelete }) {
       onClick={onClose}
     >
       <div
-        className="bg-white w-1/3 px-8 py-8 rounded-lg shadow-md"
+        className="bg-white md:w-1/3 w-5/6 px-8 py-8 rounded-lg shadow-md"
         onClick={stopPropagation}
       >
         <h1 className="text-2xl font-semibold text-center">

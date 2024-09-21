@@ -25,7 +25,6 @@ export default function KeranjangPage() {
       setKeranjangId(response.data[0].keranjang_id);
     } catch (error) {
       setErrorMessage(error.response.data.message);
-      showToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -141,8 +140,8 @@ export default function KeranjangPage() {
     <div>
       <Navbar />
       <Toaster />
-      <div className="mx-12 grid grid-cols-3 mt-36">
-        <div className="col-span-2 pr-12">
+      <div className="md:mx-12 mx-4  grid md:grid-cols-3 mt-20 md:mt-36">
+        <div className="md:col-span-2 md:h-full overflow-y-scroll h-96 pr-12">
           <KeranjangItems
             keranjang={keranjang}
             handleCheckboxChange={handleCheckboxChange} // Kirim fungsi handleCheckboxChange
@@ -152,7 +151,7 @@ export default function KeranjangPage() {
             onRemove={handleRemove}
           />
         </div>
-        <div className="col-span-1">
+        <div className="py-6 md:col-span-1">
           <RingkasanPesan
             onCheckout={handleCheckout}
             totalProduk={totalQuantity}

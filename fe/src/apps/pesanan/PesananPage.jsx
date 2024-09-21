@@ -38,7 +38,7 @@ export default function PesananPage() {
         setIsLoading(true);
         const { data: response } = await api.get("/bookings");
         const { data: responseSTG } = await api.get("/allRequests");
-        const {data: responseSuku} = await api.get("/pesanan");
+        const { data: responseSuku } = await api.get("/pesanan");
         if (!response.success) {
           showToast("Gagal mengambil data pesanan", "error");
         }
@@ -60,7 +60,7 @@ export default function PesananPage() {
     <>
       <Navbar />
       <Toaster />
-      <div className="mx-12 mt-36">
+      <div className="md:mx-12 mt-20 mx-6 md:mt-36">
         <div className="flex gap-3">
           <ShoppingBag size={28} />
           <h1 className="text-2xl font-semibold text-black">Pesanan Saya</h1>
@@ -82,8 +82,16 @@ export default function PesananPage() {
           ))}
         </div>
         <div className="mt-8">
-          {path === "/pesanan/berlangsung" && <Berlangsung dataSTG={dataSTG} dataSuku={dataSuku} data={dataBooking} />}
-          {path === "/pesanan/selesai" && <Selesai dataSTG={dataSTG} dataSuku={dataSuku} data={dataBooking} />}
+          {path === "/pesanan/berlangsung" && (
+            <Berlangsung
+              dataSTG={dataSTG}
+              dataSuku={dataSuku}
+              data={dataBooking}
+            />
+          )}
+          {path === "/pesanan/selesai" && (
+            <Selesai dataSTG={dataSTG} dataSuku={dataSuku} data={dataBooking} />
+          )}
         </div>
       </div>
 

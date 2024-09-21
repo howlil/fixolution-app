@@ -43,7 +43,7 @@ export default function FormStg() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="pl-12 mt-36">
+    <div className="md:pl-12  pb-16 md:pb-0  md:mt-36">
       <Toaster />
       <h1 className="text-2xl font-semibold text-white">Lengkapi Data</h1>
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">

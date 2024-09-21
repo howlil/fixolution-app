@@ -3,7 +3,7 @@ import Button from "../../ui/Button";
 
 export default function CardBooking({ data, onClick }) {
   return (
-    <div className="grid mx-12 grid-cols-1 md:grid-cols-3  lg:grid-cols-4  gap-4">
+    <div className="grid mx-4 md:mx-12 grid-cols-1 md:grid-cols-3  lg:grid-cols-4  gap-4">
       {data.map((item, index) => (
         <div
           key={index}

@@ -17,7 +17,6 @@ const Produk = () => {
   const fetchData = async () => {
     try {
       const { data } = await api.get("/getAllSukuCadang");
-      // Ensure the data is an array
       setSukuCadang(Array.isArray(data.data) ? data.data : []);
     } catch (error) {
       console.error("Failed to fetch data:", error);

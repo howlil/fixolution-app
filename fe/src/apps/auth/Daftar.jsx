@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../utils/axios";
 import Loading from "../../components/ui/Loading";
 import { showToast } from "../../components/ui/Toaster";
+import { Toaster } from "react-hot-toast";
 
 export default function Daftar() {
   const [loading, setLoading] = useState(false);
@@ -31,14 +32,13 @@ export default function Daftar() {
         no_hp,
       });
       if (result) {
-        showToast(result.data.message,result.data.success );
         navigate("/login");
       } else {
         showToast("Registration failed", "error");
       }
+      showToast(result.data.message, result.data.success);
     } catch (error) {
-
-      showToast("An error occurred during registration", "error");
+      showToast(error.response.data.message, "error");
     } finally {
       setLoading(false);
     }
@@ -47,6 +47,7 @@ export default function Daftar() {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={handleRegister}>
+      <Toaster />
       <Input
         label="Name"
         customLabel="text-neutral-100"

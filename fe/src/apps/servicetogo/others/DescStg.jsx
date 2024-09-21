@@ -1,8 +1,10 @@
 import { MapPin, Phone } from "lucide-react";
 
-export default function DescStg({ data }) {
+export default function DescStg({data}) {
+
+  console.log(data)
   return (
-    <div className="bg-neutral-700 p-4 mt-36 rounded-lg">
+    <div className="bg-neutral-700 p-4 mt-20 md:mt-36 rounded-lg">
       <div className=" gap-4">
         <img
           className="w-full h-64 object-cover rounded-lg"

@@ -4,15 +4,19 @@ import logos from "../../images/logos.svg";
 import logo from "../../images/logo1.svg";
 import img from "../../images/ban.png";
 import Login from "./Login";
+import { useIsMobile } from "../../utils/utils";
 
 export default function Auth() {
   const location = useLocation();
   const daftar = location.pathname === "/daftar";
   const login = location.pathname === "/login";
+  const isMobile = useIsMobile();
 
   return (
     <section
-      className={`relative h-screen bg-black bg-opacity-95 ${
+      className={`relative  bg-black bg-opacity-95 ${
+        isMobile && daftar ? "h-full py-12" : "h-screen"
+      } ${
         daftar
           ? "grid grid-cols-1 md:grid-cols-2"
           : "flex justify-center items-center"
@@ -52,9 +56,12 @@ export default function Auth() {
       ) : login ? (
         <section className="space-y-6 w-full sm:w-1/3  ">
           <figure className="flex justify-center">
-            <img 
-            onClick={() => window.location.replace("/")}
-            src={logo} className="w-64 cursor-pointer " alt="l" />
+            <img
+              onClick={() => window.location.replace("/")}
+              src={logo}
+              className="w-64 cursor-pointer "
+              alt="l"
+            />
           </figure>
           <Login />
         </section>

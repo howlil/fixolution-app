@@ -29,16 +29,17 @@ export default function DetailStg() {
     fetchData();
   }, [id]);
 
+
   if (isLoading) return <Loading />;
   return (
     <div>
       <Navbar />
       <Toaster />
-      <section className="bg-neutral-900 h-screen  gap-8 px-12 grid grid-cols-2">
-        <div >
+      <section className="bg-neutral-900 md:h-screen  gap-8 px-4 md:px-12 grid md:grid-cols-2">
+        <div>
           <DescStg data={data} />
         </div>
-        <div className=" border-l">
+        <div className=" md:border-l">
           <FormStg />
         </div>
       </section>

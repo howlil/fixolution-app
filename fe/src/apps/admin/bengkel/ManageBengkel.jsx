@@ -96,7 +96,7 @@ export default function ManageBengkel() {
       }
     } catch (error) {
       setErrorMessage(error.response.data.message);
-      showToast(error.response.data.message, "error");  
+      showToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -106,12 +106,12 @@ export default function ManageBengkel() {
   return (
     <Layout>
       <Toaster />
-      <h1 className="font-semibold text-3xl">
+      <h1 className="font-semibold text-xl md:text-3xl">
         {isEditing ? "Edit" : "Tambah"} Bengkel
       </h1>
       <form onSubmit={handleSubmit}>
         <section
-          className={`grid mt-12 grid-cols-2 gap-4 ${
+          className={`grid mt-6 lg:mt-12 lg:grid-cols-2 gap-4 ${
             isLoading ? "opacity-50 pointer-events-none" : ""
           }`}
         >
@@ -188,11 +188,11 @@ export default function ManageBengkel() {
             />
           </section>
         </section>
-        <section className="w-full flex justify-end">
+        <section className="w-full md:flex md:justify-end">
           <Button
             variant="primary"
             type="submit"
-            custom="px-8 py-1.5 mt-8"
+            custom="md:px-8 lg:w-56 w-full py-1.5 mt-8"
             disabled={isLoading}
           >
             {isEditing ? "Edit" : "Tambah"} Bengkel

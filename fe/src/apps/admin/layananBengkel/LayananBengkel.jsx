@@ -8,6 +8,8 @@ import api from "../../../utils/axios";
 import Loading from "../../../components/ui/Loading";
 import { showToast } from "../../../components/ui/Toaster";
 import { Toaster } from "react-hot-toast";
+import { Plus } from "lucide-react";
+import { useIsMobile } from "../../../utils/utils";
 
 export default function LayananBengkel() {
   const [bengkel, setBengkel] = useState([]);
@@ -17,6 +19,7 @@ export default function LayananBengkel() {
   const [deleteId, setDeleteId] = useState(null);
   const [nama_bengkel, setNamaBengkel] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const isMobile = useIsMobile();
   const [errorMessage, setErrorMessage] = useState("");
 
   // Pagination states
@@ -46,7 +49,6 @@ export default function LayananBengkel() {
       setNamaBengkel(updatedData[0]?.bengkel?.nama_bengkel || "");
     } catch (error) {
       setErrorMessage(error.response.data.message);
-      showToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -105,59 +107,62 @@ export default function LayananBengkel() {
     <Layout>
       <Toaster />
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-3xl">{`Layanan ${nama_bengkel}`}</h1>
+        <h1 className="font-semibold text-xl md:text-3xl">{`Layanan ${nama_bengkel}`}</h1>
         <Button
           variant="primary"
           onClick={navigateToAddLayananBengkel}
-          custom="px-8 py-1.5"
+          custom="md:px-8  p-2 rounded-md md:py-1.5"
         >
-          Tambah Layanan
+          {isMobile ? <Plus size={24} /> : "Tambah Layanan"}
         </Button>
       </div>
       <section className="mt-8">
-        <Tables
-          columns={columns}
-          data={currentData} // Display paginated data here
-          onEdit={handleEdit}
-          onDelete={(row) => {
-            setDeleteId(row.id);
-            setShowDeleteModal(true);
-          }}
-        />
+        {bengkel.length > 0 ? (
+          <>
+            <div className="overflow-x-scroll">
+              <Tables
+                columns={columns}
+                data={currentData} // Display paginated data here
+                onEdit={handleEdit}
+                onDelete={(row) => {
+                  setDeleteId(row.id);
+                  setShowDeleteModal(true);
+                }}
+              />
+            </div>
 
-        {/* Pagination Controls */}
-        <div className="flex justify-between items-center mt-12">
-          <button
-            className={`px-4 py-2 rounded-md ${
-              currentPage === 1
-                ? "text-gray-400 cursor-not-allowed"
-                : "bg-base text-white"
-            }`}
-            onClick={goToPreviousPage}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
+            <div className="flex justify-between items-center mt-12">
+              <button
+                className={`px-4 py-2 rounded-md ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "bg-base text-white"
+                }`}
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
 
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
 
-          <button
-            className={`px-4 py-2 rounded-md ${
-              currentPage === totalPages
-                ? "text-gray-400 cursor-not-allowed"
-                : "bg-base text-white"
-            }`}
-            onClick={goToNextPage}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-        </div>
-
-        {errorMessage && (
-          <p className="text-red-500 text-center mt-12">{errorMessage}</p>
+              <button
+                className={`px-4 py-2 rounded-md ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "bg-base text-white"
+                }`}
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-center">{errorMessage || "Tidak ada data"}</p>
         )}
       </section>
       {showDeleteModal && (

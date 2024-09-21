@@ -3,20 +3,20 @@ import Button from "../../../components/ui/Button";
 
 export default function CardStg({ data, onClick }) {
   return (
-    <div className="grid mx-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4">
+    <div className="grid ,md:mx-12 mx-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4">
       {data.map((item, index) => (
         <div
           key={index}
-          className="flex bg-neutral-800 text-white shadow-md rounded-lg"
+          className="flex flex-col md:flex-row bg-neutral-800 text-white shadow-md rounded-lg"
         >
           <img
             src={`${import.meta.env.VITE_API_BASE_URL}/fotoBengkel/${
               item.foto?.[0]?.foto
             }`}
             alt={item.title}
-            className=" h-48 w-36 object-cover rounded-l-lg"
+            className=" h-56 md:h-48 md:w-36 object-cover rounded-l-lg"
           />
-          <div className="p-4 flex flex-col justify-between flex-1">
+          <div className="md:p-4 p-6 flex flex-col justify-between flex-1">
             <h3 className="card-title text-xl font-semibold">
               {item.nama_bengkel}
             </h3>

@@ -56,7 +56,7 @@ export default function Login() {
   if (isLoading) return <Loading />;
 
   return (
-    <div>
+    <div className="mx-6">
       <Toaster />
       <form className="space-y-3 relative" onSubmit={handleSubmit}>
         <Input

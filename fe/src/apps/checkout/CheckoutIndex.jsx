@@ -6,12 +6,14 @@ import React, { useState, useEffect } from "react";
 import { showToast } from "../../components/ui/Toaster";
 import Loading from "../../components/ui/Loading";
 import { useParams, useLocation } from "react-router-dom";
+import { useIsMobile } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 
 export default function CheckoutIndex() {
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Mengambil keranjang_id dari URL params
   const { keranjang_id } = useParams();
@@ -39,7 +41,7 @@ export default function CheckoutIndex() {
         setItems(fetchedItems);
         setIsLoading(false);
       } catch (error) {
-      console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error);
         setIsLoading(false);
       }
     };
@@ -73,7 +75,9 @@ export default function CheckoutIndex() {
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.errors) {
-        error.response.data.errors.forEach((errMsg) => showToast(errMsg, "error"));
+        error.response.data.errors.forEach((errMsg) =>
+          showToast(errMsg, "error")
+        );
       } else {
         showToast("Gagal menyimpan alamat", "error");
       }
@@ -97,10 +101,15 @@ export default function CheckoutIndex() {
         });
         showToast("Pesanan berhasil dibuat!", "success");
         navigate("/bayar/" + post.data.data.id);
-        
       } catch (error) {
-        if (error.response && error.response.data && error.response.data.errors) {
-          error.response.data.errors.forEach((errMsg) => showToast(errMsg, "error"));
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.errors
+        ) {
+          error.response.data.errors.forEach((errMsg) =>
+            showToast(errMsg, "error")
+          );
         } else {
           showToast("Gagal membuat pesanan", "error");
         }
@@ -115,15 +124,28 @@ export default function CheckoutIndex() {
   return (
     <div>
       <Navbar />
-      <section className="mx-12 mt-36">
-        <h1 className="text-2xl font-semibold">Checkout</h1>
-        <section className="grid items-start grid-cols-2 gap-8">
-          <FormCheckout onSubmit={handleCheckout} />
-          <RincianBiaya
-            items={items}
-            handleQuantityChange={handleQuantityChange}
-            handleRemove={handleRemove}
-          />
+      <section className="md:mx-12 mx-4 mt-20 md:mt-36">
+        <h1 className="md:text-3xl text-xl font-semibold">Checkout</h1>
+        <section className="grid items-start md:grid-cols-2 gap-4 md:gap-8">
+          {isMobile ? (
+            <>
+              <RincianBiaya
+                items={items}
+                handleQuantityChange={handleQuantityChange}
+                handleRemove={handleRemove}
+              />
+              <FormCheckout onSubmit={handleCheckout} />
+            </>
+          ) : (
+            <>
+              <RincianBiaya
+                items={items}
+                handleQuantityChange={handleQuantityChange}
+                handleRemove={handleRemove}
+              />
+              <FormCheckout onSubmit={handleCheckout} />
+            </>
+          )}
         </section>
       </section>
     </div>

@@ -13,7 +13,7 @@ export default function CardSC({ products, onClick }) {
             src={`${import.meta.env.VITE_API_BASE_URL}/fotoSukuCadang/${
               product.foto
             }`}
-            className="object-cover h-52 w-full"
+            className="object-cover h-56 w-full"
             alt={product.nama}
           />
           <figcaption className="p-4 ">

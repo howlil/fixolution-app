@@ -8,12 +8,15 @@ import Loading from "../../../components/ui/Loading";
 import api from "../../../utils/axios";
 import { showToast } from "../../../components/ui/Toaster";
 import { Toaster } from "react-hot-toast";
+import { Plus } from "lucide-react";
+import { useIsMobile } from "../../../utils/utils";
 
 export default function ManajemenBengkel() {
   const navigate = useNavigate();
   const [bengkel, setBengkel] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(true); // Loading state
 
   // Pagination state
@@ -85,13 +88,13 @@ export default function ManajemenBengkel() {
   return (
     <Layout>
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-3xl">Manajemen Bengkel</h1>
+        <h1 className="font-semibold text-xl md:text-3xl">Manajemen Bengkel</h1>
         <Button
           variant="primary"
           onClick={() => navigate("/manajemenBengkel/AddBengkel")}
-          custom="px-8 py-1.5"
+          custom="md:px-8 p-2 cursor-pointer md:py-1.5 rounded-md"
         >
-          Tambah Bengkel
+          {isMobile ? <Plus size={24} /> : "Tambah Bengkel"}
         </Button>
       </div>
 
@@ -102,21 +105,23 @@ export default function ManajemenBengkel() {
           </div>
         ) : (
           <>
-            <Tables
-              columns={columns}
-              data={currentData} // Pass the paginated data here
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={(row) => {
-                setDeleteId(row.id);
-                setShowDeleteModal(true);
-              }}
-            />
+            <div className="overflow-x-scroll">
+              <Tables
+                columns={columns}
+                data={currentData} // Pass the paginated data here
+                onView={handleView}
+                onEdit={handleEdit}
+                onDelete={(row) => {
+                  setDeleteId(row.id);
+                  setShowDeleteModal(true);
+                }}
+              />
+            </div>
 
             {/* Pagination Controls */}
             <div className="flex justify-between items-center mt-12">
               <button
-                className={`px-4 py-2 rounded-md ${
+                className={` py-2 rounded-md ${
                   currentPage === 1
                     ? "text-gray-400 cursor-not-allowed"
                     : "bg-base text-white"

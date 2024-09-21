@@ -10,15 +10,15 @@ export default function ModalCartCheckout({ pesan, onclose }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <section className="p-6 bg-white rounded-xl w-[34rem]">
+      <section className="p-6 bg-white rounded-xl w-[22rem] md:w-[34rem]">
         <div className="pb-4 border-b-2 flex justify-between">
-          <p className="text-lg font-semibold">{pesan}</p>
+          <p className="text-lg leading-5 font-semibold">{pesan}</p>
           <button onClick={onclose}>
             <X />
           </button>
         </div>
 
-        <div className="mt-4 flex w-full justify-between items-center gap-2">
+        <div className="mt-4 flex flex-col md:flex-row w-full justify-between md:items-center gap-2">
           <img
             className="w-40 h-40 object-cover rounded-md"
             src={`${import.meta.env.VITE_API_BASE_URL}/fotoSukuCadang/${

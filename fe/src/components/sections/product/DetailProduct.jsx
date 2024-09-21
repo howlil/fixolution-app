@@ -18,8 +18,7 @@ export default function DetailProduct() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const user = getUserData();
-  const { addToCart, isCartModalOpen, closeCartModal } = useCart(); 
-
+  const { addToCart, isCartModalOpen, closeCartModal } = useCart();
 
   const fetchData = async () => {
     try {
@@ -53,7 +52,7 @@ export default function DetailProduct() {
     }
 
     const cartItem = {
-      suku_cadang_id: id, 
+      suku_cadang_id: id,
       jumlah: quantity,
     };
 
@@ -94,7 +93,7 @@ export default function DetailProduct() {
           onclose={closeCartModal}
         />
       )}
-      <section className="mt-32 px-12 grid grid-cols-2 gap-12">
+      <section className="md:mt-32 mt-20 mx-6 md:px-12 grid md:grid-cols-2 md:gap-12">
         <figure>
           <img
             src={`${import.meta.env.VITE_API_BASE_URL}/fotoSukuCadang/${
@@ -104,8 +103,8 @@ export default function DetailProduct() {
             alt={product.nama}
           />
         </figure>
-        <section className="py-12 space-y-6">
-          <div className="mb-20 space-y-4">
+        <section className="md:py-12 my-6 md:space-y-6">
+          <div className="md:mb-20 mb-6 space-y-4">
             <h2 className="text-2xl font-semibold">{product.nama}</h2>
             <p className="text-gray-700 ">Rp {product.harga}</p>
           </div>
@@ -113,7 +112,7 @@ export default function DetailProduct() {
           {/* Quantity Selector */}
           <div className="flex items-center gap-4">
             <h3 className="text-md font-semibold">Kuantitas</h3>
-            <div className="flex items-center border border-gray-300 rounded-md">
+            <div className="flex mb-5 items-center border border-gray-300 rounded-md">
               <button
                 className="px-4 py-1 text-lg"
                 onClick={handleDecreaseQuantity}
@@ -138,7 +137,7 @@ export default function DetailProduct() {
           {/* Add to Cart Button */}
           <Button
             onClick={handleAddToCart}
-            custom="w-full py-2 rounded-md text-white 600"
+            custom="w-full py-2  rounded-md text-white 600"
           >
             Tambahkan Ke Keranjang
           </Button>

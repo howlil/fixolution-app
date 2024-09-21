@@ -26,7 +26,7 @@ export default function ManageSukuCadang() {
   const [linkImage, setLinkImage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [merekId,setMerekId] = useState("");
+  const [merekId, setMerekId] = useState("");
   const [merek, setMerek] = useState([]);
 
   useEffect(() => {
@@ -95,7 +95,16 @@ export default function ManageSukuCadang() {
       return;
     }
 
-    if (!nama || !harga || !stok || !lebar || !tinggi || !panjang || !berat || !merekId) {
+    if (
+      !nama ||
+      !harga ||
+      !stok ||
+      !lebar ||
+      !tinggi ||
+      !panjang ||
+      !berat ||
+      !merekId
+    ) {
       showToast("Please fill in all fields", "error");
       return;
     }
@@ -130,8 +139,7 @@ export default function ManageSukuCadang() {
         });
       }
 
-        navigate("/manajemenSukuCadang");
-      
+      navigate("/manajemenSukuCadang");
     } catch (error) {
       showToast(error.message || "Error occurred", "error");
     } finally {
@@ -148,14 +156,14 @@ export default function ManageSukuCadang() {
     const selectedMerekId = e.target.value;
     setMerekId(selectedMerekId);
   };
-  
+
   return (
     <Layout>
       <Toaster />
-      <h1 className="font-semibold text-3xl">
+      <h1 className="font-semibold text-xl md:text-3xl">
         {isEditing ? "Edit" : "Tambah"} Suku Cadang
       </h1>
-      <form className="mt-8 space-y-4 relative" onSubmit={handleSubmit}>
+      <form className="md:mt-8 mt-6 space-y-4 relative" onSubmit={handleSubmit}>
         {isLoading && (
           <div className="fixed inset-0 bg-opacity-50 bg-gray-800 flex justify-center items-center z-50">
             <Loading type="spin" color="#ffffff" />
@@ -249,10 +257,10 @@ export default function ManageSukuCadang() {
           onSelectImage={handleImageSelect}
           linkImage={linkImage}
         />
-        <div className="flex justify-end">
+        <div className="md:flex md:justify-end">
           <Button
             variant="primary"
-            custom="px-8 mt-6 py-1.5"
+            custom="md:px-8  md:w-56 w-full mt-6 py-1.5"
             type="submit"
             disabled={isLoading}
           >

@@ -81,11 +81,11 @@ export default function KelolaLayananBengkel() {
     <Layout>
       <Toaster />
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-3xl">
+        <h1 className="font-semibold text-xl md:text-3xl">
           {isEditing ? "Edit" : "Tambah"} Layanan Bengkel
         </h1>
       </div>
-      <section className="mt-12">
+      <section className="mt-6 md:mt-12">
         <form className="space-y-4" onSubmit={handleSubmit}>
           <Input
             label="Nama Layanan"
@@ -130,8 +130,8 @@ export default function KelolaLayananBengkel() {
             onChange={(e) => setDeskripsi(e.target.value)}
             required
           />
-          <div className="flex justify-end ">
-            <Button variant="primary" custom="px-8 mt-6 py-1.5">
+          <div className="md:flex md:justify-end ">
+            <Button variant="primary" custom="md:px-8 w-full md:w-56 mt-6 py-1.5">
               {isEditing ? "Update Layanan" : "Simpan Layanan"}
             </Button>
           </div>

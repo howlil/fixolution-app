@@ -60,7 +60,7 @@ export default function ServiceToGoPage() {
       <div className="relative z-10">
         <Navbar />
         {bengkel.length > 0 ? (
-          <div className="container mx-auto">
+          <div className="md:container md:mx-auto">
             <h1 className="text-2xl text-center mb-16 border-b pb-8 font-semibold text-white">
               Silahkan Pilih Bengkel
             </h1>

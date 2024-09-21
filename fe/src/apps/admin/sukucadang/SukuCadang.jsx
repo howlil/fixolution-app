@@ -8,6 +8,8 @@ import Loading from "../../../components/ui/Loading";
 import { showToast } from "../../../components/ui/Toaster";
 import { Toaster } from "react-hot-toast";
 import api from "../../../utils/axios";
+import { Plus } from "lucide-react";
+import { useIsMobile } from "../../../utils/utils";
 
 export default function SukuCadang() {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ export default function SukuCadang() {
   const [isDeleting, setIsDeleting] = useState(false); // Loading state for deleting data
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const isMobile = useIsMobile();
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1); // Current page
@@ -33,7 +36,7 @@ export default function SukuCadang() {
       const { data: data } = await api.get("/getAllSukuCadang");
       setSukuCadang(data.data);
     } catch (error) {
-      showToast("error fetch data", "error");
+      console.error("Fetch error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -89,33 +92,30 @@ export default function SukuCadang() {
     <Layout>
       <Toaster />
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-3xl">Suku Cadang</h1>
+        <h1 className="font-semibold text-xl md:text-3xl">Suku Cadang</h1>
         <Button
           onClick={() => navigate("/manajemenSukuCadang/addSukuCadang")}
           variant="primary"
-          custom="px-8 py-1.5"
+          custom="md:px-8 p-2 rounded-md md:py-1.5"
         >
-          Tambah Data
+          {isMobile ? <Plus size={24} /> : "Tambah Data"}
         </Button>
       </div>
       <section className="mt-8 relative">
-        {isLoading ? (
-          <div className="fixed inset-0  bg-opacity-50 bg-gray-800 flex justify-center items-center z-50">
-            <Loading type="spin" color="#ffffff" />
-          </div>
-        ) : (
+        {sukuCadang.length > 0 ? (
           <>
-            <Tables
-              columns={columns}
-              data={currentItems}
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={(row) => {
-                setDeleteId(row.id);
-                setShowDeleteModal(true);
-              }}
-            />
-            {/* Pagination Controls */}
+            <div className="overflow-x-scroll">
+              <Tables
+                columns={columns}
+                data={currentItems}
+                onView={handleView}
+                onEdit={handleEdit}
+                onDelete={(row) => {
+                  setDeleteId(row.id);
+                  setShowDeleteModal(true);
+                }}
+              />
+            </div>
             <div className="flex justify-between items-center mt-12">
               <button
                 className={`px-4 py-2 rounded-md ${
@@ -146,6 +146,8 @@ export default function SukuCadang() {
               </button>
             </div>
           </>
+        ) : (
+          <p className="text-center text-lg">Data suku cadang kosong</p>
         )}
       </section>
       {showDeleteModal && (

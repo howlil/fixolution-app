@@ -51,7 +51,6 @@ export default function TransaksiSukuCadang() {
       setLoading(false);
       setData([]);
       setErrorMessage(error.response.data.message);
-      showToast(error.response.data.message, "error"); // Show toast only if there's a real failure
     }
   };
 
@@ -117,7 +116,7 @@ export default function TransaksiSukuCadang() {
     <Layout>
       <Toaster /> {/* Toaster for notifications */}
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-3xl">Transaksi Suku Cadang</h1>
+        <h1 className="font-semibold text-xl md:text-3xl">Transaksi Suku Cadang</h1>
       </div>
       <section className="flex mt-6 justify-between">
         {/* Show the name of the spare part */}
@@ -138,7 +137,7 @@ export default function TransaksiSukuCadang() {
       <section className="mt-8">
         {/* If no data, show error message */}
         {errorMessage ? (
-          <div className="flex justify-center items-center py-10">
+          <div className="flex justify-center text-center items-center py-10">
             <h2 className="text-xl font-semibold text-gray-500">
               {errorMessage}
             </h2>

@@ -11,7 +11,6 @@ export default function RincianBiaya({
     0
   );
 
-  // Menghitung total kuantitas produk
   const totalJumlahProduk = items.reduce((acc, item) => acc + item.jumlah, 0);
 
   return (

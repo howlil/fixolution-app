@@ -25,7 +25,7 @@ export default function FormCheckout({ onSubmit,onClick }) {
   };
 
   return (
-    <div className="mt-8">
+    <div className="my-8">
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <h2 className="font-semibold">Alamat</h2>
