@@ -29,6 +29,7 @@ export default function DetailBookingBengkel() {
     fetchData();
   }, [id]);
 
+
   if (isLoading) return <Loading />;
 
   return (
@@ -36,11 +37,11 @@ export default function DetailBookingBengkel() {
       <Navbar />
       <Toaster />
       {data.layanan && data.layanan.length > 0 && (
-        <section className="bg-neutral-900 h-screen  gap-8 px-12 grid grid-cols-3">
-          <div className="col-span-2 overflow-y-scroll no-scrollbar">
+        <section className="bg-neutral-900 md:h-screen  gap-4 md:gap-8 px-4 md:px-12 grid md:grid-cols-3">
+          <div className="md:col-span-2 md:overflow-y-scroll md:no-scrollbar">
             <DetailBengkelLayanan data={data} />
           </div>
-          <div className="col-span-1 border-l">
+          <div className="md:col-span-1 md:border-l">
             <FormBookingLayanan data={data} />
           </div>
         </section>

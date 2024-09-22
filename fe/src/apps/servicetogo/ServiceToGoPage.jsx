@@ -64,7 +64,7 @@ export default function ServiceToGoPage() {
             <h1 className="text-2xl text-center mb-16 border-b pb-8 font-semibold text-white">
               Silahkan Pilih Bengkel
             </h1>
-            <CardStg data={bengkel} onClick={handleStg} />
+          <CardStg data={bengkel} onClick={handleStg} />
           </div>
         ) : (
           <div className="text-white text-center">

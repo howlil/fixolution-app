@@ -267,7 +267,9 @@ exports.getAllBengkel = async (req, res) => {
 exports.getBengkelById = async (req, res) => {
   try {
     // Jika userType bukan superadmin, gunakan req.userId sebagai ID bengkel
-    const bengkel_id = req.userType === "superadmin" ? req.params.id : req.userId;
+    const bengkel_id = req.userType === "superadmin" || req.userType ==="user" ? req.params.id : req.userId;
+
+    console.log(bengkel_id)
 
     const bengkel = await prisma.bengkel.findUnique({
       where: { id: bengkel_id },

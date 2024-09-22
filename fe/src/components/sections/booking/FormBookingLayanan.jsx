@@ -39,11 +39,10 @@ export default function FormBookingLayanan({ data }) {
 
       if (response.data.success) {
         showToast("Booking berhasil", "success");
-
-        // Reset form values setelah booking berhasil
         setLayananId("");
         setTanggal("");
         setJamMulai("");
+        window.location.href("/pesanan/berlangsung");
       } else {
         showToast(response.data.message, "error");
       }
@@ -57,7 +56,7 @@ export default function FormBookingLayanan({ data }) {
   if (isLoading) return <Loading />;
 
   return (
-    <div className=" py-36 pl-8">
+    <div className=" md:py-36 py-8 md:pl-8">
       <Toaster />
       <h1 className="text-2xl font-semibold text-white">Isi Form Booking</h1>
       <form className="space-y-3 mt-8" onSubmit={handleSubmit}>

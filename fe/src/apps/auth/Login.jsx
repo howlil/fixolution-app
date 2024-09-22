@@ -48,7 +48,7 @@ export default function Login() {
         }
       }
     } catch (error) {
-      showToast("An error occurred during login", "error");
+      showToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
     }

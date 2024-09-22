@@ -5,11 +5,13 @@ import api from "../../../utils/axios";
 import Loading from "../../../components/ui/Loading";
 import { showToast } from "../../../components/ui/Toaster";
 import Input from "../../../components/ui/Input";
+import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 
 export default function FormStg() {
   const [isLoading, setIsLoading] = useState(false);
   const [gmapsLink, setGmapsLink] = useState("");
+  const navigate = useNavigate();
   const [deskripsi, setDeskripsi] = useState("");
   const { id } = useParams();
 
@@ -33,6 +35,7 @@ export default function FormStg() {
       showToast("Form berhasil dikirim", "success");
       setGmapsLink("");
       setDeskripsi("");
+      navigate(`/pesanan/berlangsung`);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {

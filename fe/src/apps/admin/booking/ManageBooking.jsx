@@ -235,7 +235,7 @@ export default function ManageBooking() {
           onClick={closeModal}
         >
           <div
-            className="bg-white rounded-lg p-6 w-96"
+            className="bg-white rounded-lg p-6 w-80 md:w-96"
             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
           >
             {actionType === "APPROVE" ? (

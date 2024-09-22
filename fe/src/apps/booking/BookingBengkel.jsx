@@ -40,6 +40,7 @@ export default function BookingBengkel() {
     window.location.href = `/booking-bengkel/${id}`; // Gunakan ID di URL
   };
 
+
   return (
     <div
       className={`relative py-36 bg-black bg-opacity-95 ${

@@ -1,14 +1,15 @@
 import React from "react";
+import { MapPin } from "lucide-react";
 
 export default function CardService({ service, tipe }) {
   const { bengkel, deskripsi, status, gmaps_link, user } = service;
 
   return (
-    <div className="border-b-2 pb-4 flex justify-between items-center mb-4 w-full bg-white p-4">
+    <div className="border-b-2 pb-4 flex flex-col md:flex-row justify-between md:items-center mb-4 w-full bg-white p-2 md:p-4">
       {/* Gambar */}
       <div className="flex gap-6">
         <img
-          className="w-36 h-36 object-cover rounded-lg"
+          className="md:w-36 md:h-36 h-24 w-24 object-cover rounded-lg"
           src={`${import.meta.env.VITE_API_BASE_URL}/fotoBengkel/${
             bengkel?.foto?.[0]?.foto
           }`}
@@ -20,29 +21,35 @@ export default function CardService({ service, tipe }) {
           <div>
             <span className="text-xs font-medium text-neutral-400">{tipe}</span>
             <h1 className="text-lg font-semibold">{bengkel?.nama_bengkel}</h1>
-            <p className="text-sm text-gray-500">Masalah :{deskripsi}</p>
+            <p className="text-sm text-gray-500">Masalah : {deskripsi}</p>
           </div>
-          <div className="mt-8">
-            <p className="text-sm text-gray-500">
-              <strong>Gmaps User: </strong>
+          <div className="md:mt-8 mt-2">
+            <p className="text-sm flex gap-1 text-gray-500 items-center">
+              <strong className="flex gap-1">
+                {" "}
+                <MapPin size={16} /> User:{" "}
+              </strong>
               <a
                 href={gmaps_link}
                 className="text-blue-500 cursor-pointer"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Lihat Lokasi User
+                Lokasi User
               </a>
             </p>
-            <p className="text-sm text-gray-500">
-              <strong>Gmaps Bengkel: </strong>
+            <p className="text-sm flex gap-1 text-gray-500 items-center">
+              <strong className="flex gap-1">
+                {" "}
+                <MapPin size={16} /> Bengkel:{" "}
+              </strong>
               <a
                 href={bengkel?.gmaps_link}
                 className="text-blue-500  cursor-pointer"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Lihat Lokasi Bengkel
+                Lokasi Bengkel
               </a>
             </p>
           </div>
@@ -50,7 +57,7 @@ export default function CardService({ service, tipe }) {
       </div>
 
       {/* Status dan Pesan */}
-      <div className="flex flex-col items-end">
+      <div className="flex mt-4 md:mt-0 flex-col md:items-end">
         <span
           className={`px-4 py-2 rounded-md font-medium text-white ${
             status === "PENDING"

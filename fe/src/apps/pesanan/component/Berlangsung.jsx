@@ -2,7 +2,7 @@ import CardBooking from "./CardBooking";
 import CardService from "./CardService";
 import CardSukuCadang from "./CardSukuCadang";
 
-export default function Berlangsung({ data, dataSTG, dataSuku }) {
+export default function   Berlangsung({ data=[], dataSTG =[], dataSuku =[] }) {
   const tipe = data.type;
   const tipeSTG = dataSTG.type;
   const isPending = Array.isArray(data?.data)
@@ -23,17 +23,17 @@ export default function Berlangsung({ data, dataSTG, dataSuku }) {
 
   return (
     <div>
-      {isPending &&
+      {isPending !== null &&
         isPending.map((item) => (
           <CardBooking key={item.id} pesanan={item} tipe={tipe} />
         ))}
-      {isPendingSTG &&
+      {isPendingSTG !== null &&
         isPendingSTG.map((item) => (
           <CardService key={item.id} service={item} tipe={tipeSTG} />
         ))}
-      {isPendingSUku &&
+      {isPendingSUku !== null &&
         isPendingSUku.map((item) => (
-          <CardSukuCadang key={item.id} service={item} />
+          <CardSukuCadang SukuCadang key={item.id} service={item} />
         ))}
     </div>
   );

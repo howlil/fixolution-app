@@ -173,9 +173,9 @@ export default function ServiceToGo() {
                           </button>
                         </>
                       ) : row.status === "APPROVED" ? (
-                        <span className="text-green-600">Dikonfirmasi</span>
+                        <span className="text-green-600 border-green-600 border px-4 py-1 rounded-lg">Dikonfirmasi</span>
                       ) : row.status === "REJECTED" ? (
-                        <span className="text-red-600">Ditolak</span>
+                        <span className="text-red-600 border-red-600 border px-4 py-1 rounded-lg">Ditolak</span>
                       ) : null}
                     </td>
                   </tr>
@@ -217,14 +217,13 @@ export default function ServiceToGo() {
         <h2 className="text-center mt-6">Tidak ada data</h2>
       )}
 
-      {/* Modal for Confirmation or Rejection */}
       {showModal && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
           onClick={closeModal}
         >
           <div
-            className="bg-white rounded-lg p-6 w-96"
+            className="bg-white rounded-lg p-6 w-80 md:w-96"
             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
           >
             {actionType === "APPROVE" ? (

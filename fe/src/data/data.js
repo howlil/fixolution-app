@@ -79,11 +79,11 @@ export const navDataAdmin = [
 ];
 
 export const navDataBengkel = [
-  {
-    href: "/editBengkel",
-    icon: "Warehouse",
-    label: "Bengkel",
-  },
+  // {
+  //   href: "/editBengkel",
+  //   icon: "Warehouse",
+  //   label: "Bengkel",
+  // },
   {
     href: "/layananBengkel",
     icon: "PackageSearch",

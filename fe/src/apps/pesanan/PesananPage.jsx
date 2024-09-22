@@ -32,26 +32,53 @@ export default function PesananPage() {
     },
   ];
 
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        setIsLoading(true);
-        const { data: response } = await api.get("/bookings");
-        const { data: responseSTG } = await api.get("/allRequests");
-        const { data: responseSuku } = await api.get("/pesanan");
-        if (!response.success) {
-          showToast("Gagal mengambil data pesanan", "error");
-        }
-        setDataBooking(response);
-        setDataSTG(responseSTG);
-        setDataSuku(responseSuku);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
+  const fetchService = async () => {
+    try {
+      setIsLoading(true);
+      const { data: responseSTG } = await api.get("/allRequests");
+      if (!responseSTG.success) {
+        showToast("Gagal mengambil data pesanan", "error");
       }
-    };
-    fetch();
+      setDataSTG(responseSTG);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const fetchPesanan = async () => {
+    try {
+      setIsLoading(true);
+      const { data: responseSuku } = await api.get("/pesanan");
+      if (!responseSuku.success) {
+        showToast("Gagal mengambil data pesanan", "error");
+      }
+      setDataSuku(responseSuku);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const fetchBooking = async () => {
+    try {
+      setIsLoading(true);
+      const { data: response } = await api.get("/bookings");
+      if (!response.success) {
+        showToast("Gagal mengambil data pesanan", "error");
+      }
+      setDataBooking(response);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPesanan();
+    fetchBooking();
+    fetchService();
   }, []);
 
   if (isLoading) return <Loading />;

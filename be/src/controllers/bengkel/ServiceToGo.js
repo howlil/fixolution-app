@@ -139,7 +139,7 @@ exports.getAllServiceRequests = async (req, res) => {
   try {
     const requests = await prisma.servicetogo_request.findMany({
       where: {
-        user_id: req.userId, // Hanya request yang dikirim oleh user yang sedang login
+        user_id: req.userId, 
       },
       include: {
         user: true, // Mengambil detail user yang mengirim request

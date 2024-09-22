@@ -7,7 +7,7 @@ const CardProduct = ({ products, onClick }) => {
           onClick={() => onClick(product.id)}
           className="bg-white cursor-pointer rounded-xl ts relative overflow-hidden"
         >
-          <div className="h-56 w-full overflow-hidden w-full">
+          <div className="h-56  overflow-hidden w-full">
             <img
               src={`${import.meta.env.VITE_API_BASE_URL}/fotoSukuCadang/${
                 product.foto

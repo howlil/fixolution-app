@@ -10,12 +10,14 @@ import RingkasanPesanan from "./RingkasanPesanan";
 import { useParams } from "react-router-dom";
 import HowToPay from "./HowToPay";
 import Navbar from "../../components/navbar";
+import { useNavigate } from "react-router-dom";
 
 export default function BayarIndex() {
   const { id_pesanan } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const [dataPesanan, setDataPesanan] = useState(null);
   const [file, setFile] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(true);
@@ -45,7 +47,7 @@ export default function BayarIndex() {
     }
 
     const formData = new FormData();
-    formData.append("bukti_pembayaran", file); // memastikan file terunggah ke formData
+    formData.append("bukti_pembayaran", file); 
 
     try {
       const response = await api.put(`/bayar/${id_pesanan}`, formData, {
@@ -53,8 +55,10 @@ export default function BayarIndex() {
           "Content-Type": "multipart/form-data", // memastikan header ini sesuai
         },
       });
-      showToast("Bukti pembayaran berhasil diunggah", "success");
-      window.location.href("/pesanan/berlangsung");
+      if(response.data.success){
+        navigate("/pesanan/berlangsung");
+        showToast(response.data.message, "success");
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
